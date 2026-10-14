@@ -1,0 +1,6 @@
+ZoneId,Name,CapacityPallets
+Z-SLY,South laydown yard,60
+Z-NLY,North laydown yard,40
+Z-HA,Data Hall A staging,12
+Z-HB,Data Hall B staging,12
+Z-EY,Electrical yard,8

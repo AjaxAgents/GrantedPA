@@ -1,0 +1,13 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/sp/v2/column-formatting.schema.json",
+  "elmType": "div",
+  "style": {
+    "padding": "2px 10px",
+    "border-radius": "12px",
+    "font-weight": "600",
+    "display": "inline-block",
+    "background-color": "=if(@currentField == 'Active', '#DFF1E5', if(@currentField == 'Used', '#DFE8F3', '#ECEEEF'))",
+    "color": "=if(@currentField == 'Active', '#16783C', if(@currentField == 'Used', '#2B5885', '#59646C'))"
+  },
+  "txtContent": "@currentField"
+}

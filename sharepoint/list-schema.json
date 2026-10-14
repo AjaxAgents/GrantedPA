@@ -1,0 +1,1340 @@
+{
+  "site": "Granted",
+  "timeZone": "Any (UTC recommended): every date-time is stored in UTC and flows convert to each project's own time zone",
+  "access": [
+    "Only the Granted service account (site owner) and the Granted Owners group (Ajax IT) can open these lists.",
+    "People never read or write lists directly. The Granted app talks only to flows, which run as the service account and check the caller's role on the project first.",
+    "SecureSettings is locked further: only the service account (and a named break-glass admin) can read it."
+  ],
+  "groups": {
+    "Owners": "Granted Owners (Ajax IT)"
+  },
+  "lists": [
+    {
+      "title": "Projects",
+      "titleDisplay": "Project name",
+      "description": "One item per project. Created and changed only by flows (F15).",
+      "fields": [
+        {
+          "name": "ProjectId",
+          "display": "Project ID",
+          "type": "Text",
+          "indexed": true,
+          "unique": true,
+          "required": true,
+          "note": "e.g. p-7f3k2m (made by F15)"
+        },
+        {
+          "name": "ProjectCode",
+          "display": "Project code",
+          "type": "Text",
+          "indexed": true,
+          "unique": true,
+          "required": true,
+          "note": "e.g. DDC2-7HKQ. Upper case."
+        },
+        {
+          "name": "PassPrefix",
+          "display": "Pass prefix",
+          "type": "Text",
+          "note": "From the code, e.g. DDC2"
+        },
+        {
+          "name": "Location",
+          "display": "Location",
+          "type": "Text"
+        },
+        {
+          "name": "TimeZone",
+          "display": "Time zone",
+          "type": "Text",
+          "note": "Windows zone name used by convertTimeZone, e.g. 'Central Standard Time'"
+        },
+        {
+          "name": "SettingsJson",
+          "display": "Rule settings (JSON)",
+          "type": "Note",
+          "plain": true,
+          "note": "Same keys as config/settings.json"
+        },
+        {
+          "name": "TeamsChannelLink",
+          "display": "Teams channel (optional)",
+          "type": "Text"
+        },
+        {
+          "name": "GateDutyPhone",
+          "display": "Gate duty phone",
+          "type": "Text"
+        },
+        {
+          "name": "Deleted",
+          "display": "Deleted",
+          "type": "Boolean",
+          "indexed": true
+        },
+        {
+          "name": "DeletedAt",
+          "display": "Deleted at",
+          "type": "DateTime"
+        },
+        {
+          "name": "DeletedBy",
+          "display": "Deleted by",
+          "type": "Text"
+        },
+        {
+          "name": "CreatedByEmail",
+          "display": "Created by",
+          "type": "Text"
+        },
+        {
+          "name": "CreatedAtUtc",
+          "display": "Created at",
+          "type": "DateTime"
+        }
+      ]
+    },
+    {
+      "title": "People",
+      "titleDisplay": "Full name",
+      "description": "A Granted profile per person (Ajax staff and guests). Ajax membership is set from the email domain by flows.",
+      "fields": [
+        {
+          "name": "Email",
+          "display": "Email",
+          "type": "Text",
+          "indexed": true,
+          "unique": true,
+          "required": true,
+          "note": "Lower case. The Microsoft sign-in email."
+        },
+        {
+          "name": "FirstName",
+          "display": "First name",
+          "type": "Text"
+        },
+        {
+          "name": "LastName",
+          "display": "Last name",
+          "type": "Text"
+        },
+        {
+          "name": "Phone",
+          "display": "Phone",
+          "type": "Text"
+        },
+        {
+          "name": "Company",
+          "display": "Company",
+          "type": "Text"
+        },
+        {
+          "name": "CompanyKey",
+          "display": "Company key",
+          "type": "Text",
+          "note": "Lower-case slug of Company, e.g. north-field-electrical",
+          "indexed": true
+        },
+        {
+          "name": "IsAjax",
+          "display": "Ajax Building Company",
+          "type": "Boolean"
+        },
+        {
+          "name": "IsAdminAccount",
+          "display": "Admin account (can create projects)",
+          "type": "Boolean"
+        },
+        {
+          "name": "Status",
+          "display": "Status",
+          "type": "Choice",
+          "choices": [
+            "Active",
+            "Pending sign-in",
+            "Deleted"
+          ],
+          "default": "Active",
+          "indexed": true
+        },
+        {
+          "name": "Source",
+          "display": "Source",
+          "type": "Choice",
+          "choices": [
+            "App",
+            "Sign-up form",
+            "Invite",
+            "Admin"
+          ]
+        },
+        {
+          "name": "CreatedAtUtc",
+          "display": "Created at",
+          "type": "DateTime"
+        },
+        {
+          "name": "LastSeenAt",
+          "display": "Last seen",
+          "type": "DateTime"
+        }
+      ]
+    },
+    {
+      "title": "ProjectMembers",
+      "titleDisplay": "Member key",
+      "description": "Who is on which project, with which access. Title = ProjectId|email.",
+      "fields": [
+        {
+          "name": "ProjectId",
+          "display": "Project ID",
+          "type": "Text",
+          "indexed": true,
+          "required": true
+        },
+        {
+          "name": "Email",
+          "display": "Email",
+          "type": "Text",
+          "indexed": true
+        },
+        {
+          "name": "Role",
+          "display": "Access",
+          "type": "Choice",
+          "choices": [
+            "Contractor",
+            "Access Control",
+            "Admin"
+          ],
+          "indexed": true
+        },
+        {
+          "name": "Trade",
+          "display": "Trade",
+          "type": "Text"
+        },
+        {
+          "name": "Status",
+          "display": "Status",
+          "type": "Choice",
+          "choices": [
+            "Active",
+            "Removed"
+          ],
+          "default": "Active",
+          "indexed": true
+        },
+        {
+          "name": "Via",
+          "display": "Joined by",
+          "type": "Choice",
+          "choices": [
+            "Creator",
+            "Request",
+            "Invite"
+          ]
+        },
+        {
+          "name": "AddedBy",
+          "display": "Added by",
+          "type": "Text"
+        },
+        {
+          "name": "AddedAt",
+          "display": "Added at",
+          "type": "DateTime"
+        },
+        {
+          "name": "RemovedBy",
+          "display": "Removed by",
+          "type": "Text"
+        },
+        {
+          "name": "RemovedAt",
+          "display": "Removed at",
+          "type": "DateTime"
+        }
+      ]
+    },
+    {
+      "title": "JoinRequests",
+      "titleDisplay": "Name",
+      "description": "Requests to join a project with its code (from the app or the sign-up form). Admins of that project decide.",
+      "fields": [
+        {
+          "name": "ProjectId",
+          "display": "Project ID",
+          "type": "Text",
+          "indexed": true,
+          "required": true
+        },
+        {
+          "name": "Email",
+          "display": "Email",
+          "type": "Text",
+          "indexed": true
+        },
+        {
+          "name": "FirstName",
+          "display": "First name",
+          "type": "Text"
+        },
+        {
+          "name": "LastName",
+          "display": "Last name",
+          "type": "Text"
+        },
+        {
+          "name": "Company",
+          "display": "Company",
+          "type": "Text"
+        },
+        {
+          "name": "Phone",
+          "display": "Phone",
+          "type": "Text"
+        },
+        {
+          "name": "IsAjax",
+          "display": "Ajax email",
+          "type": "Boolean"
+        },
+        {
+          "name": "Status",
+          "display": "Status",
+          "type": "Choice",
+          "choices": [
+            "Pending",
+            "Approved",
+            "Declined"
+          ],
+          "default": "Pending",
+          "indexed": true
+        },
+        {
+          "name": "Source",
+          "display": "Source",
+          "type": "Choice",
+          "choices": [
+            "App",
+            "Sign-up form"
+          ]
+        },
+        {
+          "name": "RequestedAt",
+          "display": "Requested at",
+          "type": "DateTime"
+        },
+        {
+          "name": "Role",
+          "display": "Access given",
+          "type": "Choice",
+          "choices": [
+            "Contractor",
+            "Access Control",
+            "Admin"
+          ]
+        },
+        {
+          "name": "Trade",
+          "display": "Trade",
+          "type": "Text"
+        },
+        {
+          "name": "DecidedBy",
+          "display": "Decided by",
+          "type": "Text"
+        },
+        {
+          "name": "DecidedAt",
+          "display": "Decided at",
+          "type": "DateTime"
+        }
+      ]
+    },
+    {
+      "title": "Invites",
+      "titleDisplay": "Email",
+      "description": "Single-use invites bound to one email. Expire after 7 days.",
+      "fields": [
+        {
+          "name": "ProjectId",
+          "display": "Project ID",
+          "type": "Text",
+          "indexed": true,
+          "required": true
+        },
+        {
+          "name": "Email",
+          "display": "Email (lower case)",
+          "type": "Text",
+          "indexed": true
+        },
+        {
+          "name": "Role",
+          "display": "Access",
+          "type": "Choice",
+          "choices": [
+            "Contractor",
+            "Access Control",
+            "Admin"
+          ]
+        },
+        {
+          "name": "Trade",
+          "display": "Trade",
+          "type": "Text"
+        },
+        {
+          "name": "InvitedBy",
+          "display": "Invited by",
+          "type": "Text"
+        },
+        {
+          "name": "InvitedAt",
+          "display": "Invited at",
+          "type": "DateTime"
+        },
+        {
+          "name": "ExpiresAt",
+          "display": "Expires at",
+          "type": "DateTime"
+        },
+        {
+          "name": "Status",
+          "display": "Status",
+          "type": "Choice",
+          "choices": [
+            "Pending",
+            "Accepted",
+            "Revoked",
+            "Expired"
+          ],
+          "default": "Pending",
+          "indexed": true
+        },
+        {
+          "name": "AcceptedAt",
+          "display": "Accepted at",
+          "type": "DateTime"
+        }
+      ]
+    },
+    {
+      "title": "Companies",
+      "titleDisplay": "Company",
+      "description": "Per-project company switches. A suspended company cannot book and its passes are red (except emergency passes).",
+      "fields": [
+        {
+          "name": "ProjectId",
+          "display": "Project ID",
+          "type": "Text",
+          "indexed": true,
+          "required": true
+        },
+        {
+          "name": "CompanyKey",
+          "display": "Company key",
+          "type": "Text",
+          "indexed": true
+        },
+        {
+          "name": "Suspended",
+          "display": "Suspended",
+          "type": "Boolean"
+        },
+        {
+          "name": "SuspendedReason",
+          "display": "Reason",
+          "type": "Text"
+        },
+        {
+          "name": "SuspendedBy",
+          "display": "Suspended by",
+          "type": "Text"
+        },
+        {
+          "name": "SuspendedAt",
+          "display": "Suspended at",
+          "type": "DateTime"
+        }
+      ]
+    },
+    {
+      "title": "DeliveryRequests",
+      "titleDisplay": "Request no.",
+      "attachments": false,
+      "description": "One item per delivery request. Written only by flows (F01 creates and decides).",
+      "fields": [
+        {
+          "name": "ProjectId",
+          "display": "Project ID",
+          "type": "Text",
+          "indexed": true,
+          "required": true
+        },
+        {
+          "name": "SubcontractorId",
+          "display": "Company key",
+          "type": "Text",
+          "note": "CompanyKey of the booking company",
+          "indexed": true
+        },
+        {
+          "name": "SubcontractorName",
+          "display": "Company",
+          "type": "Text"
+        },
+        {
+          "name": "ActivityId",
+          "display": "Activity ID",
+          "type": "Text"
+        },
+        {
+          "name": "ActivityName",
+          "display": "Activity",
+          "type": "Text"
+        },
+        {
+          "name": "GateId",
+          "display": "Gate ID",
+          "type": "Text",
+          "indexed": true
+        },
+        {
+          "name": "DeliveryDate",
+          "display": "Delivery date",
+          "type": "DateOnly",
+          "indexed": true
+        },
+        {
+          "name": "SlotStart",
+          "display": "Slot start",
+          "type": "Text",
+          "note": "24-hour site time, e.g. 07:00"
+        },
+        {
+          "name": "DeliveryStart",
+          "display": "Delivery start",
+          "type": "DateTime",
+          "note": "Slot start as a date-time (UTC)"
+        },
+        {
+          "name": "ZoneId",
+          "display": "Staging zone ID",
+          "type": "Text",
+          "indexed": true
+        },
+        {
+          "name": "Material",
+          "display": "Material",
+          "type": "Text"
+        },
+        {
+          "name": "Quantity",
+          "display": "Quantity",
+          "type": "Number"
+        },
+        {
+          "name": "Unit",
+          "display": "Unit",
+          "type": "Choice",
+          "choices": [
+            "pcs",
+            "sections",
+            "reels",
+            "units",
+            "LF",
+            "crates",
+            "skids",
+            "boxes",
+            "load"
+          ]
+        },
+        {
+          "name": "Pallets",
+          "display": "Pallets",
+          "type": "Number",
+          "decimals": 0
+        },
+        {
+          "name": "WeightLbs",
+          "display": "Weight (lb)",
+          "type": "Number",
+          "decimals": 0
+        },
+        {
+          "name": "Carrier",
+          "display": "Carrier",
+          "type": "Text"
+        },
+        {
+          "name": "TruckNumber",
+          "display": "Truck no.",
+          "type": "Text"
+        },
+        {
+          "name": "ContactName",
+          "display": "Onsite contact",
+          "type": "Text"
+        },
+        {
+          "name": "ContactPhone",
+          "display": "Contact phone",
+          "type": "Text"
+        },
+        {
+          "name": "EarlyJustification",
+          "display": "Early delivery reason",
+          "type": "Note"
+        },
+        {
+          "name": "Status",
+          "display": "Status",
+          "type": "Choice",
+          "choices": [
+            "Submitted",
+            "Approved",
+            "Needs review",
+            "Rejected",
+            "Cancelled"
+          ],
+          "default": "Submitted",
+          "indexed": true
+        },
+        {
+          "name": "ReasonCodes",
+          "display": "Reason codes",
+          "type": "Text",
+          "note": "Semicolon list, e.g. R05;F03"
+        },
+        {
+          "name": "ReasonText",
+          "display": "Reasons and fixes",
+          "type": "Note"
+        },
+        {
+          "name": "NextOpenSlot",
+          "display": "Next open slot",
+          "type": "Text"
+        },
+        {
+          "name": "StagedUntil",
+          "display": "Staged until",
+          "type": "DateOnly"
+        },
+        {
+          "name": "PassCode",
+          "display": "Pass code",
+          "type": "Text",
+          "indexed": true
+        },
+        {
+          "name": "PreviousPassCode",
+          "display": "Previous pass code",
+          "type": "Text"
+        },
+        {
+          "name": "QrSvg",
+          "display": "QR (SVG)",
+          "type": "Note",
+          "plain": true
+        },
+        {
+          "name": "SubmittedByEmail",
+          "display": "Submitted by",
+          "type": "Text",
+          "indexed": true
+        },
+        {
+          "name": "SubmittedByName",
+          "display": "Submitted by (name)",
+          "type": "Text"
+        },
+        {
+          "name": "SubmittedAt",
+          "display": "Submitted at",
+          "type": "DateTime"
+        },
+        {
+          "name": "DecidedBy",
+          "display": "Decided by",
+          "type": "Text"
+        },
+        {
+          "name": "DecidedAt",
+          "display": "Decided at",
+          "type": "DateTime"
+        },
+        {
+          "name": "ReviewNote",
+          "display": "Review note",
+          "type": "Note"
+        },
+        {
+          "name": "ReviewAlertSentAt",
+          "display": "Review alert sent",
+          "type": "DateTime"
+        },
+        {
+          "name": "EscalatedAt",
+          "display": "Escalated at",
+          "type": "DateTime"
+        },
+        {
+          "name": "CancelledAt",
+          "display": "Cancelled at",
+          "type": "DateTime"
+        },
+        {
+          "name": "NoShowNotifiedAt",
+          "display": "No-show notified",
+          "type": "DateTime"
+        },
+        {
+          "name": "IsOverride",
+          "display": "Emergency override",
+          "type": "Boolean"
+        },
+        {
+          "name": "Maintenance",
+          "display": "Maintenance mode",
+          "type": "Boolean"
+        },
+        {
+          "name": "MessageLog",
+          "display": "Message history",
+          "type": "Note",
+          "plain": true
+        }
+      ]
+    },
+    {
+      "title": "GatePasses",
+      "titleDisplay": "Pass code",
+      "titleUnique": true,
+      "description": "One item per issued gate pass. Written only by F02, F05, F06.",
+      "fields": [
+        {
+          "name": "ProjectId",
+          "display": "Project ID",
+          "type": "Text",
+          "indexed": true,
+          "required": true
+        },
+        {
+          "name": "RequestId",
+          "display": "Request ID",
+          "type": "Number",
+          "decimals": 0,
+          "indexed": true
+        },
+        {
+          "name": "SubcontractorId",
+          "display": "Company key",
+          "type": "Text",
+          "indexed": true
+        },
+        {
+          "name": "SubcontractorName",
+          "display": "Company",
+          "type": "Text"
+        },
+        {
+          "name": "Material",
+          "display": "Material",
+          "type": "Text"
+        },
+        {
+          "name": "QuantityText",
+          "display": "Quantity",
+          "type": "Text"
+        },
+        {
+          "name": "Pallets",
+          "display": "Pallets",
+          "type": "Number",
+          "decimals": 0
+        },
+        {
+          "name": "GateId",
+          "display": "Gate ID",
+          "type": "Text"
+        },
+        {
+          "name": "GateName",
+          "display": "Gate",
+          "type": "Text"
+        },
+        {
+          "name": "ZoneName",
+          "display": "Staging zone",
+          "type": "Text"
+        },
+        {
+          "name": "DeliveryDate",
+          "display": "Delivery date",
+          "type": "DateOnly",
+          "indexed": true
+        },
+        {
+          "name": "SlotStart",
+          "display": "Slot start",
+          "type": "Text"
+        },
+        {
+          "name": "WindowOpen",
+          "display": "Window opens",
+          "type": "DateTime"
+        },
+        {
+          "name": "WindowClose",
+          "display": "Window closes",
+          "type": "DateTime"
+        },
+        {
+          "name": "ContactName",
+          "display": "Onsite contact",
+          "type": "Text"
+        },
+        {
+          "name": "ContactPhone",
+          "display": "Contact phone",
+          "type": "Text"
+        },
+        {
+          "name": "Status",
+          "display": "Status",
+          "type": "Choice",
+          "choices": [
+            "Active",
+            "Used",
+            "Void"
+          ],
+          "default": "Active",
+          "indexed": true
+        },
+        {
+          "name": "IsOverride",
+          "display": "Emergency override",
+          "type": "Boolean"
+        },
+        {
+          "name": "IssuedAt",
+          "display": "Issued at",
+          "type": "DateTime"
+        },
+        {
+          "name": "UsedAt",
+          "display": "Used at",
+          "type": "DateTime"
+        },
+        {
+          "name": "UsedBy",
+          "display": "Admitted by",
+          "type": "Text"
+        },
+        {
+          "name": "VoidedAt",
+          "display": "Voided at",
+          "type": "DateTime"
+        },
+        {
+          "name": "VoidReason",
+          "display": "Void reason",
+          "type": "Text"
+        },
+        {
+          "name": "QrSvg",
+          "display": "QR (SVG)",
+          "type": "Note",
+          "plain": true
+        }
+      ]
+    },
+    {
+      "title": "GateLog",
+      "titleDisplay": "Code scanned",
+      "description": "Every admit and turn-away. Written only by F05. Never edited.",
+      "fields": [
+        {
+          "name": "ProjectId",
+          "display": "Project ID",
+          "type": "Text",
+          "indexed": true,
+          "required": true
+        },
+        {
+          "name": "ScannedAt",
+          "display": "Scanned at",
+          "type": "DateTime",
+          "indexed": true
+        },
+        {
+          "name": "Result",
+          "display": "Result",
+          "type": "Choice",
+          "choices": [
+            "Green",
+            "Red"
+          ]
+        },
+        {
+          "name": "ReasonCode",
+          "display": "Reason code",
+          "type": "Text"
+        },
+        {
+          "name": "ReasonText",
+          "display": "Reason",
+          "type": "Text"
+        },
+        {
+          "name": "Action",
+          "display": "Action",
+          "type": "Choice",
+          "choices": [
+            "Admitted",
+            "Turned away"
+          ]
+        },
+        {
+          "name": "Guard",
+          "display": "Guard",
+          "type": "Text"
+        },
+        {
+          "name": "GuardEmail",
+          "display": "Guard email",
+          "type": "Text"
+        },
+        {
+          "name": "GateId",
+          "display": "Gate ID",
+          "type": "Text"
+        },
+        {
+          "name": "PassId",
+          "display": "Pass item ID",
+          "type": "Number",
+          "decimals": 0
+        },
+        {
+          "name": "RequestId",
+          "display": "Request ID",
+          "type": "Number",
+          "decimals": 0
+        },
+        {
+          "name": "SubcontractorId",
+          "display": "Company key",
+          "type": "Text",
+          "indexed": true
+        },
+        {
+          "name": "Source",
+          "display": "Source",
+          "type": "Choice",
+          "choices": [
+            "Scan",
+            "Typed",
+            "List",
+            "Offline sync"
+          ]
+        },
+        {
+          "name": "DeviceTime",
+          "display": "Device time",
+          "type": "DateTime"
+        },
+        {
+          "name": "Maintenance",
+          "display": "Maintenance mode",
+          "type": "Boolean"
+        }
+      ]
+    },
+    {
+      "title": "Notifications",
+      "titleDisplay": "Subject",
+      "description": "Copy of every message sent. Shown in the app (Messages, Activity). Written only by flows.",
+      "fields": [
+        {
+          "name": "ProjectId",
+          "display": "Project ID",
+          "type": "Text",
+          "indexed": true,
+          "required": true
+        },
+        {
+          "name": "Kind",
+          "display": "Kind",
+          "type": "Choice",
+          "choices": [
+            "delivery",
+            "team",
+            "account"
+          ]
+        },
+        {
+          "name": "Event",
+          "display": "Event",
+          "type": "Choice",
+          "choices": [
+            "approved",
+            "review",
+            "rejected",
+            "cancelled",
+            "emergency",
+            "turnedAway",
+            "noshow",
+            "escalation",
+            "join",
+            "invite",
+            "access",
+            "system"
+          ]
+        },
+        {
+          "name": "RecipientRole",
+          "display": "Recipient role",
+          "type": "Choice",
+          "choices": [
+            "Contractor",
+            "Access Control",
+            "Admin",
+            "Person"
+          ]
+        },
+        {
+          "name": "RecipientEmail",
+          "display": "Recipient email",
+          "type": "Text",
+          "indexed": true
+        },
+        {
+          "name": "Channels",
+          "display": "Channels",
+          "type": "Text"
+        },
+        {
+          "name": "Body",
+          "display": "Body",
+          "type": "Note",
+          "plain": true
+        },
+        {
+          "name": "RequestId",
+          "display": "Request ID",
+          "type": "Number",
+          "decimals": 0,
+          "indexed": true
+        },
+        {
+          "name": "SubcontractorId",
+          "display": "Company key",
+          "type": "Text"
+        },
+        {
+          "name": "SentAt",
+          "display": "Sent at",
+          "type": "DateTime",
+          "indexed": true
+        }
+      ]
+    },
+    {
+      "title": "Activities",
+      "titleDisplay": "Activity",
+      "description": "Each project's current 3-week look-ahead, loaded weekly by F09.",
+      "fields": [
+        {
+          "name": "Key",
+          "display": "Key",
+          "type": "Text",
+          "indexed": true,
+          "unique": true,
+          "required": true,
+          "note": "ProjectId|ActivityId"
+        },
+        {
+          "name": "ProjectId",
+          "display": "Project ID",
+          "type": "Text",
+          "indexed": true,
+          "required": true
+        },
+        {
+          "name": "ActivityId",
+          "display": "Activity ID",
+          "type": "Text"
+        },
+        {
+          "name": "Trade",
+          "display": "Trade",
+          "type": "Text"
+        },
+        {
+          "name": "StartDate",
+          "display": "Start",
+          "type": "DateOnly"
+        },
+        {
+          "name": "FinishDate",
+          "display": "Finish",
+          "type": "DateOnly"
+        },
+        {
+          "name": "Area",
+          "display": "Area",
+          "type": "Text"
+        },
+        {
+          "name": "IsCurrent",
+          "display": "In current look-ahead",
+          "type": "Boolean",
+          "indexed": true
+        },
+        {
+          "name": "ImportBatch",
+          "display": "Import batch",
+          "type": "Text"
+        }
+      ]
+    },
+    {
+      "title": "Gates",
+      "titleDisplay": "Gate",
+      "description": "Each project's gates and trucks per time slot.",
+      "fields": [
+        {
+          "name": "Key",
+          "display": "Key",
+          "type": "Text",
+          "indexed": true,
+          "unique": true,
+          "required": true,
+          "note": "ProjectId|GateId"
+        },
+        {
+          "name": "ProjectId",
+          "display": "Project ID",
+          "type": "Text",
+          "indexed": true,
+          "required": true
+        },
+        {
+          "name": "GateId",
+          "display": "Gate ID",
+          "type": "Text"
+        },
+        {
+          "name": "CapacityPerSlot",
+          "display": "Trucks per slot",
+          "type": "Number",
+          "decimals": 0
+        },
+        {
+          "name": "Active",
+          "display": "Active",
+          "type": "Boolean",
+          "default": "1"
+        },
+        {
+          "name": "SortOrder",
+          "display": "Sort order",
+          "type": "Number",
+          "decimals": 0
+        }
+      ]
+    },
+    {
+      "title": "StagingZones",
+      "titleDisplay": "Zone",
+      "description": "Each project's laydown and staging areas with pallet capacity.",
+      "fields": [
+        {
+          "name": "Key",
+          "display": "Key",
+          "type": "Text",
+          "indexed": true,
+          "unique": true,
+          "required": true,
+          "note": "ProjectId|ZoneId"
+        },
+        {
+          "name": "ProjectId",
+          "display": "Project ID",
+          "type": "Text",
+          "indexed": true,
+          "required": true
+        },
+        {
+          "name": "ZoneId",
+          "display": "Zone ID",
+          "type": "Text"
+        },
+        {
+          "name": "CapacityPallets",
+          "display": "Capacity (pallets)",
+          "type": "Number",
+          "decimals": 0
+        },
+        {
+          "name": "Active",
+          "display": "Active",
+          "type": "Boolean",
+          "default": "1"
+        },
+        {
+          "name": "Notes",
+          "display": "Notes",
+          "type": "Note"
+        }
+      ]
+    },
+    {
+      "title": "BlackoutDates",
+      "titleDisplay": "Reason",
+      "description": "Days a project's gates take no deliveries.",
+      "fields": [
+        {
+          "name": "ProjectId",
+          "display": "Project ID",
+          "type": "Text",
+          "indexed": true,
+          "required": true
+        },
+        {
+          "name": "BlackoutDate",
+          "display": "Date",
+          "type": "DateOnly",
+          "indexed": true
+        }
+      ]
+    },
+    {
+      "title": "ReasonCodes",
+      "titleDisplay": "Code",
+      "description": "Fixed wording for every decision and gate result (from config/reason-codes.json).",
+      "fields": [
+        {
+          "name": "Key",
+          "display": "Key",
+          "type": "Text"
+        },
+        {
+          "name": "Outcome",
+          "display": "Outcome",
+          "type": "Choice",
+          "choices": [
+            "reject",
+            "review",
+            "green",
+            "red"
+          ]
+        },
+        {
+          "name": "Message",
+          "display": "Message",
+          "type": "Text"
+        },
+        {
+          "name": "Remedy",
+          "display": "What to do",
+          "type": "Note",
+          "plain": true
+        }
+      ]
+    },
+    {
+      "title": "AppSettings",
+      "titleDisplay": "Setting",
+      "description": "App-wide, non-secret settings: service account, support email, app link, default rule settings.",
+      "fields": [
+        {
+          "name": "Value",
+          "display": "Value",
+          "type": "Text"
+        },
+        {
+          "name": "Description",
+          "display": "What it controls",
+          "type": "Note"
+        }
+      ]
+    },
+    {
+      "title": "SecureSettings",
+      "titleDisplay": "Setting",
+      "restricted": true,
+      "description": "Secrets used only by flows: the salted hash of the admin set-up code. Only the service account can read it.",
+      "fields": [
+        {
+          "name": "Value",
+          "display": "Value",
+          "type": "Note",
+          "plain": true
+        },
+        {
+          "name": "Description",
+          "display": "What it controls",
+          "type": "Note"
+        }
+      ]
+    },
+    {
+      "title": "AuditLog",
+      "titleDisplay": "Action",
+      "description": "Security-relevant actions: admin grants, code attempts, approvals, role changes, removals, overrides, deletions. Written only by flows. Never edited.",
+      "fields": [
+        {
+          "name": "ActorEmail",
+          "display": "Actor",
+          "type": "Text",
+          "indexed": true
+        },
+        {
+          "name": "ProjectId",
+          "display": "Project ID",
+          "type": "Text",
+          "indexed": true
+        },
+        {
+          "name": "Target",
+          "display": "Target",
+          "type": "Text"
+        },
+        {
+          "name": "Details",
+          "display": "Details",
+          "type": "Note",
+          "plain": true
+        },
+        {
+          "name": "At",
+          "display": "At",
+          "type": "DateTime",
+          "indexed": true
+        },
+        {
+          "name": "Maintenance",
+          "display": "Maintenance mode",
+          "type": "Boolean"
+        }
+      ]
+    }
+  ],
+  "libraries": [
+    {
+      "title": "QRRunner",
+      "description": "Holds QR-Runner.xlsx, the workbook the Office Scripts run against. Service account only."
+    },
+    {
+      "title": "LookAheadImports",
+      "description": "Copies of each uploaded look-ahead CSV (written by F09), kept for the record."
+    }
+  ]
+}

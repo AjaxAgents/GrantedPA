@@ -1,0 +1,149 @@
+[
+  {
+    "code": "R01",
+    "key": "REQUIRED_FIELDS",
+    "outcome": "reject",
+    "title": "Required information missing",
+    "remedy": "Fill in: {missing}."
+  },
+  {
+    "code": "R02",
+    "key": "SUB_SUSPENDED",
+    "outcome": "reject",
+    "title": "Booking privileges suspended",
+    "remedy": "Contact the GC project manager to restore booking privileges."
+  },
+  {
+    "code": "R03",
+    "key": "ACTIVITY_NOT_IN_LOOKAHEAD",
+    "outcome": "reject",
+    "title": "Activity is not in the current 3-week look-ahead",
+    "remedy": "Pick an activity from the look-ahead list. If your work is missing, ask the GC scheduler to add it."
+  },
+  {
+    "code": "R04",
+    "key": "ACTIVITY_WRONG_TRADE",
+    "outcome": "reject",
+    "title": "Activity belongs to another trade",
+    "remedy": "Pick one of your own activities ({trade})."
+  },
+  {
+    "code": "R05",
+    "key": "NOTICE_TOO_SHORT",
+    "outcome": "reject",
+    "title": "Less than {minNoticeHours} hours’ notice",
+    "remedy": "Pick a time at least {minNoticeHours} hours from now. Next open slot: {nextOpen}."
+  },
+  {
+    "code": "R06",
+    "key": "GATE_CLOSED",
+    "outcome": "reject",
+    "title": "The gate is closed at that time",
+    "remedy": "Deliveries run {gateOpen}–{gateClose}, {workDays}. Next open slot: {nextOpen}."
+  },
+  {
+    "code": "R07",
+    "key": "SLOT_FULL",
+    "outcome": "reject",
+    "title": "That time slot is full at {gateName}",
+    "remedy": "Next open slot at {gateName}: {nextOpen}."
+  },
+  {
+    "code": "R08",
+    "key": "ZONE_FULL",
+    "outcome": "reject",
+    "title": "{zoneName} has no room for {pallets} pallets",
+    "remedy": "Room left in {zoneName} on those days: {zoneLeft} pallets. Pick another zone or split the delivery."
+  },
+  {
+    "code": "R09",
+    "key": "AFTER_ACTIVITY_FINISH",
+    "outcome": "reject",
+    "title": "Delivery is after the activity finishes ({activityFinish})",
+    "remedy": "Pick a date on or before {activityFinish}, or ask the scheduler to update the look-ahead."
+  },
+  {
+    "code": "R10",
+    "key": "EARLY_NO_JUSTIFICATION",
+    "outcome": "reject",
+    "title": "More than {maxDaysBeforeInstall} days before install, with no justification",
+    "remedy": "Deliver on or after {earliestDate}, or add a justification for early delivery so the GC can review it."
+  },
+  {
+    "code": "F01",
+    "key": "EARLY_DELIVERY",
+    "outcome": "review",
+    "title": "Early delivery ({daysEarly} days before install)",
+    "remedy": "A GC reviewer will approve or reject. Justification given: “{justification}”"
+  },
+  {
+    "code": "F02",
+    "key": "LARGE_DELIVERY",
+    "outcome": "review",
+    "title": "Large delivery ({pallets} pallets)",
+    "remedy": "A GC reviewer will confirm the staging plan for more than {maxPalletsPerRequest} pallets."
+  },
+  {
+    "code": "F03",
+    "key": "POSSIBLE_DUPLICATE",
+    "outcome": "review",
+    "title": "Possible duplicate of {otherCode}",
+    "remedy": "A GC reviewer will check whether this material is already onsite or booked."
+  },
+  {
+    "code": "G00",
+    "key": "ADMIT",
+    "outcome": "green",
+    "title": "Approved delivery",
+    "remedy": "Admit the truck and direct it to {zoneName}."
+  },
+  {
+    "code": "G01",
+    "key": "NO_PASS",
+    "outcome": "red",
+    "title": "No approved delivery for this code",
+    "remedy": "The contractor must submit a delivery request with {minNoticeHours} hours’ notice, or the GC superintendent can issue an emergency pass."
+  },
+  {
+    "code": "G02",
+    "key": "PASS_CANCELLED",
+    "outcome": "red",
+    "title": "This delivery was cancelled",
+    "remedy": "The contractor must submit a new delivery request."
+  },
+  {
+    "code": "G03",
+    "key": "PASS_USED",
+    "outcome": "red",
+    "title": "Pass already used at {usedAt}",
+    "remedy": "Each pass admits one truck. A second truck needs its own approved request."
+  },
+  {
+    "code": "G04",
+    "key": "WRONG_DAY",
+    "outcome": "red",
+    "title": "Approved for {deliveryDate}, not today",
+    "remedy": "Return on {deliveryDate} between {windowOpen} and {windowClose}, or reschedule in the app."
+  },
+  {
+    "code": "G05",
+    "key": "TOO_EARLY",
+    "outcome": "red",
+    "title": "Too early: window opens at {windowOpen}",
+    "remedy": "Wait off-site until {windowOpen}, or the GC superintendent can approve early entry."
+  },
+  {
+    "code": "G06",
+    "key": "TOO_LATE",
+    "outcome": "red",
+    "title": "Too late: window closed at {windowClose}",
+    "remedy": "Reschedule in the app, or the GC superintendent can issue an emergency pass."
+  },
+  {
+    "code": "G07",
+    "key": "GATE_SUB_SUSPENDED",
+    "outcome": "red",
+    "title": "Contractor’s booking privileges are suspended",
+    "remedy": "Contact the GC project manager."
+  }
+]

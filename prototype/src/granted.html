@@ -1,0 +1,1398 @@
+<title>Granted</title>
+<meta name="theme-color" content="#0133A2">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: a single phone-width app column (max 520px) centred on a grey field; auth screens centre a card; home is a textured header over stacked accordion tabs.
+   Single light theme by design: Ajax royal blue, white and cool greys. Green/red appear only where they mean admit/turn away. */
+:root {
+  --blue: #0133A2; --blue-600: #0A3FB8; --blue-800: #00257A; --blue-50: #E9EFFB; --blue-100: #D3DFF6;
+  --white: #FFFFFF; --g-25: #F7F8FA; --g-50: #F1F3F6; --g-100: #E6EAEF; --g-200: #D5DBE2; --g-300: #BCC5CF; --g-500: #7B8794; --g-600: #5F6B78; --g-700: #46515D; --ink: #16202B;
+  --go: #12804A; --go-soft: #E3F4EA; --stop: #C2252D; --stop-soft: #FBE4E5; --hold: #946200; --hold-soft: #FBF1D9;
+  --display: "Barlow Semi Condensed", "Arial Narrow", system-ui, sans-serif;
+  --body: "IBM Plex Sans", -apple-system, "Segoe UI", system-ui, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+  --r: 12px; --shadow: 0 1px 2px rgba(22,32,43,.06), 0 4px 14px rgba(22,32,43,.06);
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+html, body { min-height: 100%; }
+body { background: var(--g-100); color: var(--ink); font: 15px/1.5 var(--body); -webkit-font-smoothing: antialiased; }
+button, input, select, textarea { font: inherit; color: inherit; }
+h1, h2, h3, p { margin: 0; }
+h1, h2, h3 { text-wrap: balance; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.app { max-width: 520px; margin: 0 auto; min-height: 100vh; background: var(--g-50); position: relative; }
+@media (min-width: 560px) { .app { box-shadow: 0 0 0 1px var(--g-200), 0 10px 40px rgba(22,32,43,.08); } }
+:focus-visible { outline: 3px solid var(--blue-600); outline-offset: 2px; }
+.mono { font-family: var(--mono); }
+.muted { color: var(--g-600); }
+.small { font-size: 13px; }
+.row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.between { display: flex; gap: 10px; align-items: center; justify-content: space-between; flex-wrap: wrap; }
+.stack { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.stack-s { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+
+/* ---------- splash ---------- */
+.splash { position: fixed; inset: 0; background: var(--blue); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; z-index: 50; transition: opacity .35s ease; }
+.splash img { width: min(56vw, 240px); height: auto; }
+.splash .nm { color: #fff; font: 600 15px var(--display); letter-spacing: .5em; text-indent: .5em; opacity: .9; }
+.splash .bar { width: 120px; height: 3px; border-radius: 3px; background: rgba(255,255,255,.22); overflow: hidden; }
+.splash .bar span { display: block; width: 40%; height: 100%; background: #fff; border-radius: 3px; animation: load 1.1s ease-in-out infinite; }
+.splash.out { opacity: 0; pointer-events: none; }
+@keyframes load { 0% { transform: translateX(-100%); } 100% { transform: translateX(260%); } }
+
+/* ---------- auth ---------- */
+.auth { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding-block: 40px 32px; padding-inline: 20px; gap: 18px; background: var(--white); }
+.auth-card { width: 100%; max-width: 380px; display: flex; flex-direction: column; gap: 18px; }
+.auth-logo { width: 132px; height: auto; align-self: center; }
+.auth h1 { font: 700 28px/1.1 var(--display); text-align: center; letter-spacing: .01em; }
+.auth .lede { text-align: center; color: var(--g-600); font-size: 14px; margin-top: -10px; }
+.auth form { display: flex; flex-direction: column; gap: 14px; }
+.auth-top { width: 100%; max-width: 420px; display: flex; align-items: center; gap: 8px; }
+.auth-wide { max-width: 420px; }
+.link-grey { appearance: none; background: none; border: 0; padding: 6px 4px; color: var(--g-600); font-size: 13.5px; cursor: pointer; text-align: center; }
+.link-grey b { color: var(--g-700); font-weight: 600; text-decoration: underline; text-underline-offset: 3px; }
+.link-grey:hover { color: var(--ink); }
+.divider { height: 1px; background: var(--g-100); }
+.fine { font-size: 11.5px; color: var(--g-500); text-align: center; max-width: 360px; }
+.demo-accts { width: 100%; max-width: 380px; border: 1px dashed var(--g-300); border-radius: var(--r); padding: 10px 14px; font-size: 13px; color: var(--g-700); }
+.demo-accts summary { cursor: pointer; font-weight: 600; }
+.demo-accts .list { display: flex; flex-direction: column; gap: 6px; margin-top: 10px; }
+.demo-accts button { appearance: none; text-align: left; border: 1px solid var(--g-200); background: var(--g-25); border-radius: 10px; padding: 8px 10px; cursor: pointer; display: grid; gap: 1px; }
+.demo-accts button b { font-weight: 600; color: var(--ink); }
+.demo-accts button span { color: var(--g-600); font-size: 12px; overflow-wrap: anywhere; }
+
+/* ---------- form controls ---------- */
+.field { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.field > label, .label { font-weight: 600; font-size: 13px; color: var(--g-700); }
+.hint { font-size: 12.5px; color: var(--g-600); }
+.err { font-size: 12.5px; color: var(--stop); }
+input, select, textarea { width: 100%; min-width: 0; min-height: 48px; padding: 11px 14px; border: 1px solid var(--g-200); border-radius: 10px; background: var(--g-25); font-size: 16px; }
+input:focus, select:focus, textarea:focus { border-color: var(--blue); background: var(--white); outline: none; box-shadow: 0 0 0 3px var(--blue-100); }
+input[aria-invalid="true"] { border-color: var(--stop); }
+textarea { min-height: 80px; resize: vertical; }
+.pw-wrap { position: relative; }
+.pw-wrap input { padding-right: 64px; }
+.pw-wrap button { position: absolute; right: 6px; top: 6px; height: 36px; padding: 0 10px; border: 0; background: none; color: var(--blue); font-weight: 600; font-size: 13px; cursor: pointer; border-radius: 8px; }
+.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(150px, 100%), 1fr)); gap: 12px; }
+.pwrules { list-style: none; margin: 2px 0 0; padding: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 4px 10px; font-size: 12.5px; color: var(--g-600); }
+.pwrules li { display: flex; gap: 6px; align-items: center; }
+.pwrules li::before { content: ""; width: 14px; height: 14px; border-radius: 50%; border: 1.5px solid var(--g-300); flex: none; }
+.pwrules li.ok { color: var(--go); }
+.pwrules li.ok::before { border-color: var(--go); background: var(--go) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14'%3E%3Cpath d='M3.5 7.2l2.2 2.2 4.8-4.8' fill='none' stroke='white' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/12px no-repeat; }
+.seg { display: inline-grid; grid-auto-flow: column; grid-auto-columns: 1fr; background: var(--g-100); border-radius: 10px; padding: 3px; gap: 3px; }
+.seg button { appearance: none; border: 0; background: none; padding: 8px 14px; border-radius: 8px; font-weight: 600; font-size: 14px; color: var(--g-600); cursor: pointer; min-height: 40px; }
+.seg button[aria-pressed="true"] { background: var(--white); color: var(--blue); box-shadow: 0 1px 3px rgba(22,32,43,.12); }
+.note { border-radius: 10px; padding: 10px 12px; font-size: 13px; background: var(--blue-50); color: var(--blue-800); }
+.note.warn { background: var(--hold-soft); color: #6B4700; }
+.note label { display: flex; gap: 8px; align-items: flex-start; margin-top: 8px; font-weight: 600; cursor: pointer; }
+.note input[type="checkbox"], .check input { width: 18px; height: 18px; min-height: 0; margin: 1px 0 0; accent-color: var(--blue); flex: none; }
+.demo-code { border: 1px dashed var(--blue); background: var(--blue-50); border-radius: 10px; padding: 10px 12px; font-size: 13px; color: var(--blue-800); }
+.demo-code b { font-family: var(--mono); font-size: 18px; letter-spacing: .18em; }
+
+.btn { appearance: none; border: 1px solid var(--g-200); background: var(--white); color: var(--ink); font-weight: 600; font-size: 15px; min-height: 48px; padding: 10px 16px; border-radius: 10px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; text-align: center; }
+.btn:hover { border-color: var(--g-300); }
+.btn.primary { background: var(--blue); border-color: var(--blue); color: var(--white); }
+.btn.primary:hover { background: var(--blue-600); }
+.btn.go { background: var(--go); border-color: var(--go); color: #fff; }
+.btn.stop { background: var(--stop); border-color: var(--stop); color: #fff; }
+.btn.ghost { background: transparent; }
+.btn.block { width: 100%; }
+.btn.sm { min-height: 36px; padding: 6px 12px; font-size: 13.5px; border-radius: 8px; }
+.btn[disabled] { opacity: .5; cursor: not-allowed; }
+.iconbtn { appearance: none; border: 0; background: none; width: 44px; height: 44px; border-radius: 12px; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; color: inherit; }
+.iconbtn svg { width: 24px; height: 24px; }
+.back { color: var(--g-700); }
+
+/* ---------- header ---------- */
+.hdr { position: relative; color: #fff; padding: 22px 64px 22px 20px; background-color: #59656F;
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .10 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"),
+    repeating-linear-gradient(135deg, rgba(255,255,255,.035) 0 2px, rgba(0,0,0,0) 2px 7px),
+    linear-gradient(180deg, #66737E, #4E5964); }
+.hdr-name { font: 700 26px/1.05 var(--display); letter-spacing: .01em; overflow-wrap: anywhere; }
+.hdr-co { font-size: 14px; color: #DCE3EA; margin-top: 4px; overflow-wrap: anywhere; }
+.hdr .gear { position: absolute; right: 10px; top: 14px; color: #C9D1D9; }
+.hdr .gear:hover { color: #fff; background: rgba(255,255,255,.08); }
+
+/* ---------- tabs ---------- */
+.tabs { padding: 14px 12px 40px; display: flex; flex-direction: column; gap: 10px; }
+.tab { background: var(--white); border-radius: var(--r); box-shadow: var(--shadow); overflow: hidden; }
+.tab-bar { display: flex; align-items: stretch; }
+.tab-btn { appearance: none; border: 0; background: none; flex: 1; min-width: 0; display: grid; grid-template-columns: 40px minmax(0, 1fr) auto 22px; align-items: center; gap: 10px; padding: 12px 12px 12px 14px; min-height: 64px; text-align: left; cursor: pointer; }
+.tab-ic { width: 40px; height: 40px; border-radius: 10px; background: var(--blue-50); color: var(--blue); display: flex; align-items: center; justify-content: center; }
+.tab-ic svg { width: 22px; height: 22px; }
+.tab-title { display: block; font: 700 19px/1.15 var(--display); letter-spacing: .01em; overflow-wrap: anywhere; }
+.tab-sub { display: block; font-size: 12.5px; color: var(--g-600); margin-top: 1px; overflow-wrap: anywhere; }
+.chev { width: 22px; height: 22px; color: var(--g-500); transition: transform .2s ease; }
+.tab-btn[aria-expanded="true"] .chev { transform: rotate(180deg); }
+.tab-btn[aria-expanded="true"] .tab-ic { background: var(--blue); color: #fff; }
+.badge { min-width: 22px; height: 22px; padding: 0 7px; border-radius: 11px; background: var(--blue); color: #fff; font: 600 12px/22px var(--body); text-align: center; }
+.badge.warn { background: var(--hold); }
+.plus { appearance: none; border: 0; border-left: 1px solid var(--g-100); background: none; width: 58px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+.plus span { width: 32px; height: 32px; border-radius: 50%; background: var(--blue); color: #fff; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 0 3px var(--blue-50); }
+.plus svg { width: 18px; height: 18px; }
+.maintbar { background: var(--blue-50); border-bottom: 1px solid var(--blue-100); padding: 10px 12px; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: space-between; }
+.maintbar .mlabel { font: 600 12px var(--body); text-transform: uppercase; letter-spacing: .08em; color: var(--blue-800); }
+.maintbar .seg button { padding: 6px 10px; font-size: 13px; min-height: 34px; }
+.switch { position: relative; width: 50px; height: 30px; flex: none; }
+.switch input { position: absolute; inset: 0; opacity: 0; width: 100%; height: 100%; margin: 0; cursor: pointer; min-height: 0; }
+.switch span { position: absolute; inset: 0; border-radius: 15px; background: var(--g-300); transition: background .2s; pointer-events: none; }
+.switch span::after { content: ""; position: absolute; top: 3px; left: 3px; width: 24px; height: 24px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.25); transition: transform .2s; }
+.switch input:checked + span { background: var(--blue); }
+.switch input:checked + span::after { transform: translateX(20px); }
+.switch input:focus-visible + span { outline: 3px solid var(--blue-600); outline-offset: 2px; }
+.tab-panel { border-top: 1px solid var(--g-100); background: var(--g-25); padding: 16px 14px 18px; display: flex; flex-direction: column; gap: 14px; }
+
+/* ---------- content pieces ---------- */
+.card { background: var(--white); border: 1px solid var(--g-100); border-radius: 12px; padding: 14px; min-width: 0; }
+.eyebrow { font: 600 11px var(--body); text-transform: uppercase; letter-spacing: .1em; color: var(--g-600); }
+.h3 { font: 700 18px/1.2 var(--display); letter-spacing: .01em; }
+.pill { display: inline-flex; align-items: center; gap: 6px; font: 600 11px/1 var(--body); letter-spacing: .06em; text-transform: uppercase; padding: 5px 8px; border-radius: 999px; white-space: nowrap; }
+.pill::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+.st-approved { background: var(--blue-50); color: var(--blue); }
+.st-arrived { background: var(--g-100); color: var(--g-700); }
+.st-review, .st-pending { background: var(--hold-soft); color: var(--hold); }
+.st-rejected, .st-noshow, .st-red { background: var(--stop-soft); color: var(--stop); }
+.st-cancelled, .st-removed { background: var(--g-100); color: var(--g-500); }
+.st-green { background: var(--go-soft); color: var(--go); }
+.code-chip { display: inline-flex; align-items: center; gap: 8px; font: 600 15px var(--mono); letter-spacing: .06em; background: var(--g-50); border: 1px solid var(--g-200); border-radius: 8px; padding: 6px 10px; }
+.list { display: flex; flex-direction: column; gap: 8px; }
+.item { background: var(--white); border: 1px solid var(--g-100); border-radius: 12px; padding: 12px; display: grid; grid-template-columns: 66px minmax(0, 1fr) auto; gap: 10px; align-items: center; width: 100%; text-align: left; }
+button.item { cursor: pointer; appearance: none; }
+button.item:hover { border-color: var(--g-300); }
+.when { font: 600 12.5px/1.3 var(--mono); }
+.when span { display: block; color: var(--g-600); font-weight: 500; }
+.ititle { font-weight: 600; overflow-wrap: anywhere; }
+.isub { font-size: 12.5px; color: var(--g-600); overflow-wrap: anywhere; }
+@media (max-width: 400px) { .item { grid-template-columns: 58px minmax(0, 1fr); } .item > .pill { grid-column: 2; justify-self: start; } }
+.kv { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 6px 14px; margin: 0; font-size: 14px; }
+.kv dt { color: var(--g-600); }
+.kv dd { margin: 0; font-weight: 500; overflow-wrap: anywhere; }
+.reasons { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.reasons li { border-left: 3px solid var(--stop); padding-left: 10px; font-size: 13.5px; }
+.reasons li.flag { border-left-color: var(--hold); }
+.reasons b { display: block; }
+.empty { text-align: center; color: var(--g-600); font-size: 14px; padding: 18px 10px; display: flex; flex-direction: column; gap: 10px; align-items: center; }
+.tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.tile { background: var(--white); border: 1px solid var(--g-100); border-radius: 12px; padding: 10px 12px; }
+.tile .n { font: 700 30px/1 var(--display); font-variant-numeric: tabular-nums; color: var(--blue); }
+.tile .l { font-size: 12px; color: var(--g-600); margin-top: 3px; }
+.tile.bad .n { color: var(--stop); } .tile.warn .n { color: var(--hold); } .tile.grey .n { color: var(--g-700); }
+
+/* ticket */
+.ticket { background: var(--white); border-radius: 16px; border: 1px solid var(--g-200); overflow: hidden; }
+.ticket-top { background: var(--blue); color: #fff; padding: 14px 16px; display: flex; justify-content: space-between; gap: 10px; align-items: flex-start; }
+.ticket-top .t1 { font: 700 20px/1.1 var(--display); overflow-wrap: anywhere; }
+.ticket-top .t2 { font-size: 12.5px; color: var(--blue-100); margin-top: 3px; }
+.ticket-body { padding: 18px 16px; display: grid; justify-items: center; gap: 10px; text-align: center; border-top: 2px dashed var(--g-200); }
+.qr { width: 228px; max-width: 100%; aspect-ratio: 1; background: #fff; padding: 4px; }
+.qr svg { width: 100%; height: 100%; display: block; }
+.pcode { font: 600 26px/1 var(--mono); letter-spacing: .08em; }
+.chips { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 2px; }
+.chip { appearance: none; border: 1px solid var(--g-200); background: var(--white); border-radius: 999px; padding: 8px 12px; white-space: nowrap; font-size: 13px; font-weight: 600; cursor: pointer; color: var(--g-700); }
+.chip[aria-pressed="true"] { background: var(--blue); border-color: var(--blue); color: #fff; }
+
+/* schedule form */
+.slots { display: grid; grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); gap: 8px; }
+.slot { appearance: none; border: 1px solid var(--g-200); background: var(--white); border-radius: 10px; padding: 8px 10px; text-align: left; cursor: pointer; min-height: 52px; }
+.slot b { display: block; font: 600 14px var(--mono); }
+.slot small { font-size: 11.5px; color: var(--blue); }
+.slot.off { background: var(--g-50); color: var(--g-500); }
+.slot.off small { color: var(--g-500); }
+.slot[aria-pressed="true"] { border-color: var(--blue); box-shadow: inset 0 0 0 2px var(--blue); }
+.section-t { font: 700 15px var(--display); letter-spacing: .06em; text-transform: uppercase; color: var(--g-600); }
+.checksum { border-radius: 10px; padding: 10px 12px; font-weight: 600; font-size: 14px; }
+.checksum.ok { background: var(--blue-50); color: var(--blue); } .checksum.rev { background: var(--hold-soft); color: var(--hold); }
+.checksum.bad { background: var(--stop-soft); color: var(--stop); } .checksum.none { background: var(--g-100); color: var(--g-600); }
+details.more summary { cursor: pointer; font-size: 13px; color: var(--g-700); font-weight: 600; }
+.checks { list-style: none; margin: 8px 0 0; padding: 0; display: flex; flex-direction: column; gap: 6px; font-size: 13.5px; }
+.checks li { display: grid; grid-template-columns: 20px minmax(0, 1fr); gap: 8px; }
+.ic { width: 18px; height: 18px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font: 700 11px/1 var(--body); margin-top: 2px; }
+.ic.pass { background: var(--blue-50); color: var(--blue); } .ic.fail { background: var(--stop-soft); color: var(--stop); }
+.ic.flag { background: var(--hold-soft); color: var(--hold); } .ic.skip { background: var(--g-100); color: var(--g-500); }
+
+/* gate */
+.scanbtn { min-height: 96px; font: 700 26px/1 var(--display); letter-spacing: .08em; text-transform: uppercase; border-radius: 14px; }
+.scanbtn svg { width: 30px; height: 30px; }
+.codeform { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; }
+.codeform input { font-family: var(--mono); text-transform: uppercase; letter-spacing: .06em; }
+.verdict { border-radius: 16px; padding: 18px; display: flex; flex-direction: column; gap: 10px; color: #fff; }
+.verdict.green { background: var(--go); } .verdict.red { background: var(--stop); }
+.verdict .big { font: 700 58px/.9 var(--display); letter-spacing: .03em; text-transform: uppercase; }
+.verdict .why { font-weight: 600; font-size: 18px; line-height: 1.3; }
+.verdict .kv dt { color: inherit; opacity: .78; } .verdict .kv dd { font-weight: 600; }
+.verdict .meta { font: 500 12px var(--mono); opacity: .85; }
+.verdict .btn { background: #fff; color: var(--ink); border-color: transparent; }
+.verdict .btn.ghost { background: transparent; color: #fff; border-color: rgba(255,255,255,.6); }
+.verdict .logged { background: #fff; color: var(--ink); border-radius: 10px; padding: 10px 12px; font-size: 14px; }
+
+/* tables (admin) */
+.table-wrap { overflow-x: auto; background: var(--white); border: 1px solid var(--g-100); border-radius: 12px; }
+table { border-collapse: collapse; width: 100%; font-size: 13px; min-width: 520px; }
+th { text-align: left; font: 600 10.5px var(--body); text-transform: uppercase; letter-spacing: .08em; color: var(--g-600); padding: 9px 10px; border-bottom: 1px solid var(--g-100); white-space: nowrap; }
+td { padding: 9px 10px; border-bottom: 1px solid var(--g-100); vertical-align: top; }
+tr:last-child td { border-bottom: 0; }
+td.mono { white-space: nowrap; font-size: 12px; }
+.person { display: grid; grid-template-columns: 36px minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 10px 0; border-top: 1px solid var(--g-100); }
+.person:first-child { border-top: 0; }
+.person > span { min-width: 0; overflow-wrap: anywhere; }
+.avatar { width: 36px; height: 36px; border-radius: 50%; background: var(--blue-50); color: var(--blue); font: 700 14px/36px var(--display); text-align: center; letter-spacing: .04em; }
+.msg { border-top: 1px solid var(--g-100); padding: 10px 0; display: grid; gap: 3px; min-width: 0; }
+.msg:first-child { border-top: 0; padding-top: 0; }
+.msg .meta { font-size: 12px; color: var(--g-600); display: flex; gap: 8px; flex-wrap: wrap; }
+.msg .subj { font-weight: 600; overflow-wrap: anywhere; }
+.msg pre { white-space: pre-wrap; margin: 0; font: 13px/1.45 var(--body); color: var(--g-700); overflow-wrap: anywhere; }
+
+/* sheets */
+.scrim { position: fixed; inset: 0; background: rgba(16,24,34,.45); z-index: 30; display: flex; align-items: flex-end; justify-content: center; }
+.sheet { background: var(--white); width: 100%; max-width: 520px; max-height: 92vh; overflow-y: auto; border-radius: 18px 18px 0 0; padding: 8px 18px calc(24px + env(safe-area-inset-bottom, 0px)); display: flex; flex-direction: column; gap: 14px; }
+.sheet .grab { width: 40px; height: 5px; border-radius: 3px; background: var(--g-200); margin: 4px auto 2px; }
+.sheet-h { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.sheet-h h2 { font: 700 22px var(--display); }
+.sheet-sec { border-top: 1px solid var(--g-100); padding-top: 14px; display: flex; flex-direction: column; gap: 12px; }
+.menu-row { appearance: none; width: 100%; border: 0; background: none; display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 12px 2px; border-top: 1px solid var(--g-100); font-weight: 600; cursor: pointer; text-align: left; }
+.menu-row:first-child { border-top: 0; }
+.menu-row .muted { font-weight: 400; font-size: 13px; }
+.danger { color: var(--stop); }
+.toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(18px + env(safe-area-inset-bottom, 0px)); background: var(--ink); color: #fff; padding: 11px 16px; border-radius: 10px; font-weight: 600; font-size: 14px; z-index: 60; max-width: calc(100% - 32px); box-shadow: 0 8px 24px rgba(0,0,0,.25); }
+.modebar { font-size: 11.5px; color: var(--g-600); text-align: center; padding: 6px 12px 0; }
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+</style>
+
+<div class="app" id="app"></div>
+<div id="sheetRoot"></div>
+<div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+<div class="splash" id="splash" aria-label="Granted is loading"><img src="@@LOGO_WHITE@@" alt="Ajax"><div class="nm">GRANTED</div><div class="bar"><span></span></div></div>
+
+<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+<script>/*@@RULES@@*/</script>
+<script>/*@@ACCOUNTS@@*/</script>
+<script>/*@@QR@@*/</script>
+<script>/*@@DATA@@*/</script>
+<script>
+(function () {
+  'use strict';
+  const R = window.DCRules, A = window.GrantedAccounts, GD = window.GrantedData, U = R.util;
+  const LOGO_BLUE = '@@LOGO_BLUE@@';
+  // Prototype only: SHA-256 of the admin set-up code, filled in at build time from the GRANTED_ADMIN_CODE
+  // environment variable so the code never sits in the repository. Blank = admin set-up disabled in this build.
+  // Production checks the code on the server, rate-limited, never in the app.
+  const ADMIN_CODE_SHA256 = '@@ADMIN_CODE_HASH@@';
+  const PBKDF2_ITER = 100000;
+  const COLS = ['users', 'projects', 'members', 'joinreqs', 'invites', 'requests', 'passes', 'gatelog', 'mail', 'meta'];
+  const LS_DATA = 'granted-demo-data-v1', LS_SESSION = 'granted-session-v1';
+  const D = {}; COLS.forEach((c) => { D[c] = {}; });
+  let db = null, mode = 'connecting', loaded = false, splashDone = false, unsubs = [];
+  const S = { maint: { on: false, as: 'admin' }, screen: 'splash', uid: null, pid: null, open: {}, su: {}, login: {}, verifyUid: null, verifyPurpose: 'signup', forgot: { step: 1 }, sheet: null, c: { tab: 'confirm' }, g: {}, a: { filter: 'today' }, form: null, clock: { mode: 'auto' }, err: {} };
+
+  // ================= helpers =================
+  const $ = (s, el) => (el || document).querySelector(s);
+  const $$ = (s, el) => [...(el || document).querySelectorAll(s)];
+  const esc = (v) => String(v == null ? '' : v).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const clone = (o) => JSON.parse(JSON.stringify(o));
+  const rid = (p) => p + Array.from(crypto.getRandomValues(new Uint8Array(8)), (b) => (b % 36).toString(36)).join('');
+  const opt = (v, label, sel) => `<option value="${esc(v)}"${String(v) === String(sel) ? ' selected' : ''}>${esc(label)}</option>`;
+  const plural = (n, w, pl) => n + ' ' + (Number(n) === 1 ? w : (pl || (/(s|x|ch|sh)$/.test(w) ? w + 'es' : /[^aeiou]y$/.test(w) ? w.slice(0, -1) + 'ies' : w + 's')));
+  function toast(msg) { const t = $('#toast'); t.textContent = msg; t.hidden = false; clearTimeout(toast._t); toast._t = setTimeout(() => { t.hidden = true; }, 4000); }
+  const ICON = {
+    gear: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>',
+    plus: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>',
+    chev: '<svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>',
+    back: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>',
+    close: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>',
+    site: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M5 21V8l7-4 7 4v13M9 21v-6h6v6"/></svg>',
+    qr: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM20 14v.01M14 20h.01M17 20h4v-3"/></svg>',
+    scan: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8V5a1 1 0 0 1 1-1h3M16 4h3a1 1 0 0 1 1 1v3M20 16v3a1 1 0 0 1-1 1h-3M8 20H5a1 1 0 0 1-1-1v-3M7 12h10"/></svg>',
+    cal: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18M8 14h3v3H8z"/></svg>',
+    truck: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h11v9H3zM14 10h4l3 3v3h-7"/><circle cx="7" cy="18" r="1.8"/><circle cx="17" cy="18" r="1.8"/></svg>',
+    inbox: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v16H4zM4 13h4l2 3h4l2-3h4"/></svg>',
+    list: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M9 6h11M9 12h11M9 18h11M4.5 6h.01M4.5 12h.01M4.5 18h.01"/></svg>',
+    log: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>',
+    check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3 8-8"/><path d="M20 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>',
+    users: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0M16 4.5a3.5 3.5 0 0 1 0 7M18 14.5a6.5 6.5 0 0 1 3.5 5.5"/></svg>',
+    bolt: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></svg>',
+    chart: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>',
+    sliders: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></svg>',
+  };
+
+  // ================= crypto (prototype) =================
+  const b64e = (u8) => btoa(String.fromCharCode(...u8));
+  const b64d = (s) => Uint8Array.from(atob(s), (c) => c.charCodeAt(0));
+  async function pbkdf2(password, saltB64, iter) {
+    const key = await crypto.subtle.importKey('raw', new TextEncoder().encode(password), 'PBKDF2', false, ['deriveBits']);
+    const bits = await crypto.subtle.deriveBits({ name: 'PBKDF2', hash: 'SHA-256', salt: b64d(saltB64), iterations: iter || PBKDF2_ITER }, key, 256);
+    return b64e(new Uint8Array(bits));
+  }
+  async function makePw(password) { const salt = b64e(crypto.getRandomValues(new Uint8Array(16))); return { salt, iter: PBKDF2_ITER, hash: await pbkdf2(password, salt, PBKDF2_ITER) }; }
+  async function sha256hex(s) { const h = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s)); return Array.from(new Uint8Array(h), (b) => b.toString(16).padStart(2, '0')).join(''); }
+  async function isAdminCode(code) { return !!code && /^[0-9a-f]{64}$/.test(ADMIN_CODE_SHA256) && (await sha256hex('granted-admin-v1:' + A.normalizeProjectCode(code))) === ADMIN_CODE_SHA256; }
+
+  // ================= storage =================
+  function saveLocal() { try { localStorage.setItem(LS_DATA, JSON.stringify(D)); } catch (e) { /* storage blocked: memory only */ } }
+  function loadLocal() { try { const j = JSON.parse(localStorage.getItem(LS_DATA) || 'null'); if (j) COLS.forEach((c) => { D[c] = j[c] || {}; }); } catch (e) { /* ignore */ } }
+  function saveSession() { try { localStorage.setItem(LS_SESSION, JSON.stringify({ uid: S.uid, pid: S.pid, clock: S.clock, maint: S.maint })); } catch (e) { /* ignore */ } }
+  function loadSession() { try { return JSON.parse(localStorage.getItem(LS_SESSION) || '{}'); } catch (e) { return {}; } }
+  function switchToLocal(msg) {
+    unsubs.forEach((u) => { try { u(); } catch (e) { /* ignore */ } }); unsubs = [];
+    mode = 'local'; saveLocal(); toast(msg); renderModebar();
+  }
+  async function put(col, id, doc) {
+    D[col] = Object.assign({}, D[col], { [id]: doc });
+    if (mode === 'shared') {
+      try { await db.collection(col).doc(id).set(doc); }
+      catch (e) {
+        if (e && (e.code === 'invalid_argument' || e.code === 'not_granted' || e.code === 'revoked')) switchToLocal('You can view the shared demo but not change it, so your changes stay on this device.');
+        else if (e && e.code === 'quota_exceeded') { toast('The demo database is full. Reset the demo from Settings.'); throw e; }
+        else { toast('Could not save. Check your connection and try again.'); throw e; }
+      }
+    } else saveLocal();
+  }
+  async function remove(col, id) {
+    const m = Object.assign({}, D[col]); delete m[id]; D[col] = m;
+    if (mode === 'shared') { try { await db.collection(col).doc(id).delete(); } catch (e) { /* ignore */ } } else saveLocal();
+  }
+  let rq = false;
+  function scheduleRefresh() { if (rq) return; rq = true; requestAnimationFrame(() => { rq = false; onData(); }); }
+  async function initStore() {
+    let cap = null;
+    try { cap = window.claude && window.claude.use ? await window.claude.use('db') : null; } catch (e) { cap = null; }
+    if (cap) {
+      db = cap; mode = 'shared'; const seen = new Set();
+      COLS.forEach((col) => {
+        unsubs.push(db.collection(col).onSnapshot((snap) => {
+          if (mode !== 'shared') return;
+          const m = {}; snap.docs.forEach((d) => { m[d.id] = d.data(); }); D[col] = m;
+          seen.add(col); if (seen.size === COLS.length && !loaded) { loaded = true; boot(); return; }
+          if (loaded) scheduleRefresh();
+        }, () => { toast('Live updates stopped. Reload to reconnect.'); }));
+      });
+    } else {
+      mode = 'local'; loadLocal();
+      if (!Object.keys(D.users).length) { try { await loadDemo(true); } catch (e) { /* ignore */ } }
+      loaded = true; boot();
+    }
+  }
+  async function loadDemo(silent) {
+    const now = new Date(); let anc = U.ymd(now);
+    for (let i = 0; i < 8 && !R.isWorkDay(anc, R.DEFAULT_SETTINGS); i++) anc = U.addDays(anc, 1);
+    const b = GD.buildDemo(anc, R, A);
+    const pw = await makePw(GD.DEMO_PASSWORD_HINT);
+    for (const u of b.users) u.pw = pw; // one shared hash is fine for demo accounts
+    for (const col of COLS) if (col !== 'meta') for (const d of b[col] || []) await put(col, d.id, d);
+    await put('meta', 'demo', b.meta);
+    if (!silent) toast('Demo project loaded.');
+  }
+  async function clearAll() { for (const col of COLS) for (const id of Object.keys(D[col])) await remove(col, id); }
+
+  // ================= data access =================
+  const users = () => Object.values(D.users);
+  const me = () => (S.uid ? D.users[S.uid] : null);
+  const userByEmail = (e) => users().find((u) => u.email === A.normEmail(e));
+  const projects = () => Object.values(D.projects).filter((p) => !p.deleted);
+  const projectByCode = (c) => projects().find((p) => p.code === A.normalizeProjectCode(c));
+  const members = () => Object.values(D.members);
+  const membership = (pid, uid) => members().find((m) => m.projectId === pid && m.userId === uid && m.status === 'active');
+  const myProjects = () => { const u = me(); if (!u) return []; return projects().filter((p) => membership(p.id, u.id)).sort((a, b) => a.name.localeCompare(b.name)); };
+  const project = () => (S.pid ? D.projects[S.pid] : null);
+  const realRole = () => { const m = S.pid && S.uid ? membership(S.pid, S.uid) : null; return m ? m.role : null; };
+  // Maintenance mode: an Admin account that is an Admin on this project can view the app as any role.
+  const canMaintain = () => { const u = me(); return !!(u && u.isAdminAccount && realRole() === 'admin'); };
+  const inMaint = () => !!(S.maint && S.maint.on && canMaintain());
+  const role = () => (inMaint() && S.maint.as ? S.maint.as : realRole());
+  const projMembers = (pid) => members().filter((m) => m.projectId === pid && m.status === 'active');
+  const nameOf = (u) => (u ? (u.first + ' ' + u.last).trim() : 'Unknown');
+  const initials = (u) => (u ? ((u.first || ' ')[0] + (u.last || ' ')[0]).toUpperCase() : '?');
+  const pReqs = () => Object.values(D.requests).filter((r) => r.projectId === S.pid);
+  const pPasses = () => Object.values(D.passes).filter((p) => p.projectId === S.pid);
+  const passOf = (r) => (r && r.passCode ? D.passes[r.passCode] : null);
+  const gateById = (id) => (project().gates || []).find((g) => g.id === id) || {};
+  const zoneById = (id) => (project().zones || []).find((z) => z.id === id) || {};
+  const subsNow = () => GD.subsForProject(project(), members(), users());
+  const settings = () => Object.assign({}, R.DEFAULT_SETTINGS, project().settings || {});
+  function ctx() { const p = project(); return { now: now(), settings: settings(), gates: p.gates, zones: p.zones, subs: subsNow(), activities: p.activities || [], requests: pReqs(), passes: pPasses() }; }
+  const statusOf = (r) => R.deliveryStatus(r, passOf(r), now(), settings());
+  const LABEL = { approved: 'Approved', review: 'Needs review', rejected: 'Rejected', cancelled: 'Cancelled', arrived: 'Arrived', noshow: 'No-show' };
+  const pill = (st, txt) => `<span class="pill st-${st}">${esc(txt || LABEL[st] || st)}</span>`;
+  const byWhen = (a, b) => (a.date + a.slot).localeCompare(b.date + b.slot);
+  const roleLabel = (r) => (A.ROLES[r] || {}).label || r;
+
+  // ================= clock =================
+  function demoAnchor() { const p = project(); return p && p.demoAnchor ? p.demoAnchor : null; }
+  function now() {
+    if (S.clock.mode === 'live') return new Date();
+    if (S.clock.mode === 'set' && S.clock.base) return new Date(S.clock.base + (Date.now() - S.clock.setAt));
+    // Demo default: the demo project's day at 7:15 AM, running forward from when the page opened.
+    const live = new Date(); const anc = demoAnchor(); if (!anc) return live;
+    if (S.clock.autoAnchor !== anc) { S.clock.autoBase = U.at(anc, '07:15').getTime(); S.clock.autoSetAt = Date.now(); S.clock.autoAnchor = anc; }
+    return new Date(S.clock.autoBase + (Date.now() - S.clock.autoSetAt));
+  }
+  const today = () => U.ymd(now());
+  const nowIso = () => now().toISOString();
+  const clockLabel = (d) => U.fmtDate(U.ymd(d)) + ' ' + U.fmtClock(d);
+
+  // ================= mail (simulated) =================
+  async function sendMail(list) { for (const m of list) { const id = rid('m-'); await put('mail', id, Object.assign({ id, ts: new Date().toISOString() }, m)); } }
+  function adminEmails(pid) { return projMembers(pid).filter((m) => m.role === 'admin').map((m) => (D.users[m.userId] || {}).email).filter(Boolean); }
+  function noticeData(r, extra) {
+    return Object.assign({ subId: r.subId, subName: r.subName, material: r.material, date: r.date, slot: r.slot, gateName: gateById(r.gateId).name, zoneName: zoneById(r.zoneId).name, passCode: r.passCode, requestId: r.id, reasons: r.reasons || [] }, extra || {});
+  }
+  async function notify(event, r, extra, filter) {
+    let list = R.notices(event, noticeData(r, extra)); if (filter) list = list.filter(filter);
+    await sendMail(GD.routeNotices(list, project(), members(), users(), r).map((m) => Object.assign(m, { ts: nowIso() })));
+  }
+
+  // ================= boot / routing =================
+  function boot() {
+    const s = loadSession();
+    if (s.clock && s.clock.mode) S.clock = { mode: s.clock.mode, base: s.clock.base, setAt: s.clock.setAt };
+    if (s.maint) S.maint = { on: !!s.maint.on, as: s.maint.as || 'admin' };
+    const u = s.uid ? D.users[s.uid] : null;
+    if (u && u.verified) { S.uid = u.id; S.pid = s.pid; ensureProject(); S.screen = 'home'; applyInvites(u); }
+    else S.screen = 'login';
+    finishSplash();
+  }
+  function finishSplash() {
+    if (!splashDone) return; // timer not done yet
+    render();
+    const sp = $('#splash'); if (sp && !sp.classList.contains('out')) { sp.classList.add('out'); setTimeout(() => { sp.remove(); }, 400); }
+  }
+  setTimeout(() => { splashDone = true; if (loaded) finishSplash(); }, 1300);
+  function ensureProject() { const list = myProjects(); if (!list.find((p) => p.id === S.pid)) S.pid = list.length ? list[0].id : null; saveSession(); }
+  function go(screen) { S.screen = screen; S.err = {}; closeSheet(); render(); window.scrollTo(0, 0); }
+  function onData() {
+    if (!loaded || !splashDone) return;
+    if (S.screen === 'home') {
+      if (!me()) { S.uid = null; go('login'); return; }
+      const before = S.pid; ensureProject();
+      if (before !== S.pid) { renderHome(); return; }
+      applyInvites(me());
+      refreshHome();
+    }
+    if (S.sheet && S.sheet.live) renderSheet();
+  }
+  function render() {
+    const app = $('#app');
+    if (S.screen === 'login') return renderLogin(app);
+    if (S.screen === 'signup') return renderSignup(app);
+    if (S.screen === 'verify') return renderVerify(app);
+    if (S.screen === 'forgot') return renderForgot(app);
+    if (S.screen === 'home') return renderHome();
+  }
+  function renderModebar() {
+    const el = $('#modebar'); if (!el) return;
+    el.textContent = mode === 'shared' ? 'Prototype · shared demo data' : 'Prototype · data kept on this device';
+  }
+
+  // ================= AUTH SCREENS =================
+  function renderLogin(app) {
+    const L = S.login;
+    app.innerHTML = `<main class="auth">
+      <div class="auth-card">
+        <img class="auth-logo" src="${LOGO_BLUE}" alt="Ajax">
+        <h1>Sign in to Granted</h1>
+        <p class="lede">Delivery booking and gate access</p>
+        <form id="loginForm" novalidate>
+          <div class="field"><label for="li_email">Email</label><input id="li_email" type="email" autocomplete="username" inputmode="email" autocapitalize="off" spellcheck="false" value="${esc(L.email || '')}"></div>
+          <div class="field"><label for="li_pw">Password</label><div class="pw-wrap"><input id="li_pw" type="password" autocomplete="current-password" value="${esc(L.pw || '')}"><button type="button" data-act="togglePw" data-for="li_pw">Show</button></div></div>
+          ${S.err.login ? `<p class="err" role="alert">${esc(S.err.login)}</p>` : ''}
+          <button class="btn primary block" type="submit" id="loginBtn">Sign in</button>
+        </form>
+        <button class="link-grey" data-act="toForgot">Forgot password?</button>
+        <div class="divider"></div>
+        <button class="link-grey" data-act="toSignup">New to Granted? <b>Create an account</b></button>
+      </div>
+      <details class="demo-accts"><summary>Demo accounts (prototype)</summary>
+        <div class="list">${GD.DEMO_USERS.filter((d) => ['admin', 'gate', 'dana'].includes(d.key)).map((d) => `<button type="button" data-act="fillDemo" data-email="${esc(d.email)}"><b>${esc(d.role === 'admin' ? 'Admin' : d.role === 'access' ? 'Access Control' : 'Contractor')} · ${esc(d.first + ' ' + d.last)}</b><span>${esc(d.email)}</span></button>`).join('')}
+        <span class="hint">Password for all demo accounts: <span class="mono">${GD.DEMO_PASSWORD_HINT}</span></span></div>
+      </details>
+      <p class="fine" id="modebar"></p>
+      <p class="fine">Working prototype. Don’t use a real password here.</p>
+    </main>`;
+    renderModebar();
+  }
+  async function doLogin() {
+    const email = A.normEmail($('#li_email').value), pw = $('#li_pw').value; S.login = { email, pw: '' };
+    const btn = $('#loginBtn'); btn.disabled = true; btn.textContent = 'Signing in…';
+    const fail = (msg) => { S.err = { login: msg }; renderLogin($('#app')); $('#li_pw').focus(); };
+    if (!email || !pw) return fail('Enter your email and password.');
+    const u = userByEmail(email);
+    if (!u) { await new Promise((r) => setTimeout(r, 400)); return fail('Email or password is incorrect.'); }
+    const ls = A.lockState(u.failures, new Date());
+    if (ls.locked) return fail(`Too many attempts. Try again in ${plural(ls.minutesLeft, 'minute')}, or reset your password.`);
+    const ok = u.pw && (await pbkdf2(pw, u.pw.salt, u.pw.iter)) === u.pw.hash;
+    if (!ok) {
+      const nu = clone(u); nu.failures = (nu.failures || []).concat(new Date().toISOString()).slice(-10);
+      try { await put('users', nu.id, nu); } catch (e) { /* shown */ }
+      const left = A.lockState(nu.failures, new Date());
+      return fail(left.locked ? `Too many attempts. Try again in ${plural(left.minutesLeft, 'minute')}.` : 'Email or password is incorrect.' + (left.remaining <= 2 ? ` ${plural(left.remaining, 'attempt')} left before a 15-minute lock.` : ''));
+    }
+    const nu = clone(u); nu.failures = []; nu.lastLoginAt = new Date().toISOString();
+    if (!u.verified) { await startVerify(nu, 'signup'); return; }
+    await put('users', nu.id, nu);
+    S.uid = nu.id; ensureProject(); await applyInvites(nu); saveSession(); go('home');
+  }
+
+  function renderSignup(app) {
+    const f = S.su; const v = A.validateSignUp(f); const errs = S.err || {}; const checks = A.passwordChecks(f.password);
+    const fe = (k) => (errs[k] ? `<p class="err">${esc(errs[k])}</p>` : '');
+    app.innerHTML = `<main class="auth" style="justify-content:flex-start">
+      <div class="auth-top" style="position:relative;justify-content:center"><button class="iconbtn back" data-act="toLogin" aria-label="Back to sign in" style="position:absolute;left:0">${ICON.back}</button><img src="${LOGO_BLUE}" alt="Ajax" style="width:72px"></div>
+      <div class="auth-card auth-wide">
+        <h1>Create your account</h1>
+        <p class="lede">Use your work email. You’ll confirm it with a code.</p>
+        <form id="signupForm" novalidate>
+          <div class="grid2">
+            <div class="field"><label for="su_first">First name</label><input id="su_first" name="first" autocomplete="given-name" value="${esc(f.first || '')}" ${errs.first ? 'aria-invalid="true"' : ''}>${fe('first')}</div>
+            <div class="field"><label for="su_last">Last name</label><input id="su_last" name="last" autocomplete="family-name" value="${esc(f.last || '')}" ${errs.last ? 'aria-invalid="true"' : ''}>${fe('last')}</div>
+          </div>
+          <div class="field"><label for="su_phone">Phone number</label><input id="su_phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" value="${esc(f.phone || '')}" ${errs.phone ? 'aria-invalid="true"' : ''}>${fe('phone')}</div>
+          <div class="field"><label for="su_email">Email</label><input id="su_email" name="email" type="email" inputmode="email" autocomplete="email" autocapitalize="off" spellcheck="false" value="${esc(f.email || '')}" ${errs.email ? 'aria-invalid="true"' : ''}>${fe('email')}</div>
+          <div class="field"><label for="su_pw">Password</label><div class="pw-wrap"><input id="su_pw" name="password" type="password" autocomplete="new-password" value="${esc(f.password || '')}" aria-describedby="pwrules" ${errs.password ? 'aria-invalid="true"' : ''}><button type="button" data-act="togglePw" data-for="su_pw">Show</button></div>
+            <ul class="pwrules" id="pwrules">${checks.map((c) => `<li class="${c.ok ? 'ok' : ''}">${esc(c.label)}</li>`).join('')}</ul>${fe('password')}</div>
+          <div class="field"><label for="su_company">Company name</label><input id="su_company" name="company" autocomplete="organization" value="${esc(f.company || '')}" ${errs.company ? 'aria-invalid="true"' : ''}>${fe('company')}</div>
+          <div class="field"><span class="label" id="ajaxLbl">Member of Ajax Building Company?</span>
+            <div class="seg" role="group" aria-labelledby="ajaxLbl" style="align-self:flex-start"><button type="button" data-act="ajaxYes" aria-pressed="${f.declaredAjax === 'yes'}">Yes</button><button type="button" data-act="ajaxNo" aria-pressed="${f.declaredAjax === 'no'}">No</button></div>
+            <div id="ajaxNote">${ajaxNoteHtml(v, f)}</div>${fe('declaredAjax')}</div>
+          <div class="field"><label for="su_code">Project code <span class="muted" style="font-weight:400">(optional)</span></label><input id="su_code" name="code" autocapitalize="characters" autocomplete="off" spellcheck="false" class="mono" value="${esc(f.code || '')}" placeholder="e.g. DDC2-7HKQ" ${errs.code ? 'aria-invalid="true"' : ''}>
+            <span class="hint">From your project admin. You can add it later, but you need one to book or receive deliveries.</span>${fe('code')}</div>
+          ${errs.form ? `<p class="err" role="alert">${esc(errs.form)}</p>` : ''}
+          <button class="btn primary block" type="submit" id="signupBtn">Create account</button>
+        </form>
+        <button class="link-grey" data-act="toLogin">Already have an account? <b>Sign in</b></button>
+      </div></main>`;
+  }
+  function ajaxNoteHtml(v, f) {
+    if (!v.ajaxNote) return '';
+    return `<div class="note warn">${esc(v.ajaxNote)}<label><input type="checkbox" id="su_ajaxok" ${f.ajaxNoteConfirmed ? 'checked' : ''}> I understand, continue</label></div>`;
+  }
+  function updateSignupLive() {
+    const f = S.su; const v = A.validateSignUp(f);
+    const ul = $('#pwrules'); if (ul) ul.innerHTML = A.passwordChecks(f.password).map((c) => `<li class="${c.ok ? 'ok' : ''}">${esc(c.label)}</li>`).join('');
+    const n = $('#ajaxNote'); if (n) { const html = ajaxNoteHtml(v, f); if (n._h !== html) { n.innerHTML = html; n._h = html; } }
+  }
+  async function doSignup() {
+    const f = S.su; const v = A.validateSignUp(f); const errs = Object.assign({}, v.errors);
+    const email = A.normEmail(f.email);
+    if (!errs.email && userByEmail(email)) errs.email = 'An account with this email already exists. Sign in instead, or reset your password.';
+    const code = A.normalizeProjectCode(f.code);
+    let cls = { kind: 'none' };
+    if (code) {
+      const adminMatch = await isAdminCode(code);
+      cls = A.classifyProjectCode({ code, email, adminCodeMatches: adminMatch, projectExists: !!projectByCode(code) });
+      if (cls.kind === 'invalid') errs.code = cls.message;
+    }
+    if (Object.keys(errs).length) { S.err = errs; renderSignup($('#app')); const first = $('[aria-invalid="true"]'); if (first) first.focus(); return; }
+    const btn = $('#signupBtn'); btn.disabled = true; btn.textContent = 'Creating account…';
+    const u = { id: rid('u-'), email, first: f.first.trim(), last: f.last.trim(), phone: A.formatPhone(f.phone), company: f.company.trim(), isAjax: v.isAjax,
+      isAdminAccount: cls.kind === 'admin', verified: false, createdAt: new Date().toISOString(), failures: [], pendingCode: cls.kind === 'join' ? code : '', pw: await makePw(f.password) };
+    try { await startVerify(u, 'signup'); S.su = {}; } catch (e) { btn.disabled = false; btn.textContent = 'Create account'; }
+  }
+  async function startVerify(u, purpose) {
+    const code = A.sixDigitCode(() => crypto.getRandomValues(new Uint32Array(1))[0] / 4294967296);
+    u.verify = { code, exp: Date.now() + 15 * 60000, purpose };
+    await put('users', u.id, u);
+    await sendMail([{ to: u.email, subject: 'Your Granted code: ' + code, body: `Enter ${code} in Granted to ${purpose === 'reset' ? 'reset your password' : 'confirm your email'}. The code expires in 15 minutes. If you didn’t ask for it, ignore this email.`, kind: 'account' }]);
+    S.verifyUid = u.id; S.verifyPurpose = purpose; S.err = {};
+    if (purpose === 'signup') go('verify');
+  }
+  function renderVerify(app) {
+    const u = D.users[S.verifyUid];
+    if (!u) { go('login'); return; }
+    app.innerHTML = `<main class="auth"><div class="auth-card">
+      <img class="auth-logo" src="${LOGO_BLUE}" alt="Ajax" style="width:96px">
+      <h1>Check your email</h1>
+      <p class="lede">We sent a 6-digit code to <b>${esc(u.email)}</b>.</p>
+      <div class="demo-code">Prototype: no real email is sent. Your code is <b>${esc(u.verify ? u.verify.code : '')}</b></div>
+      <form id="verifyForm" novalidate>
+        <div class="field"><label for="vf_code">Code</label><input id="vf_code" inputmode="numeric" autocomplete="one-time-code" maxlength="6" class="mono" style="letter-spacing:.3em;font-size:22px;text-align:center"></div>
+        ${S.err.verify ? `<p class="err" role="alert">${esc(S.err.verify)}</p>` : ''}
+        <button class="btn primary block" type="submit">Confirm email</button>
+      </form>
+      <button class="link-grey" data-act="resendCode">Didn’t get it? <b>Send a new code</b></button>
+      <button class="link-grey" data-act="toLogin">Back to sign in</button>
+    </div></main>`;
+    setTimeout(() => { const i = $('#vf_code'); if (i) i.focus(); }, 50);
+  }
+  async function doVerify() {
+    const u = D.users[S.verifyUid]; const code = ($('#vf_code').value || '').trim();
+    if (!u || !u.verify) return go('login');
+    if (Date.now() > u.verify.exp) { S.err = { verify: 'That code has expired. Send a new one.' }; return renderVerify($('#app')); }
+    if (code !== u.verify.code) { S.err = { verify: 'That code doesn’t match. Check the email and try again.' }; return renderVerify($('#app')); }
+    const nu = clone(u); delete nu.verify; nu.verified = true; nu.lastLoginAt = new Date().toISOString();
+    const pending = nu.pendingCode; delete nu.pendingCode;
+    await put('users', nu.id, nu);
+    S.uid = nu.id; saveSession();
+    await applyInvites(nu);
+    let msg = nu.isAdminAccount ? 'Welcome. Your Ajax admin account is ready. Tap + to create a project.' : 'Welcome to Granted.';
+    if (pending) { const r = await joinWithCode(nu, pending); msg = r.msg; }
+    ensureProject(); go('home'); toast(msg);
+  }
+  function renderForgot(app) {
+    const F = S.forgot; const u = F.uid ? D.users[F.uid] : null;
+    app.innerHTML = `<main class="auth"><div class="auth-card">
+      <div class="auth-top" style="max-width:none"><button class="iconbtn back" data-act="toLogin" aria-label="Back to sign in">${ICON.back}</button></div>
+      <h1>Reset your password</h1>
+      ${F.step === 1 ? `<p class="lede">Enter your email and we’ll send a code.</p>
+        <form id="forgotForm1" novalidate><div class="field"><label for="fg_email">Email</label><input id="fg_email" type="email" inputmode="email" autocapitalize="off" value="${esc(F.email || '')}"></div>
+        <button class="btn primary block" type="submit">Send code</button></form>`
+      : `<p class="lede">If an account exists for <b>${esc(F.email)}</b>, we sent it a code.</p>
+        ${u && u.verify ? `<div class="demo-code">Prototype: your code is <b>${esc(u.verify.code)}</b></div>` : ''}
+        <form id="forgotForm2" novalidate>
+          <div class="field"><label for="fg_code">Code</label><input id="fg_code" inputmode="numeric" maxlength="6" class="mono" style="letter-spacing:.3em"></div>
+          <div class="field"><label for="fg_pw">New password</label><div class="pw-wrap"><input id="fg_pw" type="password" autocomplete="new-password"><button type="button" data-act="togglePw" data-for="fg_pw">Show</button></div>
+            <ul class="pwrules" id="fgrules">${A.passwordChecks('').map((c) => `<li>${esc(c.label)}</li>`).join('')}</ul></div>
+          ${S.err.forgot ? `<p class="err" role="alert">${esc(S.err.forgot)}</p>` : ''}
+          <button class="btn primary block" type="submit">Set new password</button></form>`}
+    </div></main>`;
+  }
+  async function forgotStep1() {
+    const email = A.normEmail($('#fg_email').value); if (!A.isValidEmail(email)) { toast('Enter a valid email address.'); return; }
+    S.forgot = { step: 2, email, uid: null };
+    const u = userByEmail(email);
+    if (u) { const nu = clone(u); await startVerify(nu, 'reset'); S.forgot.uid = nu.id; }
+    renderForgot($('#app'));
+  }
+  async function forgotStep2() {
+    const F = S.forgot; const u = F.uid ? D.users[F.uid] : null; const code = $('#fg_code').value.trim(); const pw = $('#fg_pw').value;
+    const fail = (m) => { S.err = { forgot: m }; renderForgot($('#app')); };
+    if (!u || !u.verify || code !== u.verify.code || Date.now() > u.verify.exp) return fail('That code isn’t right or has expired.');
+    if (!A.isValidPassword(pw)) return fail('Password needs at least 8 characters with an uppercase letter, a lowercase letter and a number.');
+    const nu = clone(u); delete nu.verify; nu.pw = await makePw(pw); nu.failures = []; nu.verified = true;
+    await put('users', nu.id, nu); S.forgot = { step: 1 }; S.login = { email: nu.email }; go('login'); toast('Password updated. Sign in with your new password.');
+  }
+
+  // ================= PROJECT MEMBERSHIP =================
+  async function addMember(pid, uid, role, trade, via, by) {
+    const id = pid + '__' + uid;
+    await put('members', id, { id, projectId: pid, userId: uid, role, trade: trade || '', status: 'active', addedAt: new Date().toISOString(), addedBy: by || '', via });
+  }
+  async function applyInvites(u) {
+    if (!u) return;
+    const pend = Object.values(D.invites).filter((i) => i.status === 'pending' && i.email === u.email && D.projects[i.projectId] && !D.projects[i.projectId].deleted);
+    for (const inv of pend) {
+      if (applyInvites.busy) return; applyInvites.busy = true;
+      try {
+        if (!membership(inv.projectId, u.id)) await addMember(inv.projectId, u.id, inv.role, inv.trade, 'invite', inv.by);
+        await put('invites', inv.id, Object.assign(clone(inv), { status: 'accepted', acceptedAt: new Date().toISOString(), userId: u.id }));
+        for (const jr of Object.values(D.joinreqs).filter((j) => j.projectId === inv.projectId && j.userId === u.id && j.status === 'pending')) await put('joinreqs', jr.id, Object.assign(clone(jr), { status: 'approved', role: inv.role, decidedAt: new Date().toISOString(), decidedBy: 'invite' }));
+        const p = D.projects[inv.projectId];
+        await sendMail(adminEmails(p.id).map((e) => ({ to: e, subject: `${nameOf(u)} joined ${p.name} as ${roleLabel(inv.role)}`, body: `${nameOf(u)} (${u.company}, ${u.email}) accepted your invite and now has ${roleLabel(inv.role)} access to ${p.name}.`, kind: 'team', projectId: p.id })));
+        if (!S.pid) S.pid = p.id;
+        toast(`You now have ${roleLabel(inv.role)} access to ${p.name}.`);
+      } finally { applyInvites.busy = false; }
+    }
+  }
+  /** Enter a project code: admin set-up code, invite, join request, or already a member. */
+  async function joinWithCode(u, rawCode) {
+    const code = A.normalizeProjectCode(rawCode);
+    const adminMatch = await isAdminCode(code);
+    const p = adminMatch ? null : projectByCode(code);
+    const cls = A.classifyProjectCode({ code, email: u.email, adminCodeMatches: adminMatch, projectExists: !!p, alreadyAdminAccount: u.isAdminAccount });
+    if (cls.kind === 'invalid' || cls.kind === 'none') return { ok: false, msg: cls.message || 'Enter a project code.' };
+    if (cls.kind === 'admin') {
+      if (!u.isAdminAccount) { await put('users', u.id, Object.assign(clone(u), { isAdminAccount: true })); }
+      return { ok: true, msg: cls.message };
+    }
+    if (membership(p.id, u.id)) { S.pid = p.id; saveSession(); return { ok: true, msg: `You’re already on ${p.name}.` }; }
+    const inv = Object.values(D.invites).find((i) => i.status === 'pending' && i.projectId === p.id && i.email === u.email);
+    if (inv) { await applyInvites(u); S.pid = p.id; saveSession(); return { ok: true, msg: `Invite accepted. You have ${roleLabel(inv.role)} access to ${p.name}.` }; }
+    const open = Object.values(D.joinreqs).find((j) => j.projectId === p.id && j.userId === u.id && j.status === 'pending');
+    if (open) return { ok: true, msg: `Your request to join ${p.name} is still waiting for an admin.` };
+    const id = 'j-' + rid('');
+    await put('joinreqs', id, { id, projectId: p.id, userId: u.id, at: new Date().toISOString(), status: 'pending' });
+    await sendMail(adminEmails(p.id).map((e) => ({ to: e, subject: `Join request: ${nameOf(u)} (${u.company}) for ${p.name}`, body: `${nameOf(u)} from ${u.company} (${u.email}, ${u.phone}) asked to join ${p.name} with project code ${p.code}.\nOpen Granted → Approvals to approve them as Contractor, Access Control or Admin, or to decline.`, kind: 'team', projectId: p.id })));
+    return { ok: true, msg: `Request sent. The ${p.name} admins will choose your access.` };
+  }
+  async function createProject(name, location) {
+    const u = me(); if (!u || !u.isAdminAccount) { toast('Only Ajax admin accounts can create projects.'); return null; }
+    const code = A.newProjectCode(name, Object.values(D.projects).map((p) => p.code), () => crypto.getRandomValues(new Uint32Array(1))[0] / 4294967296);
+    let anc = U.ymd(new Date()); for (let i = 0; i < 8 && !R.isWorkDay(anc, R.DEFAULT_SETTINGS); i++) anc = U.addDays(anc, 1);
+    const p = { id: rid('p-'), name: name.trim(), location: (location || '').trim(), code, createdBy: u.id, createdAt: new Date().toISOString(), deleted: false, suspended: {},
+      gates: clone(GD.DEFAULT_GATES), zones: clone(GD.DEFAULT_ZONES), activities: GD.sampleActivities(anc, R), demoAnchor: anc, settings: GD.defaultSettings(R, A.passPrefixFromCode(code)) };
+    await put('projects', p.id, p);
+    await addMember(p.id, u.id, 'admin', '', 'creator', u.id);
+    await sendMail([{ to: u.email, subject: `Project created: ${p.name} (${p.code})`, body: `Your project ${p.name} is ready. Share project code ${p.code} with your team, or invite people from Team & invites. Everyone who joins needs your approval.`, kind: 'team', projectId: p.id }]);
+    S.pid = p.id; saveSession();
+    return p;
+  }
+
+  // ================= HOME =================
+  function tabsFor(r) {
+    const T = [{ id: 'project', icon: ICON.site }];
+    if (r === 'contractor') T.push({ id: 'confirm', title: 'Confirm Delivery', icon: ICON.qr }, { id: 'schedule', title: 'Schedule Delivery', icon: ICON.cal }, { id: 'mine', title: 'My Deliveries', icon: ICON.truck }, { id: 'messages', title: 'Messages', icon: ICON.inbox });
+    if (r === 'access') T.push({ id: 'receive', title: 'Receive Delivery', icon: ICON.scan }, { id: 'today', title: 'Expected Today', icon: ICON.list }, { id: 'gatelog', title: 'Gate Log', icon: ICON.log });
+    if (r === 'admin') T.push({ id: 'overview', title: 'Today', icon: ICON.chart }, { id: 'approvals', title: 'Approvals', icon: ICON.check }, { id: 'team', title: 'Team & Invites', icon: ICON.users },
+      { id: 'receive', title: 'Receive Delivery', icon: ICON.scan }, { id: 'schedule', title: 'Schedule Delivery', icon: ICON.cal }, { id: 'confirm', title: 'Confirm Delivery', icon: ICON.qr },
+      { id: 'deliveries', title: 'All Deliveries', icon: ICON.truck }, { id: 'emergency', title: 'Emergency Pass', icon: ICON.bolt },
+      { id: 'activity', title: 'Activity', icon: ICON.log }, { id: 'psettings', title: 'Project Settings', icon: ICON.sliders });
+    return T;
+  }
+  const FORM_TABS = { schedule: true, emergency: true, psettings: true };
+  function renderHome() {
+    const u = me(); if (!u) return go('login');
+    const r = role(); const tabs = tabsFor(r);
+    if (S.openRole !== (S.pid + ':' + r)) { S.openRole = S.pid + ':' + r; S.open = { [tabs[1] ? tabs[1].id : 'project']: true }; if (!S.pid) S.open = { project: true }; }
+    const app = $('#app');
+    app.innerHTML = `<header class="hdr"><div class="hdr-name">${esc(nameOf(u))}</div><div class="hdr-co">${esc(u.company)}</div>
+      <button class="iconbtn gear" data-act="openSettings" aria-label="Settings">${ICON.gear}</button></header>
+      ${inMaint() ? `<div class="maintbar" role="region" aria-label="Maintenance mode"><span class="mlabel">Maintenance mode \u00b7 viewing as</span><div class="seg" role="group" aria-label="View as">${['admin', 'contractor', 'access'].map((x) => `<button data-act="viewAs" data-r="${x}" aria-pressed="${role() === x}">${roleLabel(x)}</button>`).join('')}</div></div>` : ''}
+      <main class="tabs" id="tabs">${tabs.map((t) => `<section class="tab" id="tab-${t.id}">
+        <div class="tab-bar"><button class="tab-btn" data-act="toggleTab" data-tab="${t.id}" aria-expanded="${!!S.open[t.id]}" aria-controls="panel-${t.id}">
+          <span class="tab-ic">${t.icon}</span><span><span class="tab-title" id="tt-${t.id}"></span><span class="tab-sub" id="ts-${t.id}"></span></span><span id="tb-${t.id}"></span>${ICON.chev}</button>
+          ${t.id === 'project' ? `<button class="plus" data-act="addProject" aria-label="Add a project code"><span>${ICON.plus}</span></button>` : ''}</div>
+        <div class="tab-panel" id="panel-${t.id}" ${S.open[t.id] ? '' : 'hidden'}></div></section>`).join('')}</main>
+      <p class="modebar" id="modebar"></p>`;
+    renderModebar();
+    for (const t of tabs) { updateTabHead(t); if (S.open[t.id]) renderPanel(t.id, true); }
+  }
+  function refreshHome() {
+    const tabs = tabsFor(role());
+    const have = $$('.tab').map((e) => e.id.slice(4)).join(',');
+    if (have !== tabs.map((t) => t.id).join(',')) { renderHome(); return; }
+    for (const t of tabs) { updateTabHead(t); if (S.open[t.id]) renderPanel(t.id, false); }
+  }
+  function updateTabHead(t) {
+    const p = project(); const r = role(); const def = tabsFor(r).find((x) => x.id === t.id) || t;
+    let title = def.title, sub = '', badge = '';
+    if (t.id === 'project') {
+      title = p ? p.name : 'No project yet';
+      const pend = Object.values(D.joinreqs).filter((j) => j.userId === S.uid && j.status === 'pending').length;
+      sub = p ? `${roleLabel(r)} · ${p.code}${myProjects().length > 1 ? ' · tap to switch' : ''}` : (pend ? 'Request waiting for approval' : 'Tap + to add a project code');
+    } else if (t.id === 'confirm') { const n = upcomingPasses().length; sub = n ? `${plural(n, 'gate pass')} ready` : 'No gate passes yet'; }
+    else if (t.id === 'schedule') sub = `${settings().minNoticeHours} hours’ notice · checked automatically`;
+    else if (t.id === 'mine') { const n = pReqs().filter((x) => x.userId === S.uid && x.date >= today() && ['approved', 'review'].includes(x.status)).length; sub = plural(n, 'upcoming delivery'); }
+    else if (t.id === 'messages') { const n = myMail().length; sub = plural(n, 'message'); }
+    else if (t.id === 'receive') sub = 'Scan a gate pass';
+    else if (t.id === 'today' || t.id === 'overview') { const n = todaysReqs().filter((x) => x.status === 'approved').length; sub = `${plural(n, 'delivery')} expected ${U.fmtDate(today())}`; }
+    else if (t.id === 'gatelog') { const n = Object.values(D.gatelog).filter((l) => l.projectId === S.pid && U.ymd(new Date(l.ts)) === today()).length; sub = plural(n, 'entry') + ' today'; }
+    else if (t.id === 'approvals') { const j = pendingJoins().length, rv = pReqs().filter((x) => x.status === 'review').length; sub = `${plural(j, 'join request')} · ${plural(rv, 'delivery')} to review`; if (j + rv) badge = `<span class="badge warn">${j + rv}</span>`; }
+    else if (t.id === 'team') { const n = projMembers(S.pid).length; const i = Object.values(D.invites).filter((x) => x.projectId === S.pid && x.status === 'pending').length; sub = `${plural(n, 'member')}${i ? ' · ' + plural(i, 'invite') + ' pending' : ''}`; }
+    else if (t.id === 'deliveries') sub = `${plural(pReqs().length, 'request')} on this project`;
+    else if (t.id === 'emergency') sub = 'Same-day override, logged';
+    else if (t.id === 'activity') sub = 'Gate log and messages sent';
+    else if (t.id === 'psettings') sub = 'Code, gates, zones and rules';
+    const tt = $('#tt-' + t.id), ts = $('#ts-' + t.id), tb = $('#tb-' + t.id);
+    if (tt) tt.textContent = title; if (ts) ts.textContent = sub; if (tb) tb.innerHTML = badge;
+  }
+  const PANELS = {};
+  function renderPanel(id, full) {
+    const el = $('#panel-' + id); if (!el) return;
+    if (!project() && id !== 'project') { el.innerHTML = '<p class="empty">Add a project first.</p>'; return; }
+    if (FORM_TABS[id] && !full && el.dataset.built) { if (PANELS[id].refresh) PANELS[id].refresh(el); return; }
+    PANELS[id].render(el); el.dataset.built = '1';
+  }
+
+  // ---------- Tab 0: project ----------
+  PANELS.project = { render(el) {
+    const p = project(); const list = myProjects(); const u = me();
+    const pend = Object.values(D.joinreqs).filter((j) => j.userId === S.uid && j.status === 'pending').map((j) => D.projects[j.projectId]).filter(Boolean);
+    if (!p) {
+      el.innerHTML = `<div class="empty"><b>You’re not on a project yet.</b><span>Tap <b>+</b> and enter the project code from your project admin.${u.isAdminAccount ? ' As an Ajax admin you can also create a new project.' : ''}</span>
+        <button class="btn primary" data-act="addProject">${u.isAdminAccount ? 'Add or create a project' : 'Enter a project code'}</button></div>
+        ${pend.length ? `<div class="card stack-s"><span class="eyebrow">Waiting for approval</span>${pend.map((x) => `<div class="between"><b>${esc(x.name)}</b>${pill('pending', 'Pending')}</div>`).join('')}</div>` : ''}`;
+      return;
+    }
+    const r = role();
+    el.innerHTML = `<div class="card stack">
+        <div class="between"><div class="stack-s" style="gap:2px"><span class="eyebrow">Current project</span><span class="h3">${esc(p.name)}</span>${p.location ? `<span class="small muted">${esc(p.location)}</span>` : ''}</div>${pill(r === 'admin' ? 'approved' : 'arrived', roleLabel(r))}</div>
+        <div class="row"><span class="code-chip" aria-label="Project code">${esc(p.code)}</span><button class="btn sm" data-act="copy" data-text="${esc(p.code)}">Copy code</button></div>
+        <p class="hint">Everyone on this project uses this code to join. Admins approve each person and choose their access.</p>
+      </div>
+      ${list.length > 1 ? `<div class="stack-s"><span class="eyebrow">Switch project</span><div class="list">${list.map((x) => {
+        const mr = membership(x.id, S.uid);
+        return `<button class="item" style="grid-template-columns:minmax(0,1fr) auto" data-act="switchProject" data-id="${x.id}" ${x.id === p.id ? 'aria-current="true"' : ''}><span><span class="ititle">${esc(x.name)}</span><span class="isub" style="display:block">${esc(roleLabel(mr.role))} · ${esc(x.code)}</span></span>${x.id === p.id ? pill('approved', 'Open') : '<span class="small muted">Switch</span>'}</button>`;
+      }).join('')}</div></div>` : ''}
+      ${pend.length ? `<div class="card stack-s"><span class="eyebrow">Waiting for approval</span>${pend.map((x) => `<div class="between"><b>${esc(x.name)}</b>${pill('pending', 'Pending')}</div>`).join('')}</div>` : ''}
+      <button class="btn" data-act="addProject">${ICON.plus.replace('<svg', '<svg width="18" height="18"')} ${u.isAdminAccount ? 'Add or create a project' : 'Add a project code'}</button>`;
+  } };
+
+  // ---------- contractor: confirm ----------
+  function upcomingPasses() {
+    if (!project()) return [];
+    return pReqs().filter((r) => r.userId === S.uid && r.status === 'approved' && r.date >= today() && passOf(r) && passOf(r).status === 'active').sort(byWhen);
+  }
+  function ticketHtml(r) {
+    const p = passOf(r); const w = R.passWindow(r, settings());
+    return `<div class="ticket"><div class="ticket-top"><div><div class="t1">${esc(r.material)}</div><div class="t2">${esc(U.fmtDate(r.date) + ' · ' + U.fmtTime(r.slot) + ' · ' + gateById(r.gateId).name)}</div></div><span class="pill" style="background:rgba(255,255,255,.16);color:#fff">Gate pass</span></div>
+      <div class="ticket-body"><div class="qr" role="img" aria-label="QR code for ${esc(p.code)}">${qrSvg(p.code)}</div><div class="pcode">${esc(p.code)}</div>
+      <p class="small muted">Show this to Access Control at the gate. Arrive between <b>${esc(U.fmtClock(w.open))}</b> and <b>${esc(U.fmtClock(w.close))}</b>.</p>
+      <dl class="kv" style="text-align:left;width:100%"><dt>Staging</dt><dd>${esc(zoneById(r.zoneId).name)}</dd><dt>Load</dt><dd>${esc(r.quantity + ' ' + r.unit + ' · ' + plural(r.pallets, 'pallet'))}</dd><dt>Contact</dt><dd>${esc(r.pocName + ', ' + r.pocPhone)}</dd></dl></div></div>`;
+  }
+  function qrSvg(code) { try { return window.qrToSvg(window.qrEncode(code), 3); } catch (e) { return ''; } }
+  PANELS.confirm = { render(el) {
+    const list = upcomingPasses();
+    if (!list.length) {
+      const rev = pReqs().filter((r) => r.userId === S.uid && r.status === 'review').length;
+      el.innerHTML = `<div class="empty"><b>No gate passes yet.</b><span>${rev ? plural(rev, 'request') + ' waiting for GC review. ' : ''}Approved deliveries show their QR pass here.</span><button class="btn primary" data-act="openTab" data-tab="schedule">Schedule a delivery</button></div>`;
+      return;
+    }
+    if (!list.find((r) => r.id === S.c.pass)) S.c.pass = list[0].id;
+    const r = list.find((x) => x.id === S.c.pass);
+    el.innerHTML = `${list.length > 1 ? `<div class="chips" role="group" aria-label="Choose a delivery">${list.map((x) => `<button class="chip" data-act="pickPass" data-id="${x.id}" aria-pressed="${x.id === r.id}">${esc(U.fmtDate(x.date) + ' ' + U.fmtTime(x.slot))}</button>`).join('')}</div>` : ''}${ticketHtml(r)}`;
+  } };
+
+  // ---------- contractor: schedule ----------
+  function blankForm() {
+    const u = me(); const n = R.nextOpenSlot(ctx(), (project().gates[0] || {}).id);
+    return { id: null, activityId: '', gateId: (project().gates[0] || {}).id, date: n ? n.date : U.addDays(today(), 2), slot: '', zoneId: '', material: '', quantity: '', unit: 'pcs', pallets: '', weightLbs: '', carrier: '', truck: '', pocName: nameOf(u), pocPhone: u.phone, justification: '' };
+  }
+  function mySub() { const u = me(); return subsNow().find((s) => s.id === GD.companyKey(u.company)) || { id: GD.companyKey(u.company), name: u.company, trade: '' }; }
+  PANELS.schedule = {
+    render(el) {
+      if (S.c.result) return renderScheduleResult(el);
+      if (!S.form) S.form = blankForm();
+      const f = S.form; const sub = mySub(); const acts = (project().activities || []).filter((a) => !sub.trade || a.trade === sub.trade || a.trade === 'General');
+      el.innerHTML = `${sub.suspended ? '<div class="note warn">Your company’s booking rights are suspended on this project. Contact the project admin.</div>' : ''}
+        ${f.id ? '<div class="note">Editing a booked delivery. Saving runs every check again and replaces the gate pass.</div>' : ''}
+        <form id="reqForm" class="stack" novalidate>
+          <span class="section-t">What and why</span>
+          <div class="field"><label for="f_activityId">Look-ahead activity</label><select id="f_activityId" name="activityId"><option value="">Choose the activity this supports</option>${acts.map((a) => opt(a.id, a.id + ' · ' + a.name + ' · starts ' + U.fmtDate(a.start), f.activityId)).join('')}</select><span class="hint" id="actHint"></span></div>
+          <div class="field"><label for="f_material">Material</label><input id="f_material" name="material" value="${esc(f.material)}" placeholder="e.g. Busway sections, 4000A" autocomplete="off"></div>
+          <div class="grid2"><div class="field"><label for="f_quantity">Quantity</label><input id="f_quantity" name="quantity" inputmode="decimal" value="${esc(f.quantity)}"></div>
+            <div class="field"><label for="f_unit">Unit</label><select id="f_unit" name="unit">${GD.UNITS.map((x) => opt(x, x, f.unit)).join('')}</select></div>
+            <div class="field"><label for="f_pallets">Pallets or skids</label><input id="f_pallets" name="pallets" inputmode="numeric" value="${esc(f.pallets)}"></div>
+            <div class="field"><label for="f_weightLbs">Weight, lb (optional)</label><input id="f_weightLbs" name="weightLbs" inputmode="numeric" value="${esc(f.weightLbs)}"></div></div>
+          <span class="section-t">When and where</span>
+          <div class="grid2"><div class="field"><label for="f_gateId">Gate</label><select id="f_gateId" name="gateId">${project().gates.map((g) => opt(g.id, g.name, f.gateId)).join('')}</select></div>
+            <div class="field"><label for="f_date">Date</label><input type="date" id="f_date" name="date" value="${esc(f.date)}"></div></div>
+          <div class="field"><span class="label" id="slotLbl">Time slot</span><div class="slots" id="slotBoard" role="group" aria-labelledby="slotLbl"></div></div>
+          <div class="field"><label for="f_zoneId">Staging zone</label><select id="f_zoneId" name="zoneId"></select></div>
+          <div class="field" id="justWrap" hidden><label for="f_justification">Why does it need to come early?</label><textarea id="f_justification" name="justification" placeholder="e.g. Factory ships once; crane booked">${esc(f.justification)}</textarea><span class="hint">Early deliveries go to a project admin for review.</span></div>
+          <span class="section-t">Truck and contact</span>
+          <div class="grid2"><div class="field"><label for="f_carrier">Carrier</label><input id="f_carrier" name="carrier" value="${esc(f.carrier)}" autocomplete="off"></div>
+            <div class="field"><label for="f_truck">Truck no. (optional)</label><input id="f_truck" name="truck" value="${esc(f.truck)}" autocomplete="off"></div>
+            <div class="field"><label for="f_pocName">Onsite contact</label><input id="f_pocName" name="pocName" value="${esc(f.pocName)}" autocomplete="off"></div>
+            <div class="field"><label for="f_pocPhone">Contact phone</label><input id="f_pocPhone" name="pocPhone" inputmode="tel" value="${esc(f.pocPhone)}" autocomplete="off"></div></div>
+          <div id="checkSum" aria-live="polite"></div>
+          <div class="row">${f.id ? '<button type="button" class="btn" data-act="cancelEdit">Discard changes</button>' : ''}<button class="btn primary" style="flex:1" type="submit" id="submitBtn">${f.id ? 'Save and re-check' : 'Submit request'}</button></div>
+        </form>`;
+      updateSchedule();
+    },
+    refresh() { if (!S.c.result) updateSchedule(); else renderPanel('schedule', true); },
+  };
+  function setHtml(el, html) { if (el && el._h !== html) { el.innerHTML = html; el._h = html; } }
+  function formToReq() { const f = S.form; const sub = mySub(); return Object.assign({}, f, { id: f.id || 'draft', subId: sub.id, quantity: f.quantity === '' ? '' : Number(f.quantity), pallets: f.pallets === '' ? '' : Number(f.pallets) }); }
+  function updateSchedule() {
+    const f = S.form; if (!f || !$('#reqForm')) return; const c = ctx();
+    const board = R.slotBoard(c, f.gateId, f.date, f.id);
+    setHtml($('#slotBoard'), board.map((s) => {
+      const off = !s.open; const note = s.closedDay ? 'Gate closed' : s.tooSoon ? 'Under ' + settings().minNoticeHours + ' h' : s.left === 0 ? 'Full' : s.left + ' open';
+      return `<button type="button" class="slot ${off ? 'off' : ''}" data-act="pickSlot" data-slot="${s.slot}" aria-pressed="${f.slot === s.slot}"><b>${esc(s.label)}</b><small>${note}</small></button>`;
+    }).join(''));
+    const act = (project().activities || []).find((a) => a.id === f.activityId);
+    const days = f.date ? R.stagingDays(f.date, act).days : [];
+    setHtml($('#f_zoneId'), '<option value="">Choose a zone</option>' + project().zones.map((z) => { const left = Math.max(0, z.capacityPallets - R.zonePeak(c.requests, z.id, days, f.id)); return opt(z.id, `${z.name} · ${left} of ${z.capacityPallets} pallets free`, f.zoneId); }).join(''));
+    $('#actHint').textContent = act ? `${U.fmtDate(act.start)} to ${U.fmtDate(act.finish)}. Deliver no earlier than ${U.fmtDate(U.addDays(act.start, -settings().maxDaysBeforeInstall))}.` : 'Only activities from the current 3-week look-ahead are listed.';
+    $('#justWrap').hidden = !(act && f.date && U.daysBetween(f.date, act.start) > settings().maxDaysBeforeInstall);
+    const ev = R.evaluateRequest(formToReq(), c);
+    const filled = ev.checks.every((k) => k.status !== 'skip') && ev.checks[0].status === 'pass';
+    const fails = ev.checks.filter((k) => k.status === 'fail'), flags = ev.checks.filter((k) => k.status === 'flag');
+    const cls = !filled ? 'none' : fails.length ? 'bad' : flags.length ? 'rev' : 'ok';
+    const msg = !filled ? 'Fill in the request to run the checks.' : fails.length ? `${plural(fails.length, 'problem')} to fix before this can be approved.` : flags.length ? 'Passes the rules. A project admin will review it.' : `All ${ev.checks.length} checks pass. It will be approved automatically.`;
+    const icon = { pass: '✓', fail: '✕', flag: '!', skip: '–' };
+    setHtml($('#checkSum'), `<div class="checksum ${cls}">${esc(msg)}</div>${filled && (fails.length || flags.length) ? `<ul class="reasons" style="margin-top:8px">${fails.concat(flags).map((k) => `<li class="${k.status === 'flag' ? 'flag' : ''}"><b>${esc(k.title)}</b>${esc(k.remedy)}</li>`).join('')}</ul>` : ''}
+      <details class="more" style="margin-top:8px"><summary>See all ${ev.checks.length} checks</summary><ul class="checks">${ev.checks.map((k) => `<li><span class="ic ${k.status}" aria-hidden="true">${icon[k.status]}</span><span>${esc(k.label)}<span class="sr-only"> ${k.status}</span></span></li>`).join('')}</ul></details>`);
+  }
+  async function submitSchedule() {
+    const f = S.form; const c = ctx(); const req = formToReq(); const ev = R.evaluateRequest(req, c); const u = me();
+    const missing = ev.checks.find((k) => k.reason === 'R01'); if (missing) { toast(missing.title + '. ' + missing.remedy); return; }
+    const existing = f.id ? D.requests[f.id] : null; const id = f.id || rid('r-');
+    const r = Object.assign({}, existing ? clone(existing) : {}, req, { id, projectId: S.pid, subName: u.company, userId: u.id, submitterEmail: u.email, submittedBy: nameOf(u),
+      weightLbs: f.weightLbs === '' ? '' : Number(f.weightLbs), status: ev.outcome, stagedUntil: ev.stagedUntil, reasons: ev.checks.filter((k) => k.reason).map((k) => ({ code: k.reason, title: k.title, remedy: k.remedy })),
+      submittedAt: nowIso(), decidedAt: nowIso(), decidedBy: 'Rules engine', passCode: null });
+    delete r.cancelledAt; if (inMaint()) r.maintenance = true;
+    $('#submitBtn').disabled = true;
+    try {
+      const old = existing && existing.passCode ? D.passes[existing.passCode] : null;
+      if (old && old.status === 'active') await put('passes', old.code, Object.assign(clone(old), { status: 'void', voidedAt: nowIso(), voidReason: 'Rescheduled' }));
+      if (ev.outcome === 'approved') { r.passCode = R.newPassCode(Object.keys(D.passes), settings()); await put('passes', r.passCode, { id: r.passCode, code: r.passCode, projectId: S.pid, requestId: id, status: 'active', issuedAt: nowIso(), override: false }); }
+      await put('requests', id, r);
+      await notify(ev.outcome, r);
+      S.form = null; S.c.result = { id, nextOpen: ev.nextOpen }; renderPanel('schedule', true); refreshHome();
+      $('#tab-schedule').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } catch (e) { const b = $('#submitBtn'); if (b) b.disabled = false; }
+  }
+  function renderScheduleResult(el) {
+    const r = D.requests[S.c.result.id]; if (!r) { S.c.result = null; return PANELS.schedule.render(el); }
+    const st = statusOf(r); const next = S.c.result.nextOpen;
+    const head = { approved: ['Approved', 'Your gate pass is ready. It’s in Confirm Delivery and your email.'], review: ['Sent for review', 'It passed the rules. A project admin will approve or reject it. You’ll get an email.'], rejected: ['Not approved', 'Fix the items below and submit again.'] }[st] || [LABEL[st], ''];
+    el.innerHTML = `<div class="card stack"><div class="between"><span class="h3">${esc(head[0])}</span>${pill(st)}</div><p class="small">${esc(head[1])}</p>
+      ${st === 'approved' ? ticketHtml(r) : ''}${st !== 'approved' ? reasonsHtml(r) : ''}
+      ${next && st === 'rejected' ? `<button class="btn primary" data-act="useNext" data-date="${next.date}" data-slot="${next.slot}">Use next open slot: ${esc(next.label)}</button>` : ''}
+      <div class="row">${st === 'rejected' ? `<button class="btn" data-act="editReq" data-id="${r.id}">Fix and resubmit</button>` : ''}<button class="btn ${st === 'rejected' ? '' : 'primary'}" data-act="newReq" style="flex:1">Book another delivery</button></div></div>`;
+  }
+  function reasonsHtml(r) { return r.reasons && r.reasons.length ? `<ul class="reasons">${r.reasons.map((x) => `<li class="${x.code && x.code[0] === 'F' ? 'flag' : ''}"><b>${esc(x.title)}</b>${esc(x.remedy)}</li>`).join('')}</ul>` : ''; }
+
+  // ---------- contractor: my deliveries ----------
+  function deliveryRow(r, act) {
+    const st = statusOf(r);
+    return `<button class="item" data-act="${act}" data-id="${r.id}" aria-expanded="${S.c.open === r.id}"><span class="when">${esc(U.fmtDate(r.date))}<span>${esc(U.fmtTime(r.slot))}</span></span>
+      <span><span class="ititle">${esc(r.material)}</span><span class="isub" style="display:block">${r.maintenance ? '<b>Maintenance</b> · ' : ''}${esc(gateById(r.gateId).name + ' · ' + zoneById(r.zoneId).name)}${r.passCode ? ' · <span class="mono">' + esc(r.passCode) + '</span>' : ''}</span></span>${pill(st)}</button>`;
+  }
+  PANELS.mine = { render(el) {
+    const mine = pReqs().filter((r) => r.userId === S.uid);
+    const up = mine.filter((r) => r.date >= today() && ['approved', 'review'].includes(r.status)).sort(byWhen);
+    const past = mine.filter((r) => !up.includes(r)).sort((a, b) => byWhen(b, a));
+    const block = (r) => deliveryRow(r, 'expandReq') + (S.c.open === r.id ? detailHtml(r) : '');
+    el.innerHTML = !mine.length ? '<div class="empty"><b>No deliveries yet.</b><button class="btn primary" data-act="openTab" data-tab="schedule">Schedule a delivery</button></div>'
+      : `${up.length ? `<div class="list">${up.map(block).join('')}</div>` : '<p class="empty">No upcoming deliveries.</p>'}
+         ${past.length ? `<details class="more"><summary>Past, cancelled and rejected (${past.length})</summary><div class="list" style="margin-top:8px">${past.map(block).join('')}</div></details>` : ''}`;
+  } };
+  function detailHtml(r) {
+    const st = statusOf(r); const act = (project().activities || []).find((a) => a.id === r.activityId); const canChange = ['approved', 'review'].includes(st) && r.date >= today();
+    return `<div class="card stack-s" style="margin-top:-4px">${reasonsHtml(r)}<dl class="kv">
+      <dt>Load</dt><dd>${esc(r.quantity + ' ' + r.unit + ' · ' + plural(r.pallets, 'pallet'))}</dd>
+      <dt>Activity</dt><dd>${act ? esc(act.id + ' ' + act.name) : esc(r.activityId || '—')}</dd>
+      <dt>Truck</dt><dd>${esc([r.carrier, r.truck].filter(Boolean).join(', ') || '—')}</dd>
+      <dt>Contact</dt><dd>${esc(r.pocName + ', ' + r.pocPhone)}</dd>
+      <dt>Decided</dt><dd>${esc((r.decidedBy || '') + (r.decidedAt ? ', ' + clockLabel(new Date(r.decidedAt)) : ''))}</dd></dl>
+      ${canChange ? `<div class="row" id="cw-${r.id}"><button class="btn sm" data-act="editReq" data-id="${r.id}">Reschedule or edit</button><button class="btn sm ghost danger" data-act="cancelAsk" data-id="${r.id}">Cancel delivery</button></div>` : ''}</div>`;
+  }
+  function myMail() { const u = me(); return Object.values(D.mail).filter((m) => m.to === u.email && (!m.projectId || m.projectId === S.pid)).sort((a, b) => b.ts.localeCompare(a.ts)); }
+  function mailHtml(m, showTo) {
+    return `<div class="msg"><div class="meta"><span>${esc(clockLabel(new Date(m.ts)))}</span>${showTo ? `<span>to ${esc(m.to)}</span>` : ''}<span>Email${m.kind === 'delivery' ? ' + in-app' : ''}</span></div><div class="subj">${esc(m.subject)}</div><pre>${esc(m.body)}</pre></div>`;
+  }
+  PANELS.messages = { render(el) { const list = myMail(); el.innerHTML = list.length ? `<div class="card">${list.slice(0, 40).map((m) => mailHtml(m)).join('')}</div>` : '<p class="empty">Messages about your deliveries appear here and in your email.</p>'; } };
+
+  // ---------- access control: receive ----------
+  PANELS.receive = {
+    render(el) {
+      el.innerHTML = `<label class="btn primary block scanbtn" for="photoIn">${ICON.scan} Scan QR code</label>
+        <input id="photoIn" type="file" accept="image/*" capture="environment" class="sr-only">
+        <form class="codeform" id="codeForm"><label class="sr-only" for="codeIn">Pass code</label><input id="codeIn" placeholder="Or type the code" autocomplete="off" autocapitalize="characters" spellcheck="false"><button class="btn" type="submit">Check</button></form>
+        <p class="hint">The iPhone app scans with the live camera. In this prototype, take or choose a photo of the QR, type the code, or tap Check on Expected Today. Gate time: <b id="gateTime"></b></p>
+        <div id="gResult" aria-live="polite"></div>`;
+      PANELS.receive.refresh(el);
+    },
+    refresh() {
+      const t = $('#gateTime'); if (t) t.textContent = clockLabel(now()) + (S.clock.mode === 'live' ? '' : ' (demo clock)');
+      const g = S.g; const box = $('#gResult'); if (!box) return;
+      box.innerHTML = g.error ? `<div class="card"><b>${esc(g.error)}</b></div>` : g.res ? verdictHtml(g) : '';
+    },
+  };
+  FORM_TABS.receive = true;
+  function verdictHtml(g) {
+    const res = g.res; const r = res.requestId ? D.requests[res.requestId] : null; const green = res.color === 'green';
+    let details = '';
+    if (r) { const w = R.passWindow(r, settings()); details = `<dl class="kv"><dt>Company</dt><dd>${esc(r.subName)}</dd><dt>Load</dt><dd>${esc(r.material + ' (' + r.quantity + ' ' + r.unit + ', ' + plural(r.pallets, 'pallet') + ')')}</dd><dt>Booked</dt><dd>${esc(U.fmtDate(r.date) + ' ' + U.fmtTime(r.slot))} · arrive ${esc(U.fmtClock(w.open) + '–' + U.fmtClock(w.close))}</dd><dt>Gate</dt><dd>${esc(gateById(r.gateId).name)}</dd><dt>Staging</dt><dd>${esc(zoneById(r.zoneId).name)}</dd><dt>Contact</dt><dd>${esc(r.pocName + ', ' + r.pocPhone)}</dd></dl>`; }
+    const action = g.logged ? `<div class="logged">${esc(g.logged)}</div>` : green ? '<div class="row"><button class="btn" data-act="admit">Admit and log</button><button class="btn ghost" data-act="clearResult">Clear</button></div>' : '<div class="row"><button class="btn" data-act="turnAway">Log turn-away and notify</button><button class="btn ghost" data-act="clearResult">Clear</button></div>';
+    return `<div class="verdict ${res.color}" role="alert"><div class="meta">${esc(res.code)} · ${esc(U.fmtClock(new Date(g.at)))}${g.source === 'photo' ? ' · from photo' : ''}</div><div class="big">${green ? 'Admit' : 'Turn away'}</div><div class="why">${esc(res.title)}</div><div><b>${green ? 'Next: ' : 'What has to happen: '}</b>${esc(res.remedy)}</div>${details}${action}</div>`;
+  }
+  function runCheck(raw, source) {
+    const c = ctx(); const res = R.checkPass(raw, c);
+    S.g = { res: { color: res.color, reason: res.reason, title: res.title, remedy: res.remedy, code: res.code, requestId: res.request ? res.request.id : null }, at: nowIso(), source, logged: null };
+    if (!S.open.receive) { S.open.receive = true; const b = $('[data-tab="receive"]'); if (b) b.setAttribute('aria-expanded', 'true'); $('#panel-receive').hidden = false; renderPanel('receive', true); }
+    else PANELS.receive.refresh();
+    const el = $('#gResult'); if (el && el.scrollIntoView) el.scrollIntoView({ block: 'center', behavior: 'smooth' });
+  }
+  async function admit() {
+    const g = S.g; const r = D.requests[g.res.requestId]; const p = passOf(r); if (!p) return; const u = me();
+    try {
+      await put('passes', p.code, Object.assign(clone(p), { status: 'used', usedAt: nowIso(), usedBy: nameOf(u) }));
+      const id = rid('l-'); await put('gatelog', id, { id, projectId: S.pid, ts: nowIso(), code: p.code, color: 'green', reason: 'G00', title: g.res.title, action: 'admitted', guard: nameOf(u) + (inMaint() ? ' (maintenance)' : ''), requestId: r.id, subId: r.subId, maintenance: inMaint() || undefined });
+      g.logged = `Admitted ${U.fmtClock(now())}. Direct the truck to ${zoneById(r.zoneId).name}.`; PANELS.receive.refresh(); refreshHome();
+    } catch (e) { /* shown */ }
+  }
+  async function turnAway() {
+    const g = S.g; const r = g.res.requestId ? D.requests[g.res.requestId] : null; const u = me();
+    try {
+      const id = rid('l-'); await put('gatelog', id, { id, projectId: S.pid, ts: nowIso(), code: g.res.code, color: 'red', reason: g.res.reason, title: g.res.title, action: 'turned away', guard: nameOf(u) + (inMaint() ? ' (maintenance)' : ''), requestId: r ? r.id : null, subId: r ? r.subId : null, maintenance: inMaint() || undefined });
+      if (r) await notify('turnedAway', r, { reasonTitle: g.res.title, remedy: g.res.remedy, guard: nameOf(u) });
+      else { const list = R.notices('turnedAway', { subName: 'Unknown carrier', material: 'load with no approved pass', reasonTitle: g.res.title, remedy: g.res.remedy, scannedCode: g.res.code, guard: nameOf(u) }).filter((n) => n.to !== 'contractor'); await sendMail(GD.routeNotices(list, project(), members(), users(), null)); }
+      g.logged = `Logged ${U.fmtClock(now())}. ${r ? 'Contractor, Access Control and admins' : 'Access Control and admins'} were emailed the reason and what has to happen.`; PANELS.receive.refresh(); refreshHome();
+    } catch (e) { /* shown */ }
+  }
+  async function decodePhoto(file) {
+    if (!window.jsQR) return { error: 'The QR reader didn’t load. Type the code instead.' };
+    const url = URL.createObjectURL(file);
+    try {
+      const img = await new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = url; });
+      for (const max of [1400, 900, 2000]) {
+        const k = Math.min(1, max / Math.max(img.naturalWidth, img.naturalHeight)); const w = Math.round(img.naturalWidth * k), h = Math.round(img.naturalHeight * k);
+        const cv = document.createElement('canvas'); cv.width = w; cv.height = h; const cx = cv.getContext('2d'); cx.drawImage(img, 0, 0, w, h);
+        const out = window.jsQR(cx.getImageData(0, 0, w, h).data, w, h); if (out && out.data) return { data: out.data };
+      }
+      return { error: 'No QR code found in that photo. Hold the camera closer and try again, or type the code.' };
+    } catch (e) { return { error: 'That photo couldn’t be read. Try again or type the code.' }; } finally { URL.revokeObjectURL(url); }
+  }
+  function todaysReqs() { return project() ? pReqs().filter((r) => r.date === today() && (r.status === 'approved' || r.status === 'cancelled')).sort(byWhen) : []; }
+  PANELS.today = { render(el) {
+    const list = todaysReqs();
+    el.innerHTML = list.length ? `<div class="list">${list.map((r) => `<div class="item" style="grid-template-columns:62px minmax(0,1fr)"><span class="when">${esc(U.fmtTime(r.slot))}<span>${esc(gateById(r.gateId).name ? r.gateId : '')}</span></span><span class="stack-s" style="gap:4px"><span class="ititle">${esc(r.subName)}</span><span class="isub">${esc(r.material)}${r.passCode ? ' · <span class="mono">' + esc(r.passCode) + '</span>' : ''}</span><span class="row" style="gap:8px">${pill(statusOf(r))}${r.passCode && statusOf(r) === 'approved' ? `<button class="btn sm" data-act="simScan" data-code="${esc(r.passCode)}">Check at gate</button>` : ''}</span></span></div>`).join('')}</div>` : '<p class="empty">No deliveries booked for today.</p>';
+  } };
+  function gateLogHtml(all) {
+    const log = Object.values(D.gatelog).filter((l) => l.projectId === S.pid && (all || U.ymd(new Date(l.ts)) === today())).sort((a, b) => b.ts.localeCompare(a.ts));
+    return log.length ? `<div class="table-wrap"><table><thead><tr><th>Time</th><th>Result</th><th>Code</th><th>Reason</th><th>By</th></tr></thead><tbody>${log.map((l) => `<tr><td class="mono">${esc(all ? clockLabel(new Date(l.ts)) : U.fmtClock(new Date(l.ts)))}</td><td>${pill(l.color === 'green' ? 'green' : 'red', l.action === 'admitted' ? 'Admitted' : 'Turned away')}</td><td class="mono">${esc(l.code)}</td><td>${esc(l.title)}</td><td>${esc(l.guard)}</td></tr>`).join('')}</tbody></table></div>` : '<p class="empty">Nothing logged yet.</p>';
+  }
+  PANELS.gatelog = { render(el) { el.innerHTML = gateLogHtml(false); } };
+
+  // ---------- admin ----------
+  const pendingJoins = () => Object.values(D.joinreqs).filter((j) => j.projectId === S.pid && j.status === 'pending' && D.users[j.userId]);
+  PANELS.overview = { render(el) {
+    const t = today(); const todays = pReqs().filter((r) => r.date === t && r.status === 'approved'); const st = todays.map(statusOf);
+    const red = Object.values(D.gatelog).filter((l) => l.projectId === S.pid && l.color === 'red' && U.ymd(new Date(l.ts)) === t).length;
+    const rev = pReqs().filter((r) => r.status === 'review').length + pendingJoins().length;
+    el.innerHTML = `<div class="tiles"><div class="tile"><div class="n">${todays.length}</div><div class="l">Expected</div></div><div class="tile grey"><div class="n">${st.filter((x) => x === 'arrived').length}</div><div class="l">Arrived</div></div><div class="tile bad"><div class="n">${red}</div><div class="l">Turned away</div></div>
+      <div class="tile bad"><div class="n">${st.filter((x) => x === 'noshow').length}</div><div class="l">No-shows</div></div><div class="tile warn"><div class="n">${rev}</div><div class="l">Need approval</div></div><div class="tile"><div class="n">${projMembers(S.pid).length}</div><div class="l">Members</div></div></div>
+      <span class="eyebrow">Expected ${esc(U.fmtDate(t))}</span>`;
+    const holder = document.createElement('div'); PANELS.today.render(holder); el.appendChild(holder);
+  } };
+  PANELS.approvals = { render(el) {
+    const keep = {}; $$('input,select', el).forEach((i) => { keep[i.id] = i.value; });
+    const joins = pendingJoins(); const revs = pReqs().filter((r) => r.status === 'review').sort(byWhen);
+    el.innerHTML = `<span class="eyebrow">People asking to join (${joins.length})</span>
+      ${joins.length ? joins.map((j) => { const u = D.users[j.userId]; return `<div class="card stack-s"><div class="person" style="padding:0"><span class="avatar">${esc(initials(u))}</span><span><b>${esc(nameOf(u))}</b><span class="isub" style="display:block">${esc(u.company)}${u.isAjax ? ' · Ajax' : ''}</span><span class="isub" style="display:block">${esc(u.email)} · asked ${esc(clockLabel(new Date(j.at)))}</span></span><span></span></div>
+        <div class="grid2"><div class="field"><label for="jr_${j.id}">Access</label><select id="jr_${j.id}">${opt('contractor', 'Contractor')}${opt('access', 'Access Control')}${opt('admin', 'Admin')}</select></div>
+        <div class="field"><label for="jt_${j.id}">Trade (contractors)</label><select id="jt_${j.id}">${opt('', 'Any trade')}${GD.TRADES.map((x) => opt(x, x)).join('')}</select></div></div>
+        <div class="row"><button class="btn primary sm" data-act="approveJoin" data-id="${j.id}">Approve</button><button class="btn sm" data-act="declineJoin" data-id="${j.id}">Decline</button></div></div>`; }).join('') : '<p class="small muted">No one is waiting.</p>'}
+      <span class="eyebrow" style="margin-top:6px">Deliveries to review (${revs.length})</span>
+      ${revs.length ? revs.map((r) => `<div class="card stack-s"><div class="between"><b>${esc(r.subName)}</b><span class="mono small">${esc(U.fmtDate(r.date) + ' ' + U.fmtTime(r.slot))}</span></div><span class="small">${esc(r.material + ' · ' + plural(r.pallets, 'pallet') + ' · ' + zoneById(r.zoneId).name)}</span>${reasonsHtml(r)}${r.justification ? `<span class="small"><b>Reason given:</b> ${esc(r.justification)}</span>` : ''}
+        <div class="field"><label for="rn_${r.id}">Note to contractor (optional)</label><input id="rn_${r.id}" autocomplete="off"></div>
+        <div class="row"><button class="btn go sm" data-act="approveReq" data-id="${r.id}">Approve and issue pass</button><button class="btn sm" data-act="rejectReq" data-id="${r.id}">Reject</button></div></div>`).join('') : '<p class="small muted">Nothing to review. Requests that pass every rule are approved automatically.</p>'}`;
+    Object.keys(keep).forEach((k) => { const i = document.getElementById(k); if (i && keep[k] !== undefined) i.value = keep[k]; });
+  } };
+  PANELS.team = {
+    render(el) {
+      el.innerHTML = `<div class="card stack-s"><span class="h3">Invite someone</span><p class="hint">They get an email with the project code. When they sign up or sign in with that email, they get this access automatically.</p>
+        <form id="inviteForm" class="stack-s" novalidate><div class="field"><label for="iv_email">Email</label><input id="iv_email" type="email" inputmode="email" autocapitalize="off" autocomplete="off"></div>
+        <div class="grid2"><div class="field"><label for="iv_role">Access</label><select id="iv_role">${opt('contractor', 'Contractor')}${opt('access', 'Access Control')}${opt('admin', 'Admin')}</select></div>
+        <div class="field"><label for="iv_trade">Trade (contractors)</label><select id="iv_trade">${opt('', 'Any trade')}${GD.TRADES.map((x) => opt(x, x)).join('')}</select></div></div>
+        <button class="btn primary" type="submit">Send invite</button></form></div><div id="teamLive"></div>`;
+      PANELS.team.refresh();
+    },
+    refresh() {
+      const box = $('#teamLive'); if (!box) return; const ms = projMembers(S.pid); const order = { admin: 0, access: 1, contractor: 2 };
+      const invs = Object.values(D.invites).filter((i) => i.projectId === S.pid && i.status === 'pending');
+      box.innerHTML = `${invs.length ? `<div class="card"><span class="eyebrow">Pending invites</span>${invs.map((i) => `<div class="person"><span class="avatar">@</span><span><b>${esc(i.email)}</b><span class="isub" style="display:block">${esc(roleLabel(i.role))}${i.trade ? ' · ' + esc(i.trade) : ''} · sent ${esc(U.fmtDate(U.ymd(new Date(i.at))))}</span></span><button class="btn sm ghost danger" data-act="revokeInvite" data-id="${i.id}">Revoke</button></div>`).join('')}</div>` : ''}
+        <div class="card"><span class="eyebrow">Members (${ms.length})</span>${ms.sort((a, b) => order[a.role] - order[b.role] || nameOf(D.users[a.userId]).localeCompare(nameOf(D.users[b.userId]))).map((m) => { const u = D.users[m.userId]; if (!u) return ''; const self = u.id === S.uid;
+          return `<div class="person"><span class="avatar">${esc(initials(u))}</span><span><b>${esc(nameOf(u))}${self ? ' (you)' : ''}</b><span class="isub" style="display:block">${esc(u.company)} · ${esc(u.email)}</span></span>
+          <span class="stack-s" style="align-items:flex-end"><select aria-label="Access for ${esc(nameOf(u))}" data-change="memberRole" data-id="${m.id}" style="min-height:36px;padding:4px 8px;font-size:13px;width:auto" ${self ? 'disabled' : ''}>${opt('contractor', 'Contractor', m.role)}${opt('access', 'Access Control', m.role)}${opt('admin', 'Admin', m.role)}</select>
+          ${self ? '' : `<span id="rm-${m.id}"><button class="btn sm ghost danger" data-act="removeAsk" data-id="${m.id}">Remove</button></span>`}</span></div>`; }).join('')}</div>`;
+    },
+  };
+  FORM_TABS.team = true;
+  PANELS.deliveries = { render(el) {
+    const t = today(); let list = pReqs();
+    if (S.a.filter === 'today') list = list.filter((r) => r.date === t); else if (S.a.filter === 'upcoming') list = list.filter((r) => r.date > t);
+    list.sort(byWhen);
+    el.innerHTML = `<div class="seg" role="group" aria-label="Filter">${[['today', 'Today'], ['upcoming', 'Upcoming'], ['all', 'All']].map((x) => `<button data-act="aFilter" data-f="${x[0]}" aria-pressed="${S.a.filter === x[0]}">${x[1]}</button>`).join('')}</div>
+      ${list.length ? `<div class="list">${list.map((r) => deliveryRow(r, 'expandAdmin') + (S.c.open === r.id ? `<div class="card stack-s" style="margin-top:-4px"><dl class="kv"><dt>Company</dt><dd>${esc(r.subName)}</dd><dt>Booked by</dt><dd>${esc(r.submittedBy + ' · ' + r.submitterEmail)}</dd><dt>Load</dt><dd>${esc(r.quantity + ' ' + r.unit + ' · ' + plural(r.pallets, 'pallet'))}</dd><dt>Decided</dt><dd>${esc(r.decidedBy || '')}</dd></dl>${reasonsHtml(r)}</div>` : '')).join('')}</div>` : '<p class="empty">No deliveries in this view.</p>'}`;
+  } };
+  PANELS.emergency = { render(el) {
+    const subs = subsNow(); const slots = R.slotsForDay(settings());
+    el.innerHTML = `<p class="hint">For a truck that has to get in today without a booking. Skips the rules, is marked as an override and counts against the company.</p>
+      <form id="emForm" class="stack-s" novalidate>
+      <div class="field"><label for="e_sub">Company</label><select id="e_sub">${subs.map((s) => opt(s.id, s.name)).join('')}</select></div>
+      <div class="field"><label for="e_material">Material</label><input id="e_material" placeholder="e.g. Replacement breaker" autocomplete="off"></div>
+      <div class="grid2"><div class="field"><label for="e_gate">Gate</label><select id="e_gate">${project().gates.map((g) => opt(g.id, g.name)).join('')}</select></div>
+      <div class="field"><label for="e_slot">Today at</label><select id="e_slot">${slots.map((s) => opt(s, U.fmtTime(s))).join('')}</select></div>
+      <div class="field"><label for="e_zone">Staging</label><select id="e_zone">${project().zones.map((z) => opt(z.id, z.name)).join('')}</select></div>
+      <div class="field"><label for="e_pallets">Pallets</label><input id="e_pallets" inputmode="numeric" value="1"></div></div>
+      <button class="btn primary" type="submit">Issue emergency pass</button><div id="emOut"></div></form>`;
+  } };
+  PANELS.activity = { render(el) {
+    const mails = Object.values(D.mail).filter((m) => m.projectId === S.pid).sort((a, b) => b.ts.localeCompare(a.ts));
+    el.innerHTML = `<div class="row"><button class="btn sm" data-act="noShowSweep">Run the hourly no-show check now</button></div>
+      <span class="eyebrow">Gate log</span>${gateLogHtml(true)}
+      <span class="eyebrow">Emails sent on this project (${mails.length})</span>${mails.length ? `<div class="card">${mails.slice(0, 50).map((m) => mailHtml(m, true)).join('')}</div>` : '<p class="empty">No emails yet.</p>'}`;
+  } };
+  PANELS.psettings = { render(el) {
+    const p = project(); const s = settings(); const u = me(); const subs = subsNow();
+    el.innerHTML = `<form id="psForm" class="stack" novalidate>
+      <div class="card stack-s"><span class="h3">Project</span>
+        <div class="field"><label for="ps_name">Name</label><input id="ps_name" value="${esc(p.name)}"></div>
+        <div class="field"><label for="ps_loc">Location</label><input id="ps_loc" value="${esc(p.location || '')}"></div>
+        <div class="row"><span class="code-chip">${esc(p.code)}</span><button type="button" class="btn sm" data-act="copy" data-text="${esc(p.code)}">Copy</button>${u.isAdminAccount ? `<span id="regenWrap"><button type="button" class="btn sm" data-act="regenAsk">New code</button></span>` : ''}</div></div>
+      <div class="card stack-s"><span class="h3">Delivery rules</span><div class="grid2">
+        <div class="field"><label for="ps_notice">Notice (hours)</label><input id="ps_notice" inputmode="numeric" value="${s.minNoticeHours}"></div>
+        <div class="field"><label for="ps_early">Max days before install</label><input id="ps_early" inputmode="numeric" value="${s.maxDaysBeforeInstall}"></div>
+        <div class="field"><label for="ps_tol">Arrival window (± min)</label><input id="ps_tol" inputmode="numeric" value="${s.gateToleranceMinutes}"></div>
+        <div class="field"><label for="ps_pal">Review above (pallets)</label><input id="ps_pal" inputmode="numeric" value="${s.maxPalletsPerRequest}"></div>
+        <div class="field"><label for="ps_open">Gates open</label><input id="ps_open" type="time" value="${s.gateOpen}"></div>
+        <div class="field"><label for="ps_close">Gates close</label><input id="ps_close" type="time" value="${s.gateClose}"></div></div></div>
+      <div class="card stack-s"><span class="h3">Gates (trucks per slot)</span><div class="grid2">${p.gates.map((g, i) => `<div class="field"><label for="ps_g${i}">${esc(g.name)}</label><input id="ps_g${i}" inputmode="numeric" value="${g.capacityPerSlot}"></div>`).join('')}</div></div>
+      <div class="card stack-s"><span class="h3">Staging zones (pallets)</span><div class="grid2">${p.zones.map((z, i) => `<div class="field"><label for="ps_z${i}">${esc(z.name)}</label><input id="ps_z${i}" inputmode="numeric" value="${z.capacityPallets}"></div>`).join('')}</div></div>
+      <button class="btn primary" type="submit">Save project settings</button></form>
+      <div class="card stack-s"><span class="h3">Companies</span><p class="hint">Suspending a company rejects its new requests and turns its passes red, except emergency passes.</p>${subs.length ? subs.map((x) => `<div class="between" style="border-top:1px solid var(--g-100);padding-top:8px"><span><b>${esc(x.name)}</b><span class="isub" style="display:block">${esc(x.trade || 'Any trade')}</span></span><button class="btn sm" data-act="toggleSuspend" data-id="${esc(x.id)}">${x.suspended ? 'Restore' : 'Suspend'}</button></div>`).join('') : '<p class="small muted">No companies yet.</p>'}</div>
+      <div class="card stack-s"><span class="h3">Look-ahead (${(p.activities || []).length} activities)</span><p class="hint">Sample look-ahead for the prototype. In production the scheduler uploads the 3-week look-ahead each week.</p>
+        <div class="table-wrap"><table style="min-width:420px"><thead><tr><th>ID</th><th>Activity</th><th>Trade</th><th>Start</th></tr></thead><tbody>${(p.activities || []).map((a) => `<tr><td class="mono">${esc(a.id)}</td><td>${esc(a.name)}</td><td>${esc(a.trade)}</td><td class="mono">${esc(U.fmtDate(a.start))}</td></tr>`).join('')}</tbody></table></div></div>
+      ${u.isAdminAccount ? `<div class="card stack-s"><span class="h3 danger">Delete project</span><p class="hint">Removes ${esc(p.name)} for everyone. Records are kept for audit.</p><span id="delWrap"><button class="btn sm ghost danger" data-act="deleteAsk">Delete this project</button></span></div>` : ''}`;
+  } };
+
+  // ================= SHEETS =================
+  function openSheet(sheet) { S.sheet = sheet; renderSheet(); }
+  function closeSheet() { S.sheet = null; $('#sheetRoot').innerHTML = ''; }
+  function renderSheet() {
+    const sh = S.sheet; if (!sh) return;
+    const root = $('#sheetRoot'); const body = SHEETS[sh.id](sh);
+    root.innerHTML = `<div class="scrim" data-act="scrim"><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle"><div class="grab"></div><div class="sheet-h"><h2 id="sheetTitle">${esc(sh.title)}</h2><button class="iconbtn" data-act="closeSheet" aria-label="Close">${ICON.close}</button></div>${body}</div></div>`;
+    const f = root.querySelector('input:not([type=checkbox])'); if (f && sh.focus !== false) setTimeout(() => f.focus(), 60);
+  }
+  const SHEETS = {
+    addProject(sh) {
+      const u = me(); const mode = sh.mode || 'join';
+      return `${u.isAdminAccount ? `<div class="seg" role="group" aria-label="Add a project"><button data-act="apMode" data-m="join" aria-pressed="${mode === 'join'}">Join with a code</button><button data-act="apMode" data-m="create" aria-pressed="${mode === 'create'}">Create a project</button></div>` : ''}
+        ${mode === 'join' ? `<form id="joinForm" class="stack-s" novalidate><div class="field"><label for="jp_code">Project code</label><input id="jp_code" class="mono" autocapitalize="characters" autocomplete="off" spellcheck="false" placeholder="e.g. DDC2-7HKQ"><span class="hint">Your request goes to the project admins. They choose your access.</span></div>
+          ${sh.err ? `<p class="err">${esc(sh.err)}</p>` : ''}<button class="btn primary" type="submit">Send request</button></form>`
+        : `<form id="createForm" class="stack-s" novalidate><div class="field"><label for="cp_name">Project name</label><input id="cp_name" placeholder="e.g. DFW2 Data Center 2"></div><div class="field"><label for="cp_loc">Location (optional)</label><input id="cp_loc" placeholder="City, state"></div>
+          <p class="hint">A unique project code is created. You become the project admin and can invite people or approve requests.</p>${sh.err ? `<p class="err">${esc(sh.err)}</p>` : ''}<button class="btn primary" type="submit">Create project</button></form>`}
+        ${sh.created ? `<div class="note"><b>${esc(sh.created.name)}</b> is ready. Project code <span class="mono"><b>${esc(sh.created.code)}</b></span>. Share it, or invite people from Team & Invites.</div>` : ''}`;
+    },
+    settings(sh) {
+      const u = me(); const list = myProjects(); const mails = Object.values(D.mail).filter((m) => m.to === u.email).sort((a, b) => b.ts.localeCompare(a.ts));
+      const sec = sh.sec || '';
+      return `<div class="menu-list">
+        <button class="menu-row" data-act="setSec" data-s="${sec === 'profile' ? '' : 'profile'}" aria-expanded="${sec === 'profile'}">Profile <span class="muted">${esc(u.email)}</span></button>
+        ${sec === 'profile' ? `<form id="profForm" class="stack-s" novalidate><div class="grid2"><div class="field"><label for="pf_first">First name</label><input id="pf_first" value="${esc(u.first)}"></div><div class="field"><label for="pf_last">Last name</label><input id="pf_last" value="${esc(u.last)}"></div></div>
+          <div class="field"><label for="pf_phone">Phone</label><input id="pf_phone" inputmode="tel" value="${esc(u.phone)}"></div><div class="field"><label for="pf_company">Company</label><input id="pf_company" value="${esc(u.company)}"></div>
+          <p class="hint">${u.isAjax ? 'Ajax Building Company account' : 'Non-Ajax account'}${u.isAdminAccount ? ' · Admin account (can create projects)' : ''}</p><button class="btn primary" type="submit">Save profile</button></form>` : ''}
+        <button class="menu-row" data-act="setSec" data-s="${sec === 'pw' ? '' : 'pw'}" aria-expanded="${sec === 'pw'}">Change password <span class="muted">›</span></button>
+        ${sec === 'pw' ? `<form id="pwForm" class="stack-s" novalidate><div class="field"><label for="pw_cur">Current password</label><input id="pw_cur" type="password" autocomplete="current-password"></div><div class="field"><label for="pw_new">New password</label><input id="pw_new" type="password" autocomplete="new-password"><ul class="pwrules" id="pwNewRules">${A.passwordChecks('').map((c) => `<li>${esc(c.label)}</li>`).join('')}</ul></div>${sh.err ? `<p class="err">${esc(sh.err)}</p>` : ''}<button class="btn primary" type="submit">Update password</button></form>` : ''}
+        <button class="menu-row" data-act="setSec" data-s="${sec === 'projects' ? '' : 'projects'}" aria-expanded="${sec === 'projects'}">My projects <span class="muted">${list.length}</span></button>
+        ${sec === 'projects' ? `<div class="stack-s">${list.length ? list.map((p) => `<div class="between"><span><b>${esc(p.name)}</b><span class="isub" style="display:block">${esc(roleLabel(membership(p.id, u.id).role))} · ${esc(p.code)}</span></span><span id="lv-${p.id}"><button class="btn sm ghost danger" data-act="leaveAsk" data-id="${p.id}">Leave</button></span></div>`).join('') : '<p class="small muted">No projects yet.</p>'}</div>` : ''}
+        <button class="menu-row" data-act="setSec" data-s="${sec === 'mail' ? '' : 'mail'}" aria-expanded="${sec === 'mail'}">Email inbox (prototype) <span class="muted">${mails.length}</span></button>
+        ${sec === 'mail' ? `<p class="hint">Every email Granted would send you: codes, invites, approvals and delivery notices.</p>${mails.length ? `<div>${mails.slice(0, 40).map((m) => mailHtml(m)).join('')}</div>` : '<p class="small muted">No emails yet.</p>'}` : ''}
+        ${canMaintain() ? `<div class="menu-row" style="cursor:default"><span><span style="display:block">Maintenance mode</span><span class="muted" style="display:block;font-weight:400;font-size:12.5px">See this project as a Contractor, Access Control or Admin. Anything you do is labelled as maintenance.</span></span><label class="switch"><input type="checkbox" id="maintToggle" ${inMaint() ? 'checked' : ''} aria-label="Maintenance mode"><span></span></label></div>` : ''}
+        <button class="menu-row" data-act="setSec" data-s="${sec === 'proto' ? '' : 'proto'}" aria-expanded="${sec === 'proto'}">Prototype tools <span class="muted">Demo clock: ${esc(clockLabel(now()))}</span></button>
+        ${sec === 'proto' ? `<div class="stack-s"><p class="hint">The rules use this time. Try 5:45 AM (too early) or 7:15 AM (inside the window).</p>
+          <div class="grid2"><div class="field"><label for="clkDate">Date</label><input type="date" id="clkDate" value="${U.ymd(now())}"></div><div class="field"><label for="clkTime">Time</label><input type="time" id="clkTime" value="${String(now().getHours()).padStart(2, '0')}:${String(now().getMinutes()).padStart(2, '0')}"></div></div>
+          <div class="row"><button class="btn sm primary" data-act="setClock">Set clock</button><button class="btn sm" data-act="autoClock">Demo default</button><button class="btn sm" data-act="liveClock">Real time</button></div>
+          <span id="resetWrap"><button class="btn sm ghost danger" data-act="resetAsk">Reset demo data</button></span></div>` : ''}
+        <button class="menu-row danger" data-act="signOut">Sign out</button>
+        <span id="delAcctWrap"><button class="menu-row danger" style="font-weight:400;font-size:13.5px" data-act="delAcctAsk">Delete my account</button></span></div>`;
+    },
+  };
+
+  // ================= ACTIONS =================
+  async function decideReq(id, approve) {
+    const r = clone(D.requests[id]); const note = (($('#rn_' + id) || {}).value || '').trim(); const u = me();
+    try {
+      r.decidedAt = nowIso(); r.decidedBy = nameOf(u);
+      if (approve) {
+        r.status = 'approved'; r.passCode = R.newPassCode(Object.keys(D.passes), settings()); if (note) r.reviewNote = note;
+        await put('passes', r.passCode, { id: r.passCode, code: r.passCode, projectId: S.pid, requestId: id, status: 'active', issuedAt: nowIso(), override: false });
+        await put('requests', id, r); await notify('approved', r); toast('Approved. The pass went to the contractor and Access Control.');
+      } else {
+        r.status = 'rejected'; r.reasons = [{ code: 'GC', title: 'Not approved by the project admin', remedy: note || 'Contact the project admin for details, then submit a new request.' }];
+        await put('requests', id, r); await notify('rejected', r); toast('Rejected. The contractor was told why.');
+      }
+      refreshHome();
+    } catch (e) { /* shown */ }
+  }
+  async function decideJoin(id, approve) {
+    const j = D.joinreqs[id]; const u = D.users[j.userId]; const p = project(); const roleSel = ($('#jr_' + id) || {}).value || 'contractor'; const trade = ($('#jt_' + id) || {}).value || '';
+    try {
+      if (approve) { await addMember(p.id, u.id, roleSel, trade, 'request', S.uid); }
+      await put('joinreqs', id, Object.assign(clone(j), { status: approve ? 'approved' : 'declined', role: approve ? roleSel : null, decidedBy: S.uid, decidedAt: new Date().toISOString() }));
+      await sendMail([{ to: u.email, subject: approve ? `You’re on ${p.name}` : `Request to join ${p.name}`, body: approve ? `A project admin approved you for ${p.name} with ${roleLabel(roleSel)} access. Open Granted to get started.` : `A project admin declined your request to join ${p.name}. If you think this is a mistake, contact the project admin.`, kind: 'team', projectId: p.id }]);
+      toast(approve ? `${nameOf(u)} added as ${roleLabel(roleSel)}.` : 'Request declined.'); refreshHome();
+    } catch (e) { /* shown */ }
+  }
+  async function sendInvite() {
+    const email = A.normEmail($('#iv_email').value); const r = $('#iv_role').value; const trade = $('#iv_trade').value; const p = project(); const u = me();
+    if (!A.isValidEmail(email)) { toast('Enter a valid email address.'); return; }
+    const existing = userByEmail(email);
+    if (existing && membership(p.id, existing.id)) { toast('That person is already on this project.'); return; }
+    if (Object.values(D.invites).find((i) => i.projectId === p.id && i.email === email && i.status === 'pending')) { toast('An invite to that email is already pending.'); return; }
+    const id = 'i-' + rid('');
+    try {
+      await put('invites', id, { id, projectId: p.id, email, role: r, trade, by: u.id, at: new Date().toISOString(), status: 'pending' });
+      await sendMail([{ to: email, subject: `${nameOf(u)} invited you to ${p.name} on Granted`, body: `You’ve been invited to ${p.name} with ${roleLabel(r)} access.\n${existing ? 'Sign in to Granted' : 'Download Granted and create an account'} with this email (${email}) and enter project code ${p.code}. Your access is set up automatically.`, kind: 'team', projectId: p.id }]);
+      $('#iv_email').value = ''; toast('Invite sent to ' + email + '.'); PANELS.team.refresh(); updateTabHead({ id: 'team' });
+    } catch (e) { /* shown */ }
+  }
+  async function issueEmergency() {
+    const subs = subsNow(); const sub = subs.find((s) => s.id === $('#e_sub').value); const material = $('#e_material').value.trim(); const pallets = parseInt($('#e_pallets').value, 10); const u = me();
+    if (!sub) { toast('No companies on this project yet.'); return; }
+    if (!material) { toast('Enter what the truck is carrying.'); $('#e_material').focus(); return; }
+    const id = rid('r-'); const code = R.newPassCode(Object.keys(D.passes), settings());
+    const contact = projMembers(S.pid).map((m) => D.users[m.userId]).find((x) => x && GD.companyKey(x.company) === sub.id) || u;
+    const r = { id, projectId: S.pid, subId: sub.id, subName: sub.name, userId: contact.id, submitterEmail: contact.email, submittedBy: nameOf(u) + ' (emergency)', activityId: '', gateId: $('#e_gate').value, date: today(), slot: $('#e_slot').value, zoneId: $('#e_zone').value,
+      material, quantity: 1, unit: 'load', pallets: isNaN(pallets) ? 0 : pallets, weightLbs: '', carrier: '', truck: '', pocName: nameOf(contact), pocPhone: contact.phone, justification: '', status: 'approved', stagedUntil: today(),
+      reasons: [{ code: 'EM', title: 'Emergency pass issued by ' + nameOf(u), remedy: 'Logged as an override against ' + sub.name + '.' }], submittedAt: nowIso(), decidedAt: nowIso(), decidedBy: nameOf(u) + ' (emergency)', passCode: code, override: true };
+    try {
+      await put('passes', code, { id: code, code, projectId: S.pid, requestId: id, status: 'active', issuedAt: nowIso(), override: true });
+      await put('requests', id, r); await notify('emergency', r, { by: nameOf(u) });
+      $('#emOut').innerHTML = `<div class="note">Pass <b class="mono">${esc(code)}</b> issued for today ${esc(U.fmtTime(r.slot))}. Access Control and ${esc(sub.name)} were told.</div>`;
+      $('#e_material').value = ''; refreshHome();
+    } catch (e) { /* shown */ }
+  }
+  async function noShowSweep() {
+    let n = 0;
+    try { for (const r of pReqs()) if (statusOf(r) === 'noshow' && !r.noshowNotified) { const c = clone(r); c.noshowNotified = nowIso(); await put('requests', r.id, c); await notify('noshow', r); n++; }
+      toast(n ? `${plural(n, 'no-show')} found. Contractor and admins emailed.` : 'No new no-shows.'); refreshHome(); } catch (e) { /* shown */ }
+  }
+  async function saveProjectSettings() {
+    const p = clone(project()); const num = (id, min, max) => { const v = parseInt($('#' + id).value, 10); return isNaN(v) ? null : Math.min(max, Math.max(min, v)); };
+    const name = $('#ps_name').value.trim(); if (!name) { toast('Enter a project name.'); return; }
+    const open = $('#ps_open').value, close = $('#ps_close').value;
+    if (!open || !close || open >= close) { toast('Gate closing time must be after opening time.'); return; }
+    p.name = name; p.location = $('#ps_loc').value.trim();
+    p.settings = Object.assign({}, p.settings, { minNoticeHours: num('ps_notice', 0, 336) ?? p.settings.minNoticeHours, maxDaysBeforeInstall: num('ps_early', 0, 60) ?? p.settings.maxDaysBeforeInstall,
+      gateToleranceMinutes: num('ps_tol', 0, 240) ?? p.settings.gateToleranceMinutes, maxPalletsPerRequest: num('ps_pal', 1, 500) ?? p.settings.maxPalletsPerRequest, gateOpen: open, gateClose: close });
+    p.gates = p.gates.map((g, i) => Object.assign({}, g, { capacityPerSlot: num('ps_g' + i, 0, 20) ?? g.capacityPerSlot }));
+    p.zones = p.zones.map((z, i) => Object.assign({}, z, { capacityPallets: num('ps_z' + i, 0, 10000) ?? z.capacityPallets }));
+    try { await put('projects', p.id, p); toast('Project settings saved.'); refreshHome(); updateTabHead({ id: 'project' }); } catch (e) { /* shown */ }
+  }
+
+  const ACT = {
+    togglePw(el) { const i = document.getElementById(el.dataset.for); i.type = i.type === 'password' ? 'text' : 'password'; el.textContent = i.type === 'password' ? 'Show' : 'Hide'; },
+    toSignup() { S.su = S.su || {}; go('signup'); },
+    toLogin() { go('login'); },
+    toForgot() { S.forgot = { step: 1, email: ($('#li_email') || {}).value || '' }; go('forgot'); },
+    fillDemo(el) { $('#li_email').value = el.dataset.email; $('#li_pw').value = GD.DEMO_PASSWORD_HINT; $('#loginBtn').focus(); },
+    ajaxYes() { S.su.declaredAjax = 'yes'; S.su.ajaxNoteConfirmed = false; $$('[data-act=ajaxYes],[data-act=ajaxNo]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.act === 'ajaxYes'))); updateSignupLive(); },
+    ajaxNo() { S.su.declaredAjax = 'no'; S.su.ajaxNoteConfirmed = false; $$('[data-act=ajaxYes],[data-act=ajaxNo]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.act === 'ajaxNo'))); updateSignupLive(); },
+    resendCode: async () => { const u = D.users[S.verifyUid]; if (u) { await startVerify(clone(u), 'signup'); toast('New code sent.'); } },
+    toggleTab(el) {
+      const id = el.dataset.tab; S.open[id] = !S.open[id]; el.setAttribute('aria-expanded', String(!!S.open[id]));
+      const panel = $('#panel-' + id); panel.hidden = !S.open[id]; if (S.open[id]) renderPanel(id, true); else { delete panel.dataset.built; }
+    },
+    openTab(el) { const id = el.dataset.tab; const b = $(`[data-act=toggleTab][data-tab="${id}"]`); if (!b) return; if (!S.open[id]) ACT.toggleTab(b); $('#tab-' + id).scrollIntoView({ behavior: 'smooth', block: 'start' }); },
+    addProject() { openSheet({ id: 'addProject', title: 'Add a project', mode: 'join' }); },
+    apMode(el) { S.sheet.mode = el.dataset.m; S.sheet.err = ''; renderSheet(); },
+    switchProject(el) { S.pid = el.dataset.id; S.g = {}; S.c = { tab: 'confirm' }; S.form = null; saveSession(); renderHome(); toast('Switched to ' + project().name + '.'); },
+    copy: async (el) => { try { await navigator.clipboard.writeText(el.dataset.text); toast('Copied ' + el.dataset.text + '.'); } catch (e) { toast('Code: ' + el.dataset.text); } },
+    openSettings() { openSheet({ id: 'settings', title: 'Settings', focus: false }); },
+    closeSheet() { closeSheet(); },
+    scrim(el, e) { if (e.target === el) closeSheet(); },
+    setSec(el) { S.sheet.sec = el.dataset.s; S.sheet.err = ''; S.sheet.focus = false; renderSheet(); },
+    delAcctAsk() { $('#delAcctWrap').innerHTML = '<div class="stack-s" style="padding:8px 0"><span class="small">This removes your profile and project access. Delivery records stay on the project for audit, without your name.</span><button class="btn sm stop" data-act="delAcctYes">Delete my account</button></div>'; },
+    delAcctYes: async () => {
+      const u = me(); const mine = members().filter((m) => m.userId === u.id && m.status === 'active');
+      for (const m of mine) if (m.role === 'admin' && projMembers(m.projectId).filter((x) => x.role === 'admin').length < 2) { toast('You\u2019re the only admin on ' + D.projects[m.projectId].name + '. Make someone else an admin first.'); return; }
+      try {
+        for (const m of mine) await put('members', m.id, Object.assign(clone(m), { status: 'removed', removedAt: new Date().toISOString(), removedBy: 'account deleted' }));
+        await put('users', u.id, { id: u.id, email: 'deleted-' + u.id + '@invalid', first: 'Deleted', last: 'user', phone: '', company: u.company, isAjax: false, isAdminAccount: false, verified: false, deleted: true, deletedAt: new Date().toISOString(), failures: [] });
+        S.uid = null; S.pid = null; saveSession(); go('login'); toast('Your account was deleted.');
+      } catch (e) { /* shown */ }
+    },
+    viewAs(el) { S.maint.as = el.dataset.r; S.openRole = null; S.g = {}; S.form = null; S.c = { tab: 'confirm' }; saveSession(); renderHome(); toast('Viewing as ' + roleLabel(el.dataset.r) + '.'); },
+    signOut() { S.maint = { on: false, as: 'admin' }; S.uid = null; S.pid = null; S.g = {}; S.c = { tab: 'confirm' }; S.form = null; S.openRole = null; saveSession(); go('login'); toast('Signed out.'); },
+    pickPass(el) { S.c.pass = el.dataset.id; renderPanel('confirm', true); },
+    pickSlot(el) { S.form.slot = el.dataset.slot; updateSchedule(); },
+    newReq() { S.c.result = null; S.form = blankForm(); renderPanel('schedule', true); },
+    useNext(el) { const r = D.requests[S.c.result.id]; ACT.editReq({ dataset: { id: r.id } }); S.form.date = el.dataset.date; S.form.slot = el.dataset.slot; renderPanel('schedule', true); },
+    editReq(el) {
+      const r = D.requests[el.dataset.id]; if (!r) return;
+      S.form = { id: r.id, activityId: r.activityId, gateId: r.gateId, date: r.date, slot: r.slot, zoneId: r.zoneId, material: r.material, quantity: String(r.quantity), unit: r.unit, pallets: String(r.pallets), weightLbs: r.weightLbs === '' ? '' : String(r.weightLbs), carrier: r.carrier || '', truck: r.truck || '', pocName: r.pocName, pocPhone: r.pocPhone, justification: r.justification || '' };
+      S.c.result = null; ACT.openTab({ dataset: { tab: 'schedule' } }); renderPanel('schedule', true);
+    },
+    cancelEdit() { S.form = null; renderPanel('schedule', true); },
+    expandReq(el) { S.c.open = S.c.open === el.dataset.id ? null : el.dataset.id; renderPanel('mine', true); },
+    expandAdmin(el) { S.c.open = S.c.open === el.dataset.id ? null : el.dataset.id; renderPanel('deliveries', true); },
+    cancelAsk(el) { $('#cw-' + el.dataset.id).innerHTML = `<span class="small">Cancel this delivery?</span><button class="btn sm stop" data-act="cancelYes" data-id="${el.dataset.id}">Yes, cancel</button><button class="btn sm" data-act="expandReq" data-id="">Keep it</button>`; },
+    cancelYes: async (el) => {
+      const r = clone(D.requests[el.dataset.id]); const p = passOf(r);
+      try { if (p) await put('passes', p.code, Object.assign(clone(p), { status: 'void', voidedAt: nowIso(), voidReason: 'Cancelled by contractor' }));
+        r.status = 'cancelled'; r.cancelledAt = nowIso(); await put('requests', r.id, r); await notify('cancelled', r); S.c.open = null; toast('Cancelled. Access Control was told.'); refreshHome(); } catch (e) { /* shown */ }
+    },
+    simScan(el) { runCheck(el.dataset.code, 'list'); },
+    admit() { admit(); },
+    turnAway() { turnAway(); },
+    clearResult() { S.g = {}; PANELS.receive.refresh(); },
+    approveReq(el) { decideReq(el.dataset.id, true); },
+    rejectReq(el) { decideReq(el.dataset.id, false); },
+    approveJoin(el) { decideJoin(el.dataset.id, true); },
+    declineJoin(el) { decideJoin(el.dataset.id, false); },
+    revokeInvite: async (el) => { const i = D.invites[el.dataset.id]; try { await put('invites', i.id, Object.assign(clone(i), { status: 'revoked' })); toast('Invite revoked.'); PANELS.team.refresh(); } catch (e) { /* shown */ } },
+    removeAsk(el) { $('#rm-' + el.dataset.id).innerHTML = `<button class="btn sm stop" data-act="removeYes" data-id="${el.dataset.id}">Confirm remove</button>`; },
+    removeYes: async (el) => {
+      const m = D.members[el.dataset.id]; const u = D.users[m.userId]; const p = project();
+      if (m.role === 'admin' && projMembers(p.id).filter((x) => x.role === 'admin').length < 2) { toast('A project needs at least one admin.'); return; }
+      try { await put('members', m.id, Object.assign(clone(m), { status: 'removed', removedAt: new Date().toISOString(), removedBy: S.uid }));
+        await sendMail([{ to: u.email, subject: `Removed from ${p.name}`, body: `A project admin removed your access to ${p.name}. Your past deliveries stay on record.`, kind: 'team', projectId: p.id }]);
+        toast(nameOf(u) + ' removed.'); refreshHome(); } catch (e) { /* shown */ }
+    },
+    aFilter(el) { S.a.filter = el.dataset.f; renderPanel('deliveries', true); },
+    noShowSweep() { noShowSweep(); },
+    toggleSuspend: async (el) => { const p = clone(project()); p.suspended = p.suspended || {}; p.suspended[el.dataset.id] = !p.suspended[el.dataset.id]; try { await put('projects', p.id, p); toast(p.suspended[el.dataset.id] ? 'Company suspended.' : 'Company restored.'); renderPanel('psettings', true); } catch (e) { /* shown */ } },
+    regenAsk() { $('#regenWrap').innerHTML = '<button type="button" class="btn sm stop" data-act="regenYes">Replace code? Old code stops working</button>'; },
+    regenYes: async () => { const p = clone(project()); p.code = A.newProjectCode(p.name, Object.values(D.projects).map((x) => x.code)); try { await put('projects', p.id, p); toast('New project code: ' + p.code); renderPanel('psettings', true); updateTabHead({ id: 'project' }); } catch (e) { /* shown */ } },
+    deleteAsk() { $('#delWrap').innerHTML = `<div class="stack-s"><label class="small" for="delConfirm">Type the project code <b class="mono">${esc(project().code)}</b> to confirm</label><input id="delConfirm" class="mono" autocomplete="off"><button class="btn sm stop" data-act="deleteYes">Delete project</button></div>`; $('#delConfirm').focus(); },
+    deleteYes: async () => { const p = clone(project()); if (A.normalizeProjectCode($('#delConfirm').value) !== p.code) { toast('The code doesn’t match.'); return; } p.deleted = true; p.deletedAt = new Date().toISOString(); p.deletedBy = S.uid; try { await put('projects', p.id, p); S.pid = null; ensureProject(); renderHome(); toast('Project deleted.'); } catch (e) { /* shown */ } },
+    leaveAsk(el) { $('#lv-' + el.dataset.id).innerHTML = `<button class="btn sm stop" data-act="leaveYes" data-id="${el.dataset.id}">Confirm leave</button>`; },
+    leaveYes: async (el) => { const m = membership(el.dataset.id, S.uid); if (m.role === 'admin' && projMembers(el.dataset.id).filter((x) => x.role === 'admin').length < 2) { toast('You’re the only admin. Make someone else an admin first.'); return; } try { await put('members', m.id, Object.assign(clone(m), { status: 'removed', removedAt: new Date().toISOString(), removedBy: S.uid })); ensureProject(); closeSheet(); renderHome(); toast('You left the project.'); } catch (e) { /* shown */ } },
+    setClock() { const d = $('#clkDate').value, t = $('#clkTime').value; if (!d || !t) { toast('Pick a date and time.'); return; } S.clock = { mode: 'set', base: U.at(d, t).getTime(), setAt: Date.now() }; saveSession(); S.g = {}; renderSheet(); renderHome(); toast('Clock set to ' + clockLabel(now()) + '.'); },
+    autoClock() { S.clock = { mode: 'auto' }; saveSession(); S.g = {}; renderSheet(); renderHome(); toast('Demo clock: ' + clockLabel(now()) + '.'); },
+    liveClock() { S.clock = { mode: 'live' }; saveSession(); S.g = {}; renderSheet(); renderHome(); toast('Using real time.'); },
+    resetAsk() { $('#resetWrap').innerHTML = '<div class="row"><span class="small">Erase all demo data and reload the sample project?</span><button class="btn sm stop" data-act="resetYes">Reset</button></div>'; },
+    resetYes: async () => { try { toast('Resetting…'); await clearAll(); await loadDemo(true); S.uid = null; S.pid = null; saveSession(); closeSheet(); go('login'); toast('Demo reset. Sign in with a demo account.'); } catch (e) { /* shown */ } },
+  };
+
+  document.addEventListener('click', (e) => {
+    const el = e.target.closest('[data-act]'); if (!el) return; const fn = ACT[el.dataset.act]; if (!fn) return;
+    if (el.dataset.act === 'scrim' && e.target !== el) return;
+    e.preventDefault(); fn(el, e);
+  });
+  document.addEventListener('input', (e) => {
+    const el = e.target;
+    if (el.form && el.form.id === 'signupForm' && el.name) { S.su[el.name] = el.value; if (el.name === 'password' || el.name === 'email') updateSignupLive(); return; }
+    if (el.id === 'su_ajaxok') { S.su.ajaxNoteConfirmed = el.checked; return; }
+    if (el.form && el.form.id === 'reqForm' && el.name) { formInput(el); return; }
+    if (el.id === 'fg_pw') { $('#fgrules').innerHTML = A.passwordChecks(el.value).map((c) => `<li class="${c.ok ? 'ok' : ''}">${esc(c.label)}</li>`).join(''); }
+    if (el.id === 'pw_new') { $('#pwNewRules').innerHTML = A.passwordChecks(el.value).map((c) => `<li class="${c.ok ? 'ok' : ''}">${esc(c.label)}</li>`).join(''); }
+  });
+  document.addEventListener('change', async (e) => {
+    const el = e.target;
+    if (el.id === 'su_ajaxok') { S.su.ajaxNoteConfirmed = el.checked; return; }
+    if (el.id === 'maintToggle') { S.maint = { on: el.checked, as: 'admin' }; S.openRole = null; saveSession(); renderHome(); toast(el.checked ? 'Maintenance mode on. Pick a view under the header.' : 'Maintenance mode off.'); return; }
+    if (el.form && el.form.id === 'reqForm' && el.name) { formInput(el); return; }
+    if (el.dataset && el.dataset.change === 'memberRole') {
+      const m = D.members[el.dataset.id]; const p = project();
+      if (m.role === 'admin' && el.value !== 'admin' && projMembers(p.id).filter((x) => x.role === 'admin').length < 2) { toast('A project needs at least one admin.'); el.value = 'admin'; return; }
+      try { await put('members', m.id, Object.assign(clone(m), { role: el.value })); const u = D.users[m.userId];
+        await sendMail([{ to: u.email, subject: `Your access on ${p.name} changed`, body: `You now have ${roleLabel(el.value)} access on ${p.name}.`, kind: 'team', projectId: p.id }]); toast(nameOf(u) + ' is now ' + roleLabel(el.value) + '.'); } catch (x) { /* shown */ }
+      return;
+    }
+    if (el.id === 'photoIn' && el.files && el.files[0]) { S.g = { error: 'Reading the QR code…' }; PANELS.receive.refresh(); const out = await decodePhoto(el.files[0]); el.value = ''; if (out.data) runCheck(out.data, 'photo'); else { S.g = { error: out.error }; PANELS.receive.refresh(); } }
+  });
+  function formInput(el) {
+    if (!S.form) return; S.form[el.name] = el.value;
+    if (el.name === 'gateId' || el.name === 'date') { const b = R.slotBoard(ctx(), S.form.gateId, S.form.date, S.form.id); const cur = b.find((s) => s.slot === S.form.slot); if (!cur || !cur.open) S.form.slot = ''; }
+    updateSchedule();
+  }
+  document.addEventListener('submit', async (e) => {
+    e.preventDefault(); const id = e.target.id;
+    if (id === 'loginForm') return doLogin();
+    if (id === 'signupForm') return doSignup();
+    if (id === 'verifyForm') return doVerify();
+    if (id === 'forgotForm1') return forgotStep1();
+    if (id === 'forgotForm2') return forgotStep2();
+    if (id === 'reqForm') return submitSchedule();
+    if (id === 'codeForm') { const v = $('#codeIn').value.trim(); if (!v) { toast('Type a pass code first.'); return; } runCheck(v, 'typed'); $('#codeIn').value = ''; return; }
+    if (id === 'inviteForm') return sendInvite();
+    if (id === 'emForm') return issueEmergency();
+    if (id === 'psForm') return saveProjectSettings();
+    if (id === 'joinForm') {
+      const v = $('#jp_code').value; const btn = e.target.querySelector('button[type=submit]'); btn.disabled = true;
+      const r = await joinWithCode(me(), v); btn.disabled = false;
+      if (!r.ok) { S.sheet.err = r.msg; renderSheet(); return; }
+      closeSheet(); ensureProject(); renderHome(); toast(r.msg); return;
+    }
+    if (id === 'createForm') {
+      const name = $('#cp_name').value.trim(); if (!name) { S.sheet.err = 'Enter a project name.'; renderSheet(); return; }
+      const p = await createProject(name, $('#cp_loc').value); if (!p) return;
+      S.sheet.created = { name: p.name, code: p.code }; S.sheet.err = ''; renderSheet(); renderHome(); return;
+    }
+    if (id === 'profForm') {
+      const u = clone(me()); const first = $('#pf_first').value.trim(), last = $('#pf_last').value.trim(), phone = $('#pf_phone').value, company = $('#pf_company').value.trim();
+      if (!first || !last || !company || !A.isValidPhone(phone)) { toast('Fill in every field with a 10-digit phone number.'); return; }
+      Object.assign(u, { first, last, phone: A.formatPhone(phone), company }); try { await put('users', u.id, u); toast('Profile saved.'); renderHome(); renderSheet(); } catch (x) { /* shown */ } return;
+    }
+    if (id === 'pwForm') {
+      const u = me(); const cur = $('#pw_cur').value, nw = $('#pw_new').value;
+      if ((await pbkdf2(cur, u.pw.salt, u.pw.iter)) !== u.pw.hash) { S.sheet.err = 'Current password is incorrect.'; renderSheet(); return; }
+      if (!A.isValidPassword(nw)) { S.sheet.err = 'New password needs at least 8 characters with an uppercase letter, a lowercase letter and a number.'; renderSheet(); return; }
+      const nu = clone(u); nu.pw = await makePw(nw); try { await put('users', nu.id, nu); S.sheet.sec = ''; S.sheet.err = ''; renderSheet(); toast('Password updated.'); } catch (x) { /* shown */ }
+    }
+  });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && S.sheet) closeSheet(); });
+  setInterval(() => { if (S.screen === 'home' && loaded) { const t = tabsFor(role()); t.forEach(updateTabHead); if (S.open.receive) PANELS.receive.refresh(); } }, 30000);
+
+  initStore();
+})();
+</script>

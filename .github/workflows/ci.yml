@@ -1,0 +1,20 @@
+name: CI
+on:
+  push: { branches: [main] }
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm }
+      - run: npm ci
+      - name: Rules, accounts, QR and admin-code tests
+        run: npm test
+      - name: Office Scripts type-check
+        run: npm run check
+      - name: Generated files are up to date
+        run: git diff --exit-code -- config sharepoint/list-schema.json docs/02-data-model.md officescripts/GenerateGatePassQR.ts

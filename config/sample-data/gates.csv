@@ -1,0 +1,3 @@
+GateId,Name,CapacityPerSlot,SortOrder
+G1,Gate 1 - North,2,1
+G2,Gate 2 - South heavy haul,1,2

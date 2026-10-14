@@ -1,0 +1,13 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/sp/v2/column-formatting.schema.json",
+  "elmType": "div",
+  "style": {
+    "padding": "2px 10px",
+    "border-radius": "12px",
+    "font-weight": "600",
+    "display": "inline-block",
+    "background-color": "=if(@currentField == 'Approved', '#DFF1E5', if(@currentField == 'Needs review', '#FAEFD3', if(@currentField == 'Rejected', '#FAE1E1', if(@currentField == 'Cancelled', '#ECEEEF', '#E3EAF2'))))",
+    "color": "=if(@currentField == 'Approved', '#16783C', if(@currentField == 'Needs review', '#8F6206', if(@currentField == 'Rejected', '#BC2229', if(@currentField == 'Cancelled', '#59646C', '#2B5885'))))"
+  },
+  "txtContent": "@currentField"
+}

@@ -1,0 +1,33 @@
+ID,Scenario,Expected result,Reason code
+T01,Clean request: own-trade activity starting next day; 72 hours' notice; open slot; zone has room,Approved automatically,
+T02,Slot only 25 hours away,Rejected; offers next open slot (exactly 48 hours counts),R05
+T03,Delivery on a Sunday,Rejected,R06
+T04,Slot at 4:00 PM (gate closes 4:00 PM),Rejected,R06
+T05,Slot already has 2 trucks at Gate 1,Rejected; offers next open slot,R07
+T06,Slot has a cancelled and a rejected booking,Approved (they do not count),
+T07,Hall A staging has 10 of 12 pallets booked; request adds 5,Rejected; says 2 pallets left,R08
+T08,Mechanical contractor picks an electrical activity,Rejected,R04
+T09,Activity ID not in the look-ahead,Rejected,R03
+T10,Delivery date after the activity finishes,Rejected,R09
+T11,Delivery 15 days before install with no reason,Rejected; says earliest allowed date,R10
+T12,Delivery 15 days before install with a reason,Needs review,F01
+T13,Delivery exactly 7 days before install,Approved,
+T14,25 pallets,Needs review,F02
+T15,Same company and activity already booked 1 day later,Needs review; names the other pass,F03
+T16,Suspended contractor,Rejected,R02
+T17,Contact phone missing,Rejected; names the missing field,R01
+T18,Phone has 9 digits,Rejected,R01
+T19,Rescheduling a booking within its own full slot,Approved (does not count itself),
+T20,Wrong trade and too little notice together,Rejected listing both problems,R04;R05
+G-T01,Valid pass scanned inside its window,Green: admit; names the staging zone,G00
+G-T02,Scanned at 6:00 AM for a 7:00 AM slot / at 5:59 AM,Green / Red too early,G00 / G05
+G-T03,Scanned at 9:00 AM / 9:01 AM for a 7:00 AM slot,Green / Red too late,G00 / G06
+G-T03b,6:00 AM slot window and 3:00 PM slot window,Window clipped to 6:00 AM and 4:00 PM gate hours,
+G-T04,Valid pass on the wrong day,Red; shows the booked day,G04
+G-T05,Used / cancelled / unknown / suspended-company pass,Red,G03 / G02 / G01 / G07
+G-T06,Emergency pass for a suspended company,Green,G00
+G-T07,Code typed as "7kqx9m" or "dc27kqx9m",Normalized to DC2-7KQX9M and checked,
+S-T01,Approved pass never scanned; 1 minute past slot end + grace,Shown as No-show,
+S-T02,Pass codes,Only unambiguous characters; never repeats an existing code,
+S-T03,Turn-away,Contractor; security and GC each get the reason and the fix,
+S-T04,Slot board,Full and under-48-hour slots shown as not open,

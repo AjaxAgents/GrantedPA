@@ -1,0 +1,19 @@
+{
+  "name": "grantedpa",
+  "version": "2.0.0",
+  "private": true,
+  "description": "Granted on Microsoft Power Platform: rules reference, Office Scripts, SharePoint schema, flow and app specs",
+  "scripts": {
+    "build": "node tools/build.js",
+    "test": "node tools/build.js && TZ=America/Chicago node --test rules/rules.test.js rules/accounts.test.js qr/qr.test.js officescripts/check-admin-code.test.js",
+    "check": "tsc --noEmit --strict --noImplicitAny --noImplicitReturns --target ES2017 --lib ES2017 officescripts/GenerateGatePassQR.ts tools/excelscript-stub.d.ts && tsc --noEmit --strict --target ES2017 --lib ES2017 officescripts/CheckAdminCode.ts tools/excelscript-stub.d.ts"
+  },
+  "devDependencies": {
+    "jsqr": "1.4.0",
+    "pngjs": "7.0.0",
+    "typescript": "5.9.3"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

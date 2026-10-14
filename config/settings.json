@@ -1,0 +1,25 @@
+{
+  "project": "Sample project",
+  "timeZone": "America/Chicago",
+  "passPrefix": "DC2",
+  "minNoticeHours": 48,
+  "maxDaysBeforeInstall": 7,
+  "gateToleranceMinutes": 60,
+  "noShowGraceMinutes": 60,
+  "maxPalletsPerRequest": 20,
+  "duplicateWindowDays": 7,
+  "slotMinutes": 60,
+  "gateOpen": "06:00",
+  "gateClose": "16:00",
+  "workDays": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6
+  ],
+  "blackoutDates": [],
+  "searchDaysForNextSlot": 21,
+  "reviewEscalationHours": 4
+}
