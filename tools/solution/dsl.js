@@ -13,7 +13,6 @@ const CONN = {
 // Environment variables (solution env vars → flow parameters). The set-up script fills in the values.
 const ENV = {
   site: { schema: 'gr_SiteUrl', name: 'Granted site URL', desc: 'The Granted SharePoint site, e.g. https://contoso.sharepoint.com/sites/Granted' },
-  excelSite: { schema: 'gr_ExcelSite', name: 'Granted Excel site', desc: 'Graph site id of the Granted site (sites/host,siteId,webId), for Run script' },
   excelDrive: { schema: 'gr_ExcelDrive', name: 'Granted Excel library', desc: 'Drive id of the QRRunner library' },
   workbook: { schema: 'gr_ExcelWorkbook', name: 'Granted Excel workbook', desc: 'Drive item id of QR-Runner.xlsx' },
   script: { schema: 'gr_EngineScript', name: 'Granted engine script', desc: 'Drive item id of GrantedEngine.osts' },
@@ -131,8 +130,8 @@ const firstRow = (name) => `first(body('${name}')?['value'])`;
 /** Run the GrantedEngine Office Script (officescripts/GrantedEngine.ts). Result: json(body('<name>')?['result']). */
 function engine(name, op, inputExpr, secure) {
   const a = api('excel', 'RunScriptProdV2', {
-    source: '@' + useEnv('excelSite'), drive: '@' + useEnv('excelDrive'), file: '@' + useEnv('workbook'),
-    scriptSource: '@' + useEnv('excelSite'), scriptDrive: '@' + useEnv('excelDrive'), scriptId: '@' + useEnv('script'),
+    source: '@' + useEnv('site'), drive: '@' + useEnv('excelDrive'), file: '@' + useEnv('workbook'),
+    scriptSource: '@' + useEnv('site'), scriptDrive: '@' + useEnv('excelDrive'), scriptId: '@' + useEnv('script'),
     'ScriptParameters/op': op, 'ScriptParameters/input': inputExpr,
   });
   if (secure) a.runtimeConfiguration = { secureData: { properties: ['inputs', 'outputs'] } };

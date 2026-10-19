@@ -55,7 +55,7 @@ GrantedPA follows Microsoft's rules for Power Platform and Microsoft 365 and App
 
 ## 6. IT checklist
 
-- [ ] Dedicated environment "Granted" (no Dataverse needed) with a maker security group
+- [ ] Dedicated environment "Granted" with a Dataverse data store (it holds the app and flows; Granted keeps no data there), the Granted account as System Administrator
 - [ ] DLP policy as in §4
 - [ ] Service account with licence, mailbox and MFA; shared mailbox `granted@…` with Send As
 - [ ] SharePoint communication site "Granted"; service account and Ajax IT as owners only; external sharing "New and existing guests"

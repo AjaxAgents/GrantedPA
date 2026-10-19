@@ -1,0 +1,128 @@
+scrMessages As screen:
+    Fill: |-
+        =ColorValue("#E6EAEF")
+    LoadingSpinnerColor: |-
+        =ColorValue("#0133A2")
+
+    hdrMsgBar As rectangle:
+        Fill: |-
+            =ColorValue("#0133A2")
+        Height: =128
+        Width: =640
+        X: =0
+        Y: =0
+
+    hdrMsgBack As icon.ChevronLeft:
+        AccessibleLabel: |-
+            ="Back"
+        Color: =Color.White
+        Height: =56
+        OnSelect: =Back()
+        PaddingBottom: =10
+        PaddingLeft: =10
+        PaddingRight: =10
+        PaddingTop: =10
+        Tooltip: |-
+            ="Back"
+        Width: =56
+        X: =8
+        Y: =36
+
+    hdrMsgTitle As label:
+        Color: =Color.White
+        FontWeight: =FontWeight.Semibold
+        Height: =40
+        PaddingLeft: =0
+        PaddingRight: =0
+        Size: =20
+        Text: |-
+            ="Messages"
+        VerticalAlign: =VerticalAlign.Middle
+        Width: =540
+        X: =68
+        Y: =34
+
+    hdrMsgSub As label:
+        Color: |-
+            =ColorValue("#C9D6F2")
+        FontWeight: =FontWeight.Normal
+        Height: =30
+        PaddingLeft: =0
+        PaddingRight: =0
+        Size: =12
+        Text: |-
+            =gblP.Name & If(gblInMaint, "  ·  maintenance view: " & gblRole, "")
+        VerticalAlign: =VerticalAlign.Middle
+        Width: =540
+        X: =68
+        Y: =74
+
+    lblMsgEmpty As label:
+        Color: |-
+            =ColorValue("#5A6478")
+        FontWeight: =FontWeight.Normal
+        Height: =40
+        PaddingLeft: =0
+        PaddingRight: =0
+        Size: =14
+        Text: |-
+            ="No messages yet."
+        VerticalAlign: =VerticalAlign.Middle
+        Visible: =CountRows(colMail) = 0
+        Width: =592
+        X: =24
+        Y: =160
+
+    galMsg As gallery.galleryVertical:
+        Height: =996
+        Items: =SortByColumns(colMail, At, SortOrder.Descending)
+        Layout: =Layout.Vertical
+        ShowScrollbar: =false
+        TemplatePadding: =0
+        TemplateSize: =200
+        Width: =640
+        X: =0
+        Y: =140
+
+        rctMsg As rectangle:
+            Fill: =Color.White
+            Height: =184
+            Width: =592
+            X: =24
+            Y: =8
+
+        lblMsgAt As label:
+            Color: |-
+                =ColorValue("#5A6478")
+            FontWeight: =FontWeight.Normal
+            Height: =24
+            PaddingLeft: =0
+            PaddingRight: =0
+            Size: =10
+            Text: =Text(ThisItem.At, "ddd m/d h:mm AM/PM") & If(gblRole = "Admin", " · to " & ThisItem.To, "")
+            VerticalAlign: =VerticalAlign.Middle
+            Width: =560
+            X: =40
+            Y: =14
+
+        lblMsgSubject As label:
+            Color: |-
+                =ColorValue("#172033")
+            FontWeight: =FontWeight.Semibold
+            Height: =32
+            PaddingLeft: =0
+            PaddingRight: =0
+            Size: =13
+            Text: =ThisItem.Subject
+            VerticalAlign: =VerticalAlign.Middle
+            Width: =560
+            X: =40
+            Y: =38
+
+        htmMsgBody As htmlViewer:
+            Height: =116
+            HtmlText: =ThisItem.Body
+            Size: =12
+            Width: =576
+            X: =32
+            Y: =72

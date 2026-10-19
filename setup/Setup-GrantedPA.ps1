@@ -1,112 +1,104 @@
 <#
 .SYNOPSIS
-  GrantedPA one-script SharePoint set-up: everything that can be done before the flows and the app.
+  GrantedPA set-up, part 1 of 2: builds the SharePoint side and a ready-to-import solution file.
 
 .DESCRIPTION
-  Run it once, as an IT admin, on a PC with PowerShell 7.4 or later (Windows, Mac or Linux):
+  Run it once, as an IT admin, on a PC with PowerShell 7.4 or later (Windows, Mac or Linux),
+  from the repository folder:
 
-      git clone https://github.com/AjaxAgents/GrantedPA
-      cd GrantedPA
       pwsh ./setup/Setup-GrantedPA.ps1
 
-  (No git? On GitHub choose Code → Download ZIP, unzip it, and run the same command in that folder.)
-
-  It asks for your SharePoint name, the service account, a support email and the admin set-up
-  code, then:
-    1. installs PnP PowerShell if it's missing, and registers a sign-in app for it (one consent prompt)
-    2. creates the "Granted" communication site, with the service account as an owner and guest
-       sharing on (only this site)
-    3. creates the 18 lists and 2 libraries, with columns, indexes, colours and owners-only permissions
-       (sharepoint/provision.ps1), plus reason codes, app settings and, if you like, a sample project
-    4. uploads QR-Runner.xlsx (the workbook the Office Scripts run in)
-    5. stores the admin set-up code as a one-way hash in SecureSettings (the code itself is never saved)
-    6. creates the Welcome page that new guests are sent to
-    7. creates the "Granted Users" group (the app is shared with it), with the service account as owner
-  and writes GrantedPA-setup-summary.txt with what it made and what's left.
+  It asks six questions, then:
+    1. installs PnP PowerShell if it's missing and registers its sign-in app (one admin consent)
+    2. creates the "Granted" SharePoint site (guest sharing on for this site only)
+    3. creates the 18 lists and 2 libraries with owners-only permissions and starter data
+    4. stores your settings (support email, company email domain, time zone)
+    5. uploads the rules engine (GrantedEngine.osts) and the workbook it runs in (QR-Runner.xlsx)
+    6. stores the admin set-up code as a one-way hash (the code itself is never saved)
+    7. publishes the Welcome page that new guests are sent to
+    8. creates the "Granted Users" group (the app is shared with it) with you and the Granted account in it
+    9. writes GrantedPA-ready.zip: the app and its 17 flows, already pointed at this site
+  Part 2 (import the zip in Power Apps) is in START-HERE.md and the set-up guide PDF.
 
   Safe to run again: anything that exists is left alone (give a new admin code to replace it).
 
-  Roles needed: SharePoint Administrator (site, sharing), and Application Administrator or Global
-  Administrator for the one-time sign-in app consent. The service account must already exist.
+  Roles needed: SharePoint Administrator, and Application Administrator or Global Administrator
+  for the one-time sign-in app consent. The Granted account must already exist with a mailbox.
 
 .PARAMETER DeviceLogin
-  Sign in with a code on another device (for Azure Cloud Shell or a PC without a browser).
-
-.EXAMPLE
-  pwsh ./setup/Setup-GrantedPA.ps1
-.EXAMPLE
-  pwsh ./setup/Setup-GrantedPA.ps1 -Tenant ajaxbuilding -ServiceAccount svc-granted@ajaxbuilding.com -SupportEmail granted@ajaxbuilding.com -SampleProject
+  Sign in with a code on another device (for a PC without a browser).
 #>
 [CmdletBinding()]
 param(
-  [string] $Tenant = '',            # the part before .sharepoint.com, e.g. ajaxbuilding
-  [string] $SitePath = 'Granted',   # https://<tenant>.sharepoint.com/sites/<SitePath>
-  [string] $ServiceAccount = '',
+  [string] $Tenant = '',            # the part before .sharepoint.com, e.g. contoso
+  [string] $SitePath = 'Granted',
+  [string] $ServiceAccount = '',    # the Granted account: owns the flows and sends the emails
+  [string] $HomeDomain = '',        # your company's email domain, e.g. contoso.com
   [string] $SupportEmail = '',
   [string] $TimeZone = 'Central Standard Time',
-  [string] $ClientId = '',          # an existing PnP sign-in app; leave empty to make one
+  [string] $ClientId = '',
   [switch] $SampleProject,
-  [switch] $DeviceLogin,
-  [switch] $SkipGroup
+  [switch] $DeviceLogin
 )
 
 $ErrorActionPreference = 'Stop'
 $repo = Split-Path -Parent $PSScriptRoot
 . (Join-Path $PSScriptRoot 'AdminCodeHash.ps1')
-$done = [System.Collections.Generic.List[string]]::new()
-$todo = [System.Collections.Generic.List[string]]::new()
-
-function Step($n, $text) { Write-Host "`n[$n/7] $text" -ForegroundColor Cyan }
-function Ok($text) { Write-Host "  ✓ $text" -ForegroundColor Green; $script:done.Add($text) }
-function Todo($text) { Write-Host "  → $text" -ForegroundColor Yellow; $script:todo.Add($text) }
+. (Join-Path $PSScriptRoot 'SolutionFile.ps1')
+$steps = 9
+function Step($n, $text) { Write-Host "`n[$n/$steps] $text" -ForegroundColor Cyan }
+function Ok($text) { Write-Host "  ✓ $text" -ForegroundColor Green }
+function Warn($text) { Write-Host "  ! $text" -ForegroundColor Yellow; $script:warnings.Add($text) }
 function Ask($prompt, $default) {
   $a = Read-Host ("  $prompt" + ($(if ($default) { " [$default]" } else { '' })))
   if ([string]::IsNullOrWhiteSpace($a)) { return $default } else { return $a.Trim() }
 }
+$warnings = [System.Collections.Generic.List[string]]::new()
 
 Write-Host @'
 
   ┌──────────────────────────────────────────────────────────┐
-  │  GRANTED (Power Apps)  ·  SharePoint set-up              │
+  │  GRANTED (Power Apps)  ·  set-up, part 1 of 2            │
   │  No approved delivery, no gate access.                   │
   └──────────────────────────────────────────────────────────┘
 '@
-
 if ($PSVersionTable.PSVersion -lt [version]'7.4') { throw "PowerShell 7.4 or later is needed (this is $($PSVersionTable.PSVersion)). Install it from https://aka.ms/powershell, then run: pwsh ./setup/Setup-GrantedPA.ps1" }
+$solutionZip = Join-Path $repo 'solution/GrantedPA.zip'
+if (-not (Test-Path $solutionZip)) { throw "solution/GrantedPA.zip is missing. Download the repository again (Code → Download ZIP)." }
 
 # ---------------------------------------------------------------- questions
-# Answers from an earlier run (nothing secret: names, emails and the sign-in app's ID).
 $memo = Join-Path $repo '.granted-setup.json'
 if (Test-Path $memo) {
   $m = Get-Content $memo -Raw | ConvertFrom-Json
-  if (-not $Tenant) { $Tenant = $m.Tenant }; if (-not $ClientId) { $ClientId = $m.ClientId }
-  if (-not $ServiceAccount) { $ServiceAccount = $m.ServiceAccount }; if (-not $SupportEmail) { $SupportEmail = $m.SupportEmail }
+  foreach ($k in 'Tenant', 'ClientId', 'ServiceAccount', 'HomeDomain', 'SupportEmail') { if (-not (Get-Variable $k -ValueOnly) -and $m.$k) { Set-Variable $k $m.$k } }
   Write-Host "`nUsing the answers from the last run ($memo). Delete that file to start over."
 }
-Write-Host "`nA few questions (press Enter to accept the suggestion in brackets)"
-if (-not $Tenant) { $Tenant = Ask 'SharePoint name (the part before .sharepoint.com)' '' }
+Write-Host "`nSix questions (press Enter to accept the suggestion in brackets)"
+if (-not $Tenant) { $Tenant = Ask '1. SharePoint name (the part before .sharepoint.com)' '' }
 $Tenant = ($Tenant -replace '^https?://', '' -replace '(-admin)?\.sharepoint\.com.*$', '').Trim()
 if ($Tenant -notmatch '^[A-Za-z0-9-]+$') { throw "That doesn't look like a SharePoint name: $Tenant" }
-if (-not $ServiceAccount) { $ServiceAccount = Ask 'Service account the flows run as' "svc-granted@$Tenant.com" }
-if (-not $SupportEmail) { $SupportEmail = Ask 'Support email shown to users' "granted@$Tenant.com" }
-if (-not $PSBoundParameters.ContainsKey('SampleProject')) { $SampleProject = (Ask 'Add a sample project to test with? (y/n)' 'y') -match '^[Yy]' }
-Write-Host "`n  Admin set-up code: Ajax staff type this as a project code to become admins who can"
-Write-Host "  create projects. Only a one-way hash is stored. Leave empty on a re-run to keep the current one."
-$c1 = Read-Host '  Admin set-up code' -AsSecureString
+if (-not $ServiceAccount) { $ServiceAccount = Ask '2. The Granted account (sends the emails, owns the flows)' "granted@$Tenant.com" }
+$ServiceAccount = $ServiceAccount.ToLowerInvariant()
+if (-not $HomeDomain) { $HomeDomain = Ask '3. Your company email domain (staff with it can become admins)' ($ServiceAccount -split '@')[-1] }
+$HomeDomain = $HomeDomain.TrimStart('@').ToLowerInvariant()
+if (-not $SupportEmail) { $SupportEmail = Ask '4. Support email shown to users' $ServiceAccount }
+if (-not $PSBoundParameters.ContainsKey('SampleProject')) { $SampleProject = (Ask '5. Add a sample project to try it with? (y/n)' 'n') -match '^[Yy]' }
+Write-Host "`n  6. Admin set-up code: staff with an @$HomeDomain email type it as a project code to become"
+Write-Host "     admins who can create projects. Only a one-way hash is stored. Empty on a re-run keeps the current one."
+$c1 = Read-Host '     Admin set-up code' -AsSecureString
 $codeHash = ''
 if ($c1.Length -gt 0) {
-  $c2 = Read-Host '  Type it again' -AsSecureString
+  $c2 = Read-Host '     Type it again' -AsSecureString
   $p1 = [System.Net.NetworkCredential]::new('', $c1).Password; $p2 = [System.Net.NetworkCredential]::new('', $c2).Password
   if ($p1 -ne $p2) { throw 'The two codes did not match. Run the script again.' }
-  if ((ConvertTo-GrantedAdminCode $p1).Length -lt 8) { Write-Host '  (A longer code is harder to guess from its hash. 12+ characters is better.)' -ForegroundColor Yellow }
-  Write-Host '  Hashing the code (a few seconds)...'
+  Write-Host '     Hashing the code (a few seconds)...'
   $codeHash = New-GrantedAdminCodeHash -Code $p1
   $p1 = $null; $p2 = $null
 }
 $tenantDomain = "$Tenant.onmicrosoft.com"
+$spHost = "$Tenant.sharepoint.com"
 $adminUrl = "https://$Tenant-admin.sharepoint.com"
-$siteUrl = "https://$Tenant.sharepoint.com/sites/$SitePath"
-
+$siteUrl = "https://$spHost/sites/$SitePath"
 function Connect-To($url) {
   if ($DeviceLogin) { Connect-PnPOnline -Url $url -DeviceLogin -ClientId $script:ClientId -Tenant $tenantDomain }
   else { Connect-PnPOnline -Url $url -Interactive -ClientId $script:ClientId }
@@ -122,124 +114,137 @@ Import-Module PnP.PowerShell
 Ok "PnP PowerShell $((Get-Module PnP.PowerShell).Version)"
 if (-not $ClientId) {
   Write-Host '  Registering the "Granted Setup (PnP)" sign-in app. Approve the consent prompt (admin).'
-  $reg = @{ ApplicationName = 'Granted Setup (PnP)'; Tenant = $tenantDomain; SharePointDelegatePermissions = 'AllSites.FullControl'; GraphDelegatePermissions = @('Group.ReadWrite.All', 'User.Read.All') }
+  $reg = @{ ApplicationName = 'Granted Setup (PnP)'; Tenant = $tenantDomain; SharePointDelegatePermissions = 'AllSites.FullControl'; GraphDelegatePermissions = @('Group.ReadWrite.All', 'User.Read.All', 'Sites.Read.All') }
   if ($DeviceLogin) { $reg.DeviceLogin = $true } else { $reg.Interactive = $true }
   $r = Register-PnPEntraIDAppForInteractiveLogin @reg
   $ClientId = @($r.'AzureAppId/ClientId', $r.ClientId, $r.AzureAppId) | Where-Object { $_ } | Select-Object -First 1
   if (-not $ClientId) { throw 'The sign-in app was registered but its Client ID was not returned. Run again with -ClientId <id from Entra → App registrations → Granted Setup (PnP)>.' }
 }
 Ok "Sign-in app $ClientId"
-[ordered]@{ Tenant = $Tenant; ClientId = $ClientId; ServiceAccount = $ServiceAccount; SupportEmail = $SupportEmail } | ConvertTo-Json | Set-Content -Path $memo -Encoding utf8
+[ordered]@{ Tenant = $Tenant; ClientId = $ClientId; ServiceAccount = $ServiceAccount; HomeDomain = $HomeDomain; SupportEmail = $SupportEmail } | ConvertTo-Json | Set-Content -Path $memo -Encoding utf8
 
 # ---------------------------------------------------------------- 2. the site
 Step 2 "The Granted site ($siteUrl)"
 Connect-To $adminUrl
-$site = Get-PnPTenantSite -Identity $siteUrl -ErrorAction SilentlyContinue
-if (-not $site) {
+if (-not (Get-PnPTenantSite -Identity $siteUrl -ErrorAction SilentlyContinue)) {
   Write-Host '  Creating the communication site (a minute)...'
-  New-PnPSite -Type CommunicationSite -Title 'Granted' -Url $siteUrl -Description 'Granted delivery booking and gate control. The lists are used by the Granted app; please do not edit them by hand.' -Wait | Out-Null
-  Ok 'Created the communication site'
+  New-PnPSite -Type CommunicationSite -Title 'Granted' -Url $siteUrl -Description 'Granted delivery booking and gate control. The lists belong to the Granted app; please do not edit them by hand.' -Wait | Out-Null
+  Ok 'Created the site'
 } else { Ok 'Site already exists' }
-try {
-  Set-PnPTenantSite -Identity $siteUrl -SharingCapability ExternalUserSharingOnly
-  Ok 'Guest sharing on for this site only (new and existing guests)'
-} catch { Todo "Turn on guest sharing for $siteUrl (SharePoint admin center → Sites → Granted → Sharing → New and existing guests). The organisation-wide setting must allow it: $($_.Exception.Message)" }
-
+try { Set-PnPTenantSite -Identity $siteUrl -SharingCapability ExternalUserSharingOnly; Ok 'Guest sharing on for this site only' }
+catch { Warn "Turn on guest sharing for the Granted site (SharePoint admin center → Sites → Granted → Sharing → New and existing guests): $($_.Exception.Message)" }
 Connect-To $siteUrl
 $owners = Get-PnPGroup -AssociatedOwnerGroup
 try { Add-PnPGroupMember -LoginName $ServiceAccount -Group $owners.Title -ErrorAction Stop; Ok "$ServiceAccount is a site owner" }
-catch { if ($_.Exception.Message -match 'already') { Ok "$ServiceAccount is a site owner" } else { Todo "Add $ServiceAccount to the site's Owners group (it couldn't be added: $($_.Exception.Message))" } }
+catch { if ($_.Exception.Message -match 'already') { Ok "$ServiceAccount is a site owner" } else { throw "Couldn't make $ServiceAccount a site owner. Does the account exist? ($($_.Exception.Message))" } }
 
-# ---------------------------------------------------------------- 3. lists, libraries, permissions, starter rows
-Step 3 'Lists, libraries, permissions and starter data'
+# ---------------------------------------------------------------- 3. lists
+Step 3 'Lists, libraries and permissions'
 $prov = @{ SiteUrl = $siteUrl; ServiceAccount = $ServiceAccount; UseExistingConnection = $true }
 if ($SampleProject) { $prov.SampleProject = $true }
 & (Join-Path $repo 'sharepoint/provision.ps1') @prov
-Ok '18 lists and 2 libraries with columns, indexes, status colours and owners-only permissions'
+Ok '18 lists and 2 libraries, owners only'
 
+# ---------------------------------------------------------------- 4. settings
+Step 4 'Settings'
 function Set-Setting($list, $key, $value) {
   $item = Get-PnPListItem -List $list -PageSize 500 | Where-Object { $_['Title'] -eq $key } | Select-Object -First 1
   if ($item) { Set-PnPListItem -List $list -Identity $item.Id -Values @{ Value = $value } | Out-Null }
   else { Add-PnPListItem -List $list -Values @{ Title = $key; Value = $value } | Out-Null }
 }
 Set-Setting 'AppSettings' 'SupportEmail' $SupportEmail
+Set-Setting 'AppSettings' 'AjaxDomain' $HomeDomain
+Set-Setting 'AppSettings' 'ServiceAccount' $ServiceAccount
 Set-Setting 'AppSettings' 'DefaultTimeZone' $TimeZone
-Ok "App settings: support $SupportEmail, time zone $TimeZone"
-Todo 'After the app and sign-up form exist, fill in AppSettings → AppLink and SignUpFormLink'
+Ok "Support $SupportEmail · company domain @$HomeDomain · $TimeZone"
 
-# ---------------------------------------------------------------- 4. QR runner workbook
-Step 4 'QR-Runner.xlsx (where the Office Scripts run)'
+# ---------------------------------------------------------------- 5. rules engine
+Step 5 'Rules engine (Office Script) and its workbook'
 Add-PnPFile -Path (Join-Path $repo 'officescripts/QR-Runner.xlsx') -Folder 'QRRunner' -Values @{} | Out-Null
-Ok 'Uploaded to the QRRunner library'
-Todo 'Signed in as the service account, open QR-Runner.xlsx in Excel for the web → Automate → New script: paste officescripts/GenerateGatePassQR.ts (save as GenerateGatePassQR) and officescripts/CheckAdminCode.ts (save as CheckAdminCode). 15 minutes.'
+Add-PnPFile -Path (Join-Path $repo 'officescripts/GrantedEngine.osts') -Folder 'QRRunner' -Values @{} | Out-Null
+Ok 'QR-Runner.xlsx and GrantedEngine.osts are in the QRRunner library'
 
-# ---------------------------------------------------------------- 5. admin set-up code
-Step 5 'Admin set-up code'
+# ---------------------------------------------------------------- 6. admin set-up code
+Step 6 'Admin set-up code'
 $cur = Get-PnPListItem -List 'SecureSettings' -PageSize 50 | Where-Object { $_['Title'] -eq 'AdminCodeHash' } | Select-Object -First 1
-if ($codeHash) {
-  Set-Setting 'SecureSettings' 'AdminCodeHash' $codeHash
-  $codeHash = $null
-  Ok 'Stored as a one-way hash in SecureSettings (only the service account and site collection admins can read it)'
-} elseif ($cur -and $cur['Value'] -like 'sha256i$*') { Ok 'Already set (kept)' }
-else { Todo 'No admin code yet: run this script again and type one, or paste the output of node tools/admin-code-hash.mjs into SecureSettings → AdminCodeHash' }
+if ($codeHash) { Set-Setting 'SecureSettings' 'AdminCodeHash' $codeHash; $codeHash = $null; Ok 'Stored as a one-way hash' }
+elseif ($cur -and $cur['Value'] -like 'sha256i$*') { Ok 'Already set (kept)' }
+else { Warn 'No admin set-up code yet. Run this script again and type one: nobody can create projects until then.' }
 
-# ---------------------------------------------------------------- 6. Welcome page
-Step 6 'Welcome page for new guests'
+# ---------------------------------------------------------------- 7. Welcome page
+Step 7 'Welcome page for new guests'
 if (-not (Get-PnPPage -Identity 'Welcome' -ErrorAction SilentlyContinue)) {
   Add-PnPPage -Name 'Welcome' -Title 'Welcome to Granted' -LayoutType Article -HeaderLayoutType NoImage | Out-Null
-  $html = @"
+  Add-PnPPageTextPart -Page 'Welcome' -Text @"
 <h2>Welcome to Granted</h2>
-<p><strong>No approved delivery, no gate access.</strong> Granted is how deliveries are booked and checked in at Ajax Building Company jobsites.</p>
-<h3>Get started</h3>
+<p><strong>No approved delivery, no gate access.</strong> Granted is how deliveries are booked and checked in on our jobsites.</p>
 <ol>
-<li>Install <strong>Power Apps</strong> from the App Store or Google Play (or use a browser).</li>
-<li>Sign in with the email address you were invited with. If you have more than one organisation, switch to <strong>Ajax Building Company</strong>.</li>
-<li>Open <strong>Granted</strong>. Your project and your access are already set up.</li>
+<li>Install <strong>Power Apps</strong> from the App Store or Google Play, or open Power Apps in a browser.</li>
+<li>Sign in with the email you were invited with. If you belong to several organisations, switch to the one that invited you.</li>
+<li>Open <strong>Granted</strong> and set up your profile. Your project access is already waiting.</li>
 </ol>
 <p>Help: <a href="mailto:$SupportEmail">$SupportEmail</a></p>
-"@
-  Add-PnPPageTextPart -Page 'Welcome' -Text $html | Out-Null
+"@ | Out-Null
   Set-PnPPage -Identity 'Welcome' -Publish | Out-Null
-  Ok 'Welcome page published (SitePages/Welcome.aspx)'
+  Ok 'Published SitePages/Welcome.aspx'
 } else { Ok 'Welcome page already exists' }
-Todo 'Once the app is published, add its link to the Welcome page'
 
-# ---------------------------------------------------------------- 7. Granted Users group
-Step 7 'Granted Users group (the app is shared with it)'
-if ($SkipGroup) { Todo 'Create a security-enabled Microsoft 365 group "Granted Users" with the service account as owner' }
-else {
-  try {
-    $g = Invoke-PnPGraphMethod -Url "v1.0/groups?`$filter=displayName eq 'Granted Users'&`$select=id,displayName" -Method Get
-    if ($g.value.Count -gt 0) { Ok 'Granted Users already exists' }
-    else {
-      $body = @{
-        displayName = 'Granted Users'; mailNickname = 'granted-users'; description = 'People who can open the Granted app. Managed by the Granted flows.'
-        groupTypes = @('Unified'); mailEnabled = $true; securityEnabled = $true; visibility = 'Private'
-        'owners@odata.bind' = @("https://graph.microsoft.com/v1.0/users/$ServiceAccount")
-      }
-      Invoke-PnPGraphMethod -Url 'v1.0/groups' -Method Post -Content $body | Out-Null
-      Ok 'Created Granted Users (security-enabled Microsoft 365 group, private), owned by the service account'
+# ---------------------------------------------------------------- 8. Granted Users group
+Step 8 'Granted Users group'
+$groupId = ''
+try {
+  $g = Invoke-PnPGraphMethod -Url "v1.0/groups?`$filter=displayName eq 'Granted Users'&`$select=id" -Method Get
+  if ($g.value.Count -gt 0) { $groupId = $g.value[0].id; Ok 'Granted Users already exists' }
+  else {
+    $new = Invoke-PnPGraphMethod -Url 'v1.0/groups' -Method Post -Content @{
+      displayName = 'Granted Users'; mailNickname = 'granted-users'; description = 'People who can open the Granted app. Managed by the Granted flows.'
+      groupTypes = @('Unified'); mailEnabled = $true; securityEnabled = $true; visibility = 'Private'
+      'owners@odata.bind' = @("https://graph.microsoft.com/v1.0/users/$ServiceAccount")
     }
-  } catch { Todo "Create a security-enabled Microsoft 365 group ""Granted Users"", private, with $ServiceAccount as an owner (couldn't create it here: $($_.Exception.Message))" }
+    $groupId = $new.id; Ok 'Created Granted Users, owned by the Granted account'
+  }
+  $me = Invoke-PnPGraphMethod -Url 'v1.0/me?$select=id,userPrincipalName' -Method Get
+  foreach ($who in @($me.userPrincipalName, $ServiceAccount) | Select-Object -Unique) {
+    try { Invoke-PnPGraphMethod -Url "v1.0/groups/$groupId/members/`$ref" -Method Post -Content @{ '@odata.id' = "https://graph.microsoft.com/v1.0/users/$who" } | Out-Null; Ok "Added $who" }
+    catch { if ($_.Exception.Message -match 'already exist') { Ok "$who is already in it" } else { Warn "Add $who to Granted Users by hand: $($_.Exception.Message)" } }
+  }
+} catch { throw "Couldn't create the Granted Users group: $($_.Exception.Message)" }
+
+# ---------------------------------------------------------------- 9. the ready-to-import solution
+Step 9 'GrantedPA-ready.zip (the app and its flows, pointed at this site)'
+$site = Invoke-PnPGraphMethod -Url "v1.0/sites/${spHost}:/sites/$SitePath" -Method Get
+$drive = (Invoke-PnPGraphMethod -Url "v1.0/sites/$($site.id)/drives" -Method Get).value | Where-Object { $_.name -eq 'QRRunner' } | Select-Object -First 1
+if (-not $drive) { throw 'The QRRunner library was not found through Microsoft Graph.' }
+$workbook = Invoke-PnPGraphMethod -Url "v1.0/drives/$($drive.id)/root:/QR-Runner.xlsx" -Method Get
+$script = Invoke-PnPGraphMethod -Url "v1.0/drives/$($drive.id)/root:/GrantedEngine.osts" -Method Get
+$values = [ordered]@{
+  gr_SiteUrl = $siteUrl; gr_ExcelDrive = $drive.id
+  gr_ExcelWorkbook = $workbook.id; gr_EngineScript = $script.id; gr_UsersGroupId = $groupId
 }
+$ready = Join-Path $repo 'GrantedPA-ready.zip'
+Set-GrantedSolutionValues -Source $solutionZip -Destination $ready -Values $values
+Ok "Wrote $ready"
 
-# ---------------------------------------------------------------- the rest
-$todo.Add('IT checklist in docs/04-security-and-compliance.md §6: Power Platform environment "Granted", DLP policy, service account licence and mailbox, guest one-time passcode, Conditional Access')
-$todo.Add('Build the flows (powerautomate/) and the app (powerapps/) in a solution, or import the ready-made solution if one is in solution/ (see START-HERE.md)')
-$summary = @"
-GrantedPA set-up summary ($(Get-Date -Format 'yyyy-MM-dd HH:mm'))
-Site:            $siteUrl
-Service account: $ServiceAccount
-Support email:   $SupportEmail
-PnP sign-in app: $ClientId
+# ---------------------------------------------------------------- what's left
+$next = @"
 
-Done
-$(($done | ForEach-Object { "  [x] $_" }) -join "`n")
+  ┌──────────────────────────────────────────────────────────┐
+  │  Part 1 done. Part 2 (about 15 minutes):                 │
+  └──────────────────────────────────────────────────────────┘
 
-Still to do
-$(($todo | ForEach-Object { "  [ ] $_" }) -join "`n")
+  A. Power Platform admin center (admin.powerplatform.microsoft.com) → Environments → + New
+     Name: Granted · Type: Production · Add a Dataverse data store: Yes → Save.
+     Then open it → Users → + Add user → $ServiceAccount → System Administrator.
+
+  B. Sign in to make.powerapps.com as $ServiceAccount, pick the Granted environment →
+     Solutions → Import solution → $ready → Next.
+     On "Connections", make each of the 4 connections (+ New connection, sign in) → Import.
+
+  C. Apps → Granted → Share → "Granted Users" → Share.
+
+  D. Open Granted, set up your profile, then type the admin set-up code as a project code.
+     Create your project and invite your team from Team & Invites.
 "@
-$out = Join-Path (Get-Location) 'GrantedPA-setup-summary.txt'
-Set-Content -Path $out -Value $summary -Encoding utf8
-Write-Host "`n$summary"
-Write-Host "`nSaved to $out" -ForegroundColor Cyan
+Write-Host $next
+if ($warnings.Count) { Write-Host "`nFix these too:" -ForegroundColor Yellow; $warnings | ForEach-Object { Write-Host "  ! $_" -ForegroundColor Yellow } }
+Set-Content -Path (Join-Path $repo 'GrantedPA-setup-summary.txt') -Value ("Site: $siteUrl`nGranted account: $ServiceAccount`nCompany domain: $HomeDomain`nSolution file: $ready`n$next`n" + (($warnings | ForEach-Object { "! $_" }) -join "`n")) -Encoding utf8

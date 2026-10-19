@@ -1,0 +1,363 @@
+scrToday As screen:
+    Fill: |-
+        =ColorValue("#E6EAEF")
+    LoadingSpinnerColor: |-
+        =ColorValue("#0133A2")
+
+    hdrTodayBar As rectangle:
+        Fill: |-
+            =ColorValue("#0133A2")
+        Height: =128
+        Width: =640
+        X: =0
+        Y: =0
+
+    hdrTodayBack As icon.ChevronLeft:
+        AccessibleLabel: |-
+            ="Back"
+        Color: =Color.White
+        Height: =56
+        OnSelect: =Back()
+        PaddingBottom: =10
+        PaddingLeft: =10
+        PaddingRight: =10
+        PaddingTop: =10
+        Tooltip: |-
+            ="Back"
+        Width: =56
+        X: =8
+        Y: =36
+
+    hdrTodayTitle As label:
+        Color: =Color.White
+        FontWeight: =FontWeight.Semibold
+        Height: =40
+        PaddingLeft: =0
+        PaddingRight: =0
+        Size: =20
+        Text: =If(gblRole = "Admin", "Today", "Expected Today")
+        VerticalAlign: =VerticalAlign.Middle
+        Width: =540
+        X: =68
+        Y: =34
+
+    hdrTodaySub As label:
+        Color: |-
+            =ColorValue("#C9D6F2")
+        FontWeight: =FontWeight.Normal
+        Height: =30
+        PaddingLeft: =0
+        PaddingRight: =0
+        Size: =12
+        Text: |-
+            =gblP.Name & If(gblInMaint, "  ·  maintenance view: " & gblRole, "")
+        VerticalAlign: =VerticalAlign.Middle
+        Width: =540
+        X: =68
+        Y: =74
+
+    rctTile1 As rectangle:
+        Fill: =Color.White
+        Height: =104
+        Width: =189.33333333333334
+        X: =24
+        Y: =144
+
+    lblTileV1 As label:
+        Align: =Align.Center
+        Color: |-
+            =ColorValue("#172033")
+        FontWeight: =FontWeight.Semibold
+        Height: =52
+        PaddingLeft: =0
+        PaddingRight: =0
+        Size: =26
+        Text: =CountRows(Filter(colReq, Date = gblToday && Status = "Approved"))
+        VerticalAlign: =VerticalAlign.Middle
+        Width: =189.33333333333334
+        X: =24
+        Y: =154
+
+    lblTileL1 As label:
+        Align: =Align.Center
+        Color: |-
+            =ColorValue("#5A6478")
+        FontWeight: =FontWeight.Normal
+        Height: =32
+        PaddingLeft: =0
+        PaddingRight: =0
+        Size: =11
+        Text: |-
+            ="Expected"
+        VerticalAlign: =VerticalAlign.Middle
+        Width: =189.33333333333334
+        X: =24
+        Y: =206
+
+    rctTile2 As rectangle:
+        Fill: =Color.White
+        Height: =104
+        Width: =189.33333333333334
+        X: =225.33333333333334
+        Y: =144
+
+    lblTileV2 As label:
+        Align: =Align.Center
+        Color: |-
+            =ColorValue("#12804A")
+        FontWeight: =FontWeight.Semibold
+        Height: =52
+        PaddingLeft: =0
+        PaddingRight: =0
+        Size: =26
+        Text: =CountRows(Filter(colLog, Text(At, "yyyy-mm-dd") = Text(Today(), "yyyy-mm-dd") && Action = "Admitted"))
+        VerticalAlign: =VerticalAlign.Middle
+        Width: =189.33333333333334
+        X: =225.33333333333334
+        Y: =154
+
+    lblTileL2 As label:
+        Align: =Align.Center
+        Color: |-
+            =ColorValue("#5A6478")
+        FontWeight: =FontWeight.Normal
+        Height: =32
+        PaddingLeft: =0
+        PaddingRight: =0
+        Size: =11
+        Text: |-
+            ="Arrived"
+        VerticalAlign: =VerticalAlign.Middle
+        Width: =189.33333333333334
+        X: =225.33333333333334
+        Y: =206
+
+    rctTile3 As rectangle:
+        Fill: =Color.White
+        Height: =104
+        Width: =189.33333333333334
+        X: =426.6666666666667
+        Y: =144
+
+    lblTileV3 As label:
+        Align: =Align.Center
+        Color: |-
+            =ColorValue("#C2252D")
+        FontWeight: =FontWeight.Semibold
+        Height: =52
+        PaddingLeft: =0
+        PaddingRight: =0
+        Size: =26
+        Text: =CountRows(Filter(colLog, Text(At, "yyyy-mm-dd") = Text(Today(), "yyyy-mm-dd") && Action = "Turned away"))
+        VerticalAlign: =VerticalAlign.Middle
+        Width: =189.33333333333334
+        X: =426.6666666666667
+        Y: =154
+
+    lblTileL3 As label:
+        Align: =Align.Center
+        Color: |-
+            =ColorValue("#5A6478")
+        FontWeight: =FontWeight.Normal
+        Height: =32
+        PaddingLeft: =0
+        PaddingRight: =0
+        Size: =11
+        Text: |-
+            ="Turned away"
+        VerticalAlign: =VerticalAlign.Middle
+        Width: =189.33333333333334
+        X: =426.6666666666667
+        Y: =206
+
+    rctTile4 As rectangle:
+        Fill: =Color.White
+        Height: =104
+        Width: =189.33333333333334
+        X: =24
+        Y: =260
+
+    lblTileV4 As label:
+        Align: =Align.Center
+        Color: |-
+            =ColorValue("#946200")
+        FontWeight: =FontWeight.Semibold
+        Height: =52
+        PaddingLeft: =0
+        PaddingRight: =0
+        Size: =26
+        Text: =CountRows(Filter(colReq, Status = "Needs review")) + CountRows(colJoin)
+        VerticalAlign: =VerticalAlign.Middle
+        Width: =189.33333333333334
+        X: =24
+        Y: =270
+
+    lblTileL4 As label:
+        Align: =Align.Center
+        Color: |-
+            =ColorValue("#5A6478")
+        FontWeight: =FontWeight.Normal
+        Height: =32
+        PaddingLeft: =0
+        PaddingRight: =0
+        Size: =11
+        Text: |-
+            ="Need approval"
+        VerticalAlign: =VerticalAlign.Middle
+        Width: =189.33333333333334
+        X: =24
+        Y: =322
+
+    rctTile5 As rectangle:
+        Fill: =Color.White
+        Height: =104
+        Width: =189.33333333333334
+        X: =225.33333333333334
+        Y: =260
+
+    lblTileV5 As label:
+        Align: =Align.Center
+        Color: |-
+            =ColorValue("#172033")
+        FontWeight: =FontWeight.Semibold
+        Height: =52
+        PaddingLeft: =0
+        PaddingRight: =0
+        Size: =26
+        Text: =CountRows(colMembers)
+        VerticalAlign: =VerticalAlign.Middle
+        Width: =189.33333333333334
+        X: =225.33333333333334
+        Y: =270
+
+    lblTileL5 As label:
+        Align: =Align.Center
+        Color: |-
+            =ColorValue("#5A6478")
+        FontWeight: =FontWeight.Normal
+        Height: =32
+        PaddingLeft: =0
+        PaddingRight: =0
+        Size: =11
+        Text: |-
+            ="Members"
+        VerticalAlign: =VerticalAlign.Middle
+        Width: =189.33333333333334
+        X: =225.33333333333334
+        Y: =322
+
+    rctTile6 As rectangle:
+        Fill: =Color.White
+        Height: =104
+        Width: =189.33333333333334
+        X: =426.6666666666667
+        Y: =260
+
+    lblTileV6 As label:
+        Align: =Align.Center
+        Color: |-
+            =ColorValue("#172033")
+        FontWeight: =FontWeight.Semibold
+        Height: =52
+        PaddingLeft: =0
+        PaddingRight: =0
+        Size: =26
+        Text: =CountRows(Filter(colReq, Date = gblToday && Status = "Cancelled"))
+        VerticalAlign: =VerticalAlign.Middle
+        Width: =189.33333333333334
+        X: =426.6666666666667
+        Y: =270
+
+    lblTileL6 As label:
+        Align: =Align.Center
+        Color: |-
+            =ColorValue("#5A6478")
+        FontWeight: =FontWeight.Normal
+        Height: =32
+        PaddingLeft: =0
+        PaddingRight: =0
+        Size: =11
+        Text: |-
+            ="Cancelled today"
+        VerticalAlign: =VerticalAlign.Middle
+        Width: =189.33333333333334
+        X: =426.6666666666667
+        Y: =322
+
+    capTodayList As label:
+        Color: |-
+            =ColorValue("#5A6478")
+        FontWeight: =FontWeight.Semibold
+        Height: =28
+        PaddingLeft: =0
+        PaddingRight: =0
+        Size: =11
+        Text: |-
+            ="TODAY’S DELIVERIES"
+        VerticalAlign: =VerticalAlign.Middle
+        Width: =592
+        X: =24
+        Y: =384
+
+    galToday As gallery.galleryVertical:
+        Height: =722
+        Items: =SortByColumns(Filter(colReq, Date = gblToday && (Status = "Approved" || Status = "Cancelled")), Slot, SortOrder.Ascending)
+        Layout: =Layout.Vertical
+        ShowScrollbar: =false
+        TemplatePadding: =0
+        TemplateSize: =92
+        Width: =640
+        X: =0
+        Y: =414
+
+        rctTodayRow As rectangle:
+            Fill: =Color.White
+            Height: =84
+            Width: =592
+            X: =24
+            Y: =4
+
+        lblTodayTime As label:
+            Color: |-
+                =ColorValue("#172033")
+            FontWeight: =FontWeight.Semibold
+            Height: =84
+            PaddingLeft: =0
+            PaddingRight: =0
+            Size: =15
+            Text: =ThisItem.Slot
+            VerticalAlign: =VerticalAlign.Middle
+            Width: =90
+            X: =36
+            Y: =4
+
+        lblTodayWho As label:
+            Color: |-
+                =ColorValue("#172033")
+            FontWeight: =FontWeight.Normal
+            Height: =84
+            PaddingLeft: =0
+            PaddingRight: =0
+            Size: =11
+            Text: =ThisItem.Company & Char(10) & ThisItem.Material & " · " & ThisItem.Pallets & " pallets · " & ThisItem.Pass
+            VerticalAlign: =VerticalAlign.Middle
+            Width: =332
+            X: =130
+            Y: =4
+
+        lblTodayStatus As label:
+            Align: =Align.Center
+            Color: =Color.White
+            Fill: |-
+                =With({ p: LookUp(colPasses, Code = ThisItem.Pass) }, If(ThisItem.Status = "Cancelled", ColorValue("#5A6478"), p.Status = "Used", ColorValue("#12804A"), Now() > DateAdd(p.Close, 60, TimeUnit.Minutes), ColorValue("#C2252D"), ColorValue("#0133A2")))
+            FontWeight: =FontWeight.Semibold
+            Height: =30
+            PaddingLeft: =0
+            PaddingRight: =0
+            Size: =10
+            Text: |-
+                =With({ p: LookUp(colPasses, Code = ThisItem.Pass) }, If(ThisItem.Status = "Cancelled", "Cancelled", p.Status = "Used", "Arrived", Now() > DateAdd(p.Close, 60, TimeUnit.Minutes), "No-show", "Expected"))
+            VerticalAlign: =VerticalAlign.Middle
+            Width: =128
+            X: =476
+            Y: =28

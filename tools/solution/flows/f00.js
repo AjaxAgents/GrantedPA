@@ -114,7 +114,7 @@ function F00() {
     D.select('Visible_ids', "@body('Visible_requests')", "@item()?['ID']"),
     // Everyone else's bookings, as capacity only (no names, loads or contacts).
     D.filter('Others_active', "@body('Get_requests')?['value']",
-      `@and(not(${isRole('Access Control')}), not(equals(item()?['SubcontractorId'], outputs('MySub'))), or(equals(item()?['Status'], 'Approved'), equals(item()?['Status'], 'Needs review')))`),
+      `@and(${isRole('Contractor')}, not(equals(item()?['SubcontractorId'], outputs('MySub'))), or(equals(item()?['Status'], 'Approved'), equals(item()?['Status'], 'Needs review')))`),
     D.select('Occupancy_out', "@body('Others_active')", {
       id: "@item()?['ID']", gateId: "@item()?['GateId']", date: "@item()?['DeliveryDate']", slot: "@item()?['SlotStart']", zoneId: "@item()?['ZoneId']",
       pallets: "@coalesce(item()?['Pallets'], 0)", stagedUntil: "@coalesce(item()?['StagedUntil'], item()?['DeliveryDate'])", status: "@item()?['Status']",

@@ -1,0 +1,120 @@
+scrGateLog As screen:
+    Fill: |-
+        =ColorValue("#E6EAEF")
+    LoadingSpinnerColor: |-
+        =ColorValue("#0133A2")
+
+    hdrLogBar As rectangle:
+        Fill: |-
+            =ColorValue("#0133A2")
+        Height: =128
+        Width: =640
+        X: =0
+        Y: =0
+
+    hdrLogBack As icon.ChevronLeft:
+        AccessibleLabel: |-
+            ="Back"
+        Color: =Color.White
+        Height: =56
+        OnSelect: =Back()
+        PaddingBottom: =10
+        PaddingLeft: =10
+        PaddingRight: =10
+        PaddingTop: =10
+        Tooltip: |-
+            ="Back"
+        Width: =56
+        X: =8
+        Y: =36
+
+    hdrLogTitle As label:
+        Color: =Color.White
+        FontWeight: =FontWeight.Semibold
+        Height: =40
+        PaddingLeft: =0
+        PaddingRight: =0
+        Size: =20
+        Text: |-
+            ="Gate Log"
+        VerticalAlign: =VerticalAlign.Middle
+        Width: =540
+        X: =68
+        Y: =34
+
+    hdrLogSub As label:
+        Color: |-
+            =ColorValue("#C9D6F2")
+        FontWeight: =FontWeight.Normal
+        Height: =30
+        PaddingLeft: =0
+        PaddingRight: =0
+        Size: =12
+        Text: |-
+            =gblP.Name & If(gblInMaint, "  ·  maintenance view: " & gblRole, "")
+        VerticalAlign: =VerticalAlign.Middle
+        Width: =540
+        X: =68
+        Y: =74
+
+    galLog As gallery.galleryVertical:
+        Height: =996
+        Items: =SortByColumns(colLog, At, SortOrder.Descending)
+        Layout: =Layout.Vertical
+        ShowScrollbar: =false
+        TemplatePadding: =0
+        TemplateSize: =96
+        Width: =640
+        X: =0
+        Y: =140
+
+        rctLogRow As rectangle:
+            Fill: =Color.White
+            Height: =88
+            Width: =592
+            X: =24
+            Y: =4
+
+        lblLogTime As label:
+            Color: |-
+                =ColorValue("#172033")
+            FontWeight: =FontWeight.Semibold
+            Height: =30
+            PaddingLeft: =0
+            PaddingRight: =0
+            Size: =12
+            Text: =Text(ThisItem.At, "ddd h:mm AM/PM")
+            VerticalAlign: =VerticalAlign.Middle
+            Width: =180
+            X: =36
+            Y: =8
+
+        lblLogResult As label:
+            Align: =Align.Center
+            Color: =Color.White
+            Fill: |-
+                =If(ThisItem.Result = "Green", ColorValue("#12804A"), ColorValue("#C2252D"))
+            FontWeight: =FontWeight.Semibold
+            Height: =28
+            PaddingLeft: =0
+            PaddingRight: =0
+            Size: =10
+            Text: =ThisItem.Action
+            VerticalAlign: =VerticalAlign.Middle
+            Width: =138
+            X: =466
+            Y: =10
+
+        lblLogDetail As label:
+            Color: |-
+                =ColorValue("#5A6478")
+            FontWeight: =FontWeight.Normal
+            Height: =44
+            PaddingLeft: =0
+            PaddingRight: =0
+            Size: =11
+            Text: =ThisItem.Code & " · " & ThisItem.Reason & " · " & ThisItem.Guard
+            VerticalAlign: =VerticalAlign.Middle
+            Width: =568
+            X: =36
+            Y: =42

@@ -1353,7 +1353,7 @@
                       "type": "Query",
                       "inputs": {
                         "from": "@body('Get_requests')?['value']",
-                        "where": "@and(not(equals(outputs('Auth')?['role'], 'Access Control')), not(equals(item()?['SubcontractorId'], outputs('MySub'))), or(equals(item()?['Status'], 'Approved'), equals(item()?['Status'], 'Needs review')))"
+                        "where": "@and(equals(outputs('Auth')?['role'], 'Contractor'), not(equals(item()?['SubcontractorId'], outputs('MySub'))), or(equals(item()?['Status'], 'Approved'), equals(item()?['Status'], 'Needs review')))"
                       },
                       "runAfter": {
                         "Visible_ids": [

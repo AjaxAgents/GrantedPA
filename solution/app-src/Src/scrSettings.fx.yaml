@@ -1,0 +1,833 @@
+scrSettings As screen:
+    Fill: =Color.White
+    LoadingSpinnerColor: |-
+        =ColorValue("#0133A2")
+    OnVisible: =Set(locConfirmDelete, false); Set(locConfirmLeave, false)
+
+    hdrSetBar As rectangle:
+        Fill: |-
+            =ColorValue("#0133A2")
+        Height: =128
+        Width: =640
+        X: =0
+        Y: =0
+
+    hdrSetBack As icon.ChevronLeft:
+        AccessibleLabel: |-
+            ="Back"
+        Color: =Color.White
+        Height: =56
+        OnSelect: =Back()
+        PaddingBottom: =10
+        PaddingLeft: =10
+        PaddingRight: =10
+        PaddingTop: =10
+        Tooltip: |-
+            ="Back"
+        Width: =56
+        X: =8
+        Y: =36
+
+    hdrSetTitle As label:
+        Color: =Color.White
+        FontWeight: =FontWeight.Semibold
+        Height: =40
+        PaddingLeft: =0
+        PaddingRight: =0
+        Size: =20
+        Text: |-
+            ="Settings"
+        VerticalAlign: =VerticalAlign.Middle
+        Width: =540
+        X: =68
+        Y: =34
+
+    hdrSetSub As label:
+        Color: |-
+            =ColorValue("#C9D6F2")
+        FontWeight: =FontWeight.Normal
+        Height: =30
+        PaddingLeft: =0
+        PaddingRight: =0
+        Size: =12
+        Text: =gblMe.Email
+        VerticalAlign: =VerticalAlign.Middle
+        Width: =540
+        X: =68
+        Y: =74
+
+    capProfile As label:
+        Color: |-
+            =ColorValue("#5A6478")
+        FontWeight: =FontWeight.Semibold
+        Height: =28
+        PaddingLeft: =0
+        PaddingRight: =0
+        Size: =11
+        Text: |-
+            ="PROFILE"
+        VerticalAlign: =VerticalAlign.Middle
+        Width: =592
+        X: =24
+        Y: =146
+
+    txtSetFirst As text:
+        AccessibleLabel: |-
+            ="First name"
+        BorderColor: |-
+            =ColorValue("#DCE2EC")
+        Default: =gblMe.First
+        Fill: |-
+            =ColorValue("#F1F3F6")
+        FocusedBorderColor: |-
+            =ColorValue("#0133A2")
+        Height: =52
+        HintText: |-
+            ="First name"
+        HoverBorderColor: |-
+            =ColorValue("#0133A2")
+        PaddingLeft: =12
+        RadiusBottomLeft: =8
+        RadiusBottomRight: =8
+        RadiusTopLeft: =8
+        RadiusTopRight: =8
+        Size: =14
+        Width: =290
+        X: =24
+        Y: =176
+
+    txtSetLast As text:
+        AccessibleLabel: |-
+            ="Last name"
+        BorderColor: |-
+            =ColorValue("#DCE2EC")
+        Default: =gblMe.Last
+        Fill: |-
+            =ColorValue("#F1F3F6")
+        FocusedBorderColor: |-
+            =ColorValue("#0133A2")
+        Height: =52
+        HintText: |-
+            ="Last name"
+        HoverBorderColor: |-
+            =ColorValue("#0133A2")
+        PaddingLeft: =12
+        RadiusBottomLeft: =8
+        RadiusBottomRight: =8
+        RadiusTopLeft: =8
+        RadiusTopRight: =8
+        Size: =14
+        Width: =290
+        X: =326
+        Y: =176
+
+    txtSetPhone As text:
+        AccessibleLabel: |-
+            ="Mobile phone"
+        BorderColor: |-
+            =ColorValue("#DCE2EC")
+        Default: =gblMe.Phone
+        Fill: |-
+            =ColorValue("#F1F3F6")
+        FocusedBorderColor: |-
+            =ColorValue("#0133A2")
+        Height: =52
+        HintText: |-
+            ="Mobile phone"
+        HoverBorderColor: |-
+            =ColorValue("#0133A2")
+        PaddingLeft: =12
+        RadiusBottomLeft: =8
+        RadiusBottomRight: =8
+        RadiusTopLeft: =8
+        RadiusTopRight: =8
+        Size: =14
+        Width: =592
+        X: =24
+        Y: =236
+
+    txtSetCompany As text:
+        AccessibleLabel: |-
+            ="Company"
+        BorderColor: |-
+            =ColorValue("#DCE2EC")
+        Default: =gblMe.Company
+        Fill: |-
+            =ColorValue("#F1F3F6")
+        FocusedBorderColor: |-
+            =ColorValue("#0133A2")
+        Height: =52
+        HintText: |-
+            ="Company"
+        HoverBorderColor: |-
+            =ColorValue("#0133A2")
+        PaddingLeft: =12
+        RadiusBottomLeft: =8
+        RadiusBottomRight: =8
+        RadiusTopLeft: =8
+        RadiusTopRight: =8
+        Size: =14
+        Width: =592
+        X: =24
+        Y: =296
+
+    btnSetSave As button:
+        BorderColor: |-
+            =ColorValue("#0133A2")
+        BorderThickness: =2
+        Color: |-
+            =ColorValue("#0133A2")
+        DisabledBorderColor: |-
+            =ColorValue("#B8C2D6")
+        DisabledColor: =Color.White
+        DisabledFill: |-
+            =ColorValue("#B8C2D6")
+        Fill: =Color.White
+        FontWeight: =FontWeight.Semibold
+        Height: =48
+        HoverColor: |-
+            =ColorValue("#0133A2")
+        HoverFill: =ColorFade(Color.White, -10%)
+        OnSelect: |-
+            =IfError(
+                Set(locP, ParseJSON(GrantedF14.Run(gblPid, If(gblMaint.On && gblMaint.ViewAs <> "Admin", gblMaint.ViewAs, ""), JSON({ op: "save", first: txtSetFirst.Text, last: txtSetLast.Text, phone: txtSetPhone.Text, company: txtSetCompany.Text })).json)),
+                Set(locP, ParseJSON("{""ok"":false,""message"":""No connection. Check your signal and try again.""}"))
+            );
+            Notify(Text(locP.message), If(Boolean(locP.ok), NotificationType.Success, NotificationType.Error));
+            If(Boolean(locP.ok), IfError(
+                Set(gblS, ParseJSON(GrantedF00.Run("", "", "{""op"":""session""}").json)),
+                Set(gblS, ParseJSON("{""ok"":false,""message"":""No connection. Check your signal and try again.""}"))
+            );
+            Set(gblNeedsProfile, Boolean(gblS.needsProfile));
+            If(!Boolean(gblS.ok), Notify(Text(gblS.message), NotificationType.Error));
+            If(gblNeedsProfile, Set(gblSignInEmail, Text(gblS.email)); Set(gblHomeDomainUser, Boolean(gblS.isHome)));
+            If(Boolean(gblS.ok) && !gblNeedsProfile,
+                Set(gblMe, {
+                    Email: Text(gblS.me.email), First: Text(gblS.me.first), Last: Text(gblS.me.last), Phone: Text(gblS.me.phone),
+                    Company: Text(gblS.me.company), IsHome: Boolean(gblS.me.isHome), IsAdminAccount: Boolean(gblS.me.isAdminAccount)
+                });
+                Set(gblSupport, Text(gblS.settings.supportEmail));
+                ClearCollect(colProjects, ForAll(Table(gblS.projects), {
+                    Id: Text(ThisRecord.Value.id), Name: Text(ThisRecord.Value.name), Code: Text(ThisRecord.Value.code),
+                    Location: Text(ThisRecord.Value.location), Role: Text(ThisRecord.Value.role)
+                }));
+                ClearCollect(colPending, ForAll(Table(gblS.pending), { Id: Text(ThisRecord.Value.projectId), Name: Text(ThisRecord.Value.name) }));
+                ForAll(Table(gblS.notices), Notify(Text(ThisRecord.Value), NotificationType.Success));
+                If(IsBlank(LookUp(colProjects, Id = gblPid)), Set(gblPid, First(SortByColumns(colProjects, Name)).Id))
+            ); If(IsBlank(gblPid),
+                Set(gblRole, Blank()); Set(gblP, Blank()),
+                IfError(
+                    Set(gblV, ParseJSON(GrantedF00.Run(gblPid, If(gblMaint.On && gblMaint.ViewAs <> "Admin", gblMaint.ViewAs, ""), "{""op"":""view""}").json)),
+                    Set(gblV, ParseJSON("{""ok"":false,""message"":""No connection. Showing what was loaded last.""}"))
+                );
+                If(Boolean(gblV.ok),
+                    Set(gblRole, Text(gblV.role)); Set(gblCanMaintain, Boolean(gblV.canMaintain)); Set(gblInMaint, Boolean(gblV.maintenance));
+                    Set(gblP, {
+                        Id: Text(gblV.project.id), Name: Text(gblV.project.name), Code: Text(gblV.project.code), Location: Text(gblV.project.location),
+                        TimeZone: Text(gblV.project.timeZone), DutyPhone: Text(gblV.project.dutyPhone)
+                    });
+                    Set(gblCfg, {
+                        MinNotice: Coalesce(Value(gblV.project.settings.minNoticeHours), 48), MaxEarly: Coalesce(Value(gblV.project.settings.maxDaysBeforeInstall), 7),
+                        Tolerance: Coalesce(Value(gblV.project.settings.gateToleranceMinutes), 60), MaxPallets: Coalesce(Value(gblV.project.settings.maxPalletsPerRequest), 20),
+                        SlotMinutes: Coalesce(Value(gblV.project.settings.slotMinutes), 60), GateOpen: Coalesce(Text(gblV.project.settings.gateOpen), "06:00"),
+                        GateClose: Coalesce(Text(gblV.project.settings.gateClose), "16:00")
+                    });
+                    IfError(
+                        ClearCollect(colWorkDays, ForAll(Table(gblV.project.settings.workDays), { Day: Value(ThisRecord.Value) })),
+                        ClearCollect(colWorkDays, { Day: 1 }, { Day: 2 }, { Day: 3 }, { Day: 4 }, { Day: 5 }, { Day: 6 })
+                    );
+                    Set(gblToday, DateValue(Text(gblV.today)));
+                    Set(gblNowLocal, DateTimeValue(Text(gblV.nowLocal)));
+                    Set(gblLoadedAt, Now());
+                    ClearCollect(colGates, ForAll(Table(gblV.project.gates), { Id: Text(ThisRecord.Value.id), Name: Text(ThisRecord.Value.name), Cap: Value(ThisRecord.Value.capacityPerSlot) }));
+                    ClearCollect(colZones, ForAll(Table(gblV.project.zones), { Id: Text(ThisRecord.Value.id), Name: Text(ThisRecord.Value.name), Cap: Value(ThisRecord.Value.capacityPallets) }));
+                    ClearCollect(colActs, ForAll(Table(gblV.project.activities), {
+                        Id: Text(ThisRecord.Value.id), Name: Text(ThisRecord.Value.name), Trade: Text(ThisRecord.Value.trade),
+                        Start: DateValue(Text(ThisRecord.Value.start)), Finish: DateValue(Text(ThisRecord.Value.finish))
+                    }));
+                    ClearCollect(colBlackouts, ForAll(Table(gblV.project.blackouts), { Day: Text(ThisRecord.Value) }));
+                    Set(gblMySub, { Id: Text(gblV.mySub.id), Name: Text(gblV.mySub.name), Trade: Text(gblV.mySub.trade), Suspended: Boolean(gblV.mySub.suspended) });
+                    ClearCollect(colSubs, ForAll(Table(gblV.subs), { Id: Text(ThisRecord.Value.id), Name: Text(ThisRecord.Value.name), Trade: Text(ThisRecord.Value.trade), Suspended: Boolean(ThisRecord.Value.suspended) }));
+                    ClearCollect(colReq, ForAll(Table(gblV.requests), {
+                        Id: Value(ThisRecord.Value.id), SubId: Text(ThisRecord.Value.subId), Company: Text(ThisRecord.Value.subName),
+                        Activity: Text(ThisRecord.Value.activityId), ActivityName: Text(ThisRecord.Value.activityName), Gate: Text(ThisRecord.Value.gateId),
+                        DateText: Text(ThisRecord.Value.date), Date: DateValue(Text(ThisRecord.Value.date)), Slot: Text(ThisRecord.Value.slot),
+                        Zone: Text(ThisRecord.Value.zoneId), Material: Text(ThisRecord.Value.material), Qty: Value(ThisRecord.Value.quantity),
+                        Unit: Text(ThisRecord.Value.unit), Pallets: Value(ThisRecord.Value.pallets), Weight: Value(ThisRecord.Value.weightLbs),
+                        Carrier: Text(ThisRecord.Value.carrier), Truck: Text(ThisRecord.Value.truck), Contact: Text(ThisRecord.Value.pocName),
+                        Phone: Text(ThisRecord.Value.pocPhone), Status: Text(ThisRecord.Value.status), Pass: Text(ThisRecord.Value.passCode),
+                        Reasons: Text(ThisRecord.Value.reasonText), NextOpen: Text(ThisRecord.Value.nextOpen), By: Text(ThisRecord.Value.submittedBy),
+                        DecidedBy: Text(ThisRecord.Value.decidedBy), Justification: Text(ThisRecord.Value.justification),
+                        Maint: Boolean(ThisRecord.Value.maintenance), StagedUntil: Text(ThisRecord.Value.stagedUntil), Override: Boolean(ThisRecord.Value.override)
+                    }));
+                    ClearCollect(colPasses, ForAll(Table(gblV.passes), {
+                        Code: Text(ThisRecord.Value.code), ReqId: Value(ThisRecord.Value.requestId), Status: Text(ThisRecord.Value.status),
+                        UsedAt: Text(ThisRecord.Value.usedAt), Open: DateTimeValue(Text(ThisRecord.Value.windowOpen)), Close: DateTimeValue(Text(ThisRecord.Value.windowClose)),
+                        Override: Boolean(ThisRecord.Value.override), Qr: Text(ThisRecord.Value.qrSvg), ZoneName: Text(ThisRecord.Value.zoneName), GateName: Text(ThisRecord.Value.gateName)
+                    }));
+                    ClearCollect(colActive, ForAll(Filter(colReq, Status = "Approved" || Status = "Needs review"), {
+                        Id: ThisRecord.Id, Gate: ThisRecord.Gate, DateText: ThisRecord.DateText, Slot: ThisRecord.Slot, Zone: ThisRecord.Zone,
+                        Pallets: ThisRecord.Pallets, From: ThisRecord.Date, Until: Coalesce(DateValue(ThisRecord.StagedUntil), ThisRecord.Date)
+                    }));
+                    Collect(colActive, ForAll(Table(gblV.occupancy), {
+                        Id: Value(ThisRecord.Value.id), Gate: Text(ThisRecord.Value.gateId), DateText: Text(ThisRecord.Value.date), Slot: Text(ThisRecord.Value.slot),
+                        Zone: Text(ThisRecord.Value.zoneId), Pallets: Value(ThisRecord.Value.pallets), From: DateValue(Text(ThisRecord.Value.date)),
+                        Until: DateValue(Text(ThisRecord.Value.stagedUntil))
+                    }));
+                    ClearCollect(colLog, ForAll(Table(gblV.gatelog), {
+                        At: DateTimeValue(Text(ThisRecord.Value.at)), Code: Text(ThisRecord.Value.code), Result: Text(ThisRecord.Value.result),
+                        Reason: Text(ThisRecord.Value.reason), Action: Text(ThisRecord.Value.action), Guard: Text(ThisRecord.Value.guard)
+                    }));
+                    ClearCollect(colMembers, ForAll(Table(gblV.members), {
+                        Id: Value(ThisRecord.Value.id), Email: Text(ThisRecord.Value.email), Name: Text(ThisRecord.Value.name), Company: Text(ThisRecord.Value.company),
+                        Phone: Text(ThisRecord.Value.phone), Role: Text(ThisRecord.Value.role), Trade: Text(ThisRecord.Value.trade)
+                    }));
+                    ClearCollect(colJoin, ForAll(Table(gblV.joinreqs), {
+                        Id: Value(ThisRecord.Value.id), Name: Text(ThisRecord.Value.name), Email: Text(ThisRecord.Value.email), Company: Text(ThisRecord.Value.company),
+                        Phone: Text(ThisRecord.Value.phone), At: DateTimeValue(Text(ThisRecord.Value.at)), IsHome: Boolean(ThisRecord.Value.isHome)
+                    }));
+                    ClearCollect(colInvites, ForAll(Table(gblV.invites), { Id: Value(ThisRecord.Value.id), Email: Text(ThisRecord.Value.email), Role: Text(ThisRecord.Value.role), Trade: Text(ThisRecord.Value.trade) }));
+                    ClearCollect(colMail, ForAll(Table(gblV.mail), {
+                        At: DateTimeValue(Text(ThisRecord.Value.at)), Subject: Text(ThisRecord.Value.subject), Body: Text(ThisRecord.Value.body), To: Text(ThisRecord.Value.to)
+                    }));
+                    If(gblRole = "Access Control" || gblRole = "Admin", SaveData(colPasses, "grantedPasses"); SaveData(colReq, "grantedRequests"));
+                    ClearCollect(colPrefs, { Key: "pid", Value: gblPid }); SaveData(colPrefs, "grantedPrefs"),
+                    Notify(Text(gblV.message), NotificationType.Error)
+                )
+            ))
+        PressedColor: |-
+            =ColorValue("#0133A2")
+        PressedFill: =ColorFade(Color.White, -20%)
+        RadiusBottomLeft: =10
+        RadiusBottomRight: =10
+        RadiusTopLeft: =10
+        RadiusTopRight: =10
+        Size: =14
+        Text: |-
+            ="Save profile"
+        Width: =592
+        X: =24
+        Y: =358
+
+    capMaint As label:
+        Color: |-
+            =ColorValue("#5A6478")
+        FontWeight: =FontWeight.Semibold
+        Height: =28
+        PaddingLeft: =0
+        PaddingRight: =0
+        Size: =11
+        Text: |-
+            ="MAINTENANCE MODE"
+        VerticalAlign: =VerticalAlign.Middle
+        Width: =592
+        X: =24
+        Y: =426
+
+    lblMaintHelp As label:
+        Color: |-
+            =ColorValue("#5A6478")
+        FontWeight: =FontWeight.Normal
+        Height: =64
+        PaddingLeft: =0
+        PaddingRight: =0
+        Size: =11
+        Text: =If(gblCanMaintain, "See this project as a Contractor, Access Control or Admin. Anything you do is labelled as maintenance.", "For admin accounts that are an Admin on this project.")
+        VerticalAlign: =VerticalAlign.Middle
+        Width: =452
+        X: =24
+        Y: =452
+
+    tglMaint As toggleSwitch:
+        Default: =gblMaint.On
+        FalseText: |-
+            ="Off"
+        Height: =48
+        OnCheck: |-
+            =Set(gblMaint, { On: true, ViewAs: "Admin" }); If(IsBlank(gblPid),
+                Set(gblRole, Blank()); Set(gblP, Blank()),
+                IfError(
+                    Set(gblV, ParseJSON(GrantedF00.Run(gblPid, If(gblMaint.On && gblMaint.ViewAs <> "Admin", gblMaint.ViewAs, ""), "{""op"":""view""}").json)),
+                    Set(gblV, ParseJSON("{""ok"":false,""message"":""No connection. Showing what was loaded last.""}"))
+                );
+                If(Boolean(gblV.ok),
+                    Set(gblRole, Text(gblV.role)); Set(gblCanMaintain, Boolean(gblV.canMaintain)); Set(gblInMaint, Boolean(gblV.maintenance));
+                    Set(gblP, {
+                        Id: Text(gblV.project.id), Name: Text(gblV.project.name), Code: Text(gblV.project.code), Location: Text(gblV.project.location),
+                        TimeZone: Text(gblV.project.timeZone), DutyPhone: Text(gblV.project.dutyPhone)
+                    });
+                    Set(gblCfg, {
+                        MinNotice: Coalesce(Value(gblV.project.settings.minNoticeHours), 48), MaxEarly: Coalesce(Value(gblV.project.settings.maxDaysBeforeInstall), 7),
+                        Tolerance: Coalesce(Value(gblV.project.settings.gateToleranceMinutes), 60), MaxPallets: Coalesce(Value(gblV.project.settings.maxPalletsPerRequest), 20),
+                        SlotMinutes: Coalesce(Value(gblV.project.settings.slotMinutes), 60), GateOpen: Coalesce(Text(gblV.project.settings.gateOpen), "06:00"),
+                        GateClose: Coalesce(Text(gblV.project.settings.gateClose), "16:00")
+                    });
+                    IfError(
+                        ClearCollect(colWorkDays, ForAll(Table(gblV.project.settings.workDays), { Day: Value(ThisRecord.Value) })),
+                        ClearCollect(colWorkDays, { Day: 1 }, { Day: 2 }, { Day: 3 }, { Day: 4 }, { Day: 5 }, { Day: 6 })
+                    );
+                    Set(gblToday, DateValue(Text(gblV.today)));
+                    Set(gblNowLocal, DateTimeValue(Text(gblV.nowLocal)));
+                    Set(gblLoadedAt, Now());
+                    ClearCollect(colGates, ForAll(Table(gblV.project.gates), { Id: Text(ThisRecord.Value.id), Name: Text(ThisRecord.Value.name), Cap: Value(ThisRecord.Value.capacityPerSlot) }));
+                    ClearCollect(colZones, ForAll(Table(gblV.project.zones), { Id: Text(ThisRecord.Value.id), Name: Text(ThisRecord.Value.name), Cap: Value(ThisRecord.Value.capacityPallets) }));
+                    ClearCollect(colActs, ForAll(Table(gblV.project.activities), {
+                        Id: Text(ThisRecord.Value.id), Name: Text(ThisRecord.Value.name), Trade: Text(ThisRecord.Value.trade),
+                        Start: DateValue(Text(ThisRecord.Value.start)), Finish: DateValue(Text(ThisRecord.Value.finish))
+                    }));
+                    ClearCollect(colBlackouts, ForAll(Table(gblV.project.blackouts), { Day: Text(ThisRecord.Value) }));
+                    Set(gblMySub, { Id: Text(gblV.mySub.id), Name: Text(gblV.mySub.name), Trade: Text(gblV.mySub.trade), Suspended: Boolean(gblV.mySub.suspended) });
+                    ClearCollect(colSubs, ForAll(Table(gblV.subs), { Id: Text(ThisRecord.Value.id), Name: Text(ThisRecord.Value.name), Trade: Text(ThisRecord.Value.trade), Suspended: Boolean(ThisRecord.Value.suspended) }));
+                    ClearCollect(colReq, ForAll(Table(gblV.requests), {
+                        Id: Value(ThisRecord.Value.id), SubId: Text(ThisRecord.Value.subId), Company: Text(ThisRecord.Value.subName),
+                        Activity: Text(ThisRecord.Value.activityId), ActivityName: Text(ThisRecord.Value.activityName), Gate: Text(ThisRecord.Value.gateId),
+                        DateText: Text(ThisRecord.Value.date), Date: DateValue(Text(ThisRecord.Value.date)), Slot: Text(ThisRecord.Value.slot),
+                        Zone: Text(ThisRecord.Value.zoneId), Material: Text(ThisRecord.Value.material), Qty: Value(ThisRecord.Value.quantity),
+                        Unit: Text(ThisRecord.Value.unit), Pallets: Value(ThisRecord.Value.pallets), Weight: Value(ThisRecord.Value.weightLbs),
+                        Carrier: Text(ThisRecord.Value.carrier), Truck: Text(ThisRecord.Value.truck), Contact: Text(ThisRecord.Value.pocName),
+                        Phone: Text(ThisRecord.Value.pocPhone), Status: Text(ThisRecord.Value.status), Pass: Text(ThisRecord.Value.passCode),
+                        Reasons: Text(ThisRecord.Value.reasonText), NextOpen: Text(ThisRecord.Value.nextOpen), By: Text(ThisRecord.Value.submittedBy),
+                        DecidedBy: Text(ThisRecord.Value.decidedBy), Justification: Text(ThisRecord.Value.justification),
+                        Maint: Boolean(ThisRecord.Value.maintenance), StagedUntil: Text(ThisRecord.Value.stagedUntil), Override: Boolean(ThisRecord.Value.override)
+                    }));
+                    ClearCollect(colPasses, ForAll(Table(gblV.passes), {
+                        Code: Text(ThisRecord.Value.code), ReqId: Value(ThisRecord.Value.requestId), Status: Text(ThisRecord.Value.status),
+                        UsedAt: Text(ThisRecord.Value.usedAt), Open: DateTimeValue(Text(ThisRecord.Value.windowOpen)), Close: DateTimeValue(Text(ThisRecord.Value.windowClose)),
+                        Override: Boolean(ThisRecord.Value.override), Qr: Text(ThisRecord.Value.qrSvg), ZoneName: Text(ThisRecord.Value.zoneName), GateName: Text(ThisRecord.Value.gateName)
+                    }));
+                    ClearCollect(colActive, ForAll(Filter(colReq, Status = "Approved" || Status = "Needs review"), {
+                        Id: ThisRecord.Id, Gate: ThisRecord.Gate, DateText: ThisRecord.DateText, Slot: ThisRecord.Slot, Zone: ThisRecord.Zone,
+                        Pallets: ThisRecord.Pallets, From: ThisRecord.Date, Until: Coalesce(DateValue(ThisRecord.StagedUntil), ThisRecord.Date)
+                    }));
+                    Collect(colActive, ForAll(Table(gblV.occupancy), {
+                        Id: Value(ThisRecord.Value.id), Gate: Text(ThisRecord.Value.gateId), DateText: Text(ThisRecord.Value.date), Slot: Text(ThisRecord.Value.slot),
+                        Zone: Text(ThisRecord.Value.zoneId), Pallets: Value(ThisRecord.Value.pallets), From: DateValue(Text(ThisRecord.Value.date)),
+                        Until: DateValue(Text(ThisRecord.Value.stagedUntil))
+                    }));
+                    ClearCollect(colLog, ForAll(Table(gblV.gatelog), {
+                        At: DateTimeValue(Text(ThisRecord.Value.at)), Code: Text(ThisRecord.Value.code), Result: Text(ThisRecord.Value.result),
+                        Reason: Text(ThisRecord.Value.reason), Action: Text(ThisRecord.Value.action), Guard: Text(ThisRecord.Value.guard)
+                    }));
+                    ClearCollect(colMembers, ForAll(Table(gblV.members), {
+                        Id: Value(ThisRecord.Value.id), Email: Text(ThisRecord.Value.email), Name: Text(ThisRecord.Value.name), Company: Text(ThisRecord.Value.company),
+                        Phone: Text(ThisRecord.Value.phone), Role: Text(ThisRecord.Value.role), Trade: Text(ThisRecord.Value.trade)
+                    }));
+                    ClearCollect(colJoin, ForAll(Table(gblV.joinreqs), {
+                        Id: Value(ThisRecord.Value.id), Name: Text(ThisRecord.Value.name), Email: Text(ThisRecord.Value.email), Company: Text(ThisRecord.Value.company),
+                        Phone: Text(ThisRecord.Value.phone), At: DateTimeValue(Text(ThisRecord.Value.at)), IsHome: Boolean(ThisRecord.Value.isHome)
+                    }));
+                    ClearCollect(colInvites, ForAll(Table(gblV.invites), { Id: Value(ThisRecord.Value.id), Email: Text(ThisRecord.Value.email), Role: Text(ThisRecord.Value.role), Trade: Text(ThisRecord.Value.trade) }));
+                    ClearCollect(colMail, ForAll(Table(gblV.mail), {
+                        At: DateTimeValue(Text(ThisRecord.Value.at)), Subject: Text(ThisRecord.Value.subject), Body: Text(ThisRecord.Value.body), To: Text(ThisRecord.Value.to)
+                    }));
+                    If(gblRole = "Access Control" || gblRole = "Admin", SaveData(colPasses, "grantedPasses"); SaveData(colReq, "grantedRequests"));
+                    ClearCollect(colPrefs, { Key: "pid", Value: gblPid }); SaveData(colPrefs, "grantedPrefs"),
+                    Notify(Text(gblV.message), NotificationType.Error)
+                )
+            )
+        OnUncheck: |-
+            =Set(gblMaint, { On: false, ViewAs: "Admin" }); If(IsBlank(gblPid),
+                Set(gblRole, Blank()); Set(gblP, Blank()),
+                IfError(
+                    Set(gblV, ParseJSON(GrantedF00.Run(gblPid, If(gblMaint.On && gblMaint.ViewAs <> "Admin", gblMaint.ViewAs, ""), "{""op"":""view""}").json)),
+                    Set(gblV, ParseJSON("{""ok"":false,""message"":""No connection. Showing what was loaded last.""}"))
+                );
+                If(Boolean(gblV.ok),
+                    Set(gblRole, Text(gblV.role)); Set(gblCanMaintain, Boolean(gblV.canMaintain)); Set(gblInMaint, Boolean(gblV.maintenance));
+                    Set(gblP, {
+                        Id: Text(gblV.project.id), Name: Text(gblV.project.name), Code: Text(gblV.project.code), Location: Text(gblV.project.location),
+                        TimeZone: Text(gblV.project.timeZone), DutyPhone: Text(gblV.project.dutyPhone)
+                    });
+                    Set(gblCfg, {
+                        MinNotice: Coalesce(Value(gblV.project.settings.minNoticeHours), 48), MaxEarly: Coalesce(Value(gblV.project.settings.maxDaysBeforeInstall), 7),
+                        Tolerance: Coalesce(Value(gblV.project.settings.gateToleranceMinutes), 60), MaxPallets: Coalesce(Value(gblV.project.settings.maxPalletsPerRequest), 20),
+                        SlotMinutes: Coalesce(Value(gblV.project.settings.slotMinutes), 60), GateOpen: Coalesce(Text(gblV.project.settings.gateOpen), "06:00"),
+                        GateClose: Coalesce(Text(gblV.project.settings.gateClose), "16:00")
+                    });
+                    IfError(
+                        ClearCollect(colWorkDays, ForAll(Table(gblV.project.settings.workDays), { Day: Value(ThisRecord.Value) })),
+                        ClearCollect(colWorkDays, { Day: 1 }, { Day: 2 }, { Day: 3 }, { Day: 4 }, { Day: 5 }, { Day: 6 })
+                    );
+                    Set(gblToday, DateValue(Text(gblV.today)));
+                    Set(gblNowLocal, DateTimeValue(Text(gblV.nowLocal)));
+                    Set(gblLoadedAt, Now());
+                    ClearCollect(colGates, ForAll(Table(gblV.project.gates), { Id: Text(ThisRecord.Value.id), Name: Text(ThisRecord.Value.name), Cap: Value(ThisRecord.Value.capacityPerSlot) }));
+                    ClearCollect(colZones, ForAll(Table(gblV.project.zones), { Id: Text(ThisRecord.Value.id), Name: Text(ThisRecord.Value.name), Cap: Value(ThisRecord.Value.capacityPallets) }));
+                    ClearCollect(colActs, ForAll(Table(gblV.project.activities), {
+                        Id: Text(ThisRecord.Value.id), Name: Text(ThisRecord.Value.name), Trade: Text(ThisRecord.Value.trade),
+                        Start: DateValue(Text(ThisRecord.Value.start)), Finish: DateValue(Text(ThisRecord.Value.finish))
+                    }));
+                    ClearCollect(colBlackouts, ForAll(Table(gblV.project.blackouts), { Day: Text(ThisRecord.Value) }));
+                    Set(gblMySub, { Id: Text(gblV.mySub.id), Name: Text(gblV.mySub.name), Trade: Text(gblV.mySub.trade), Suspended: Boolean(gblV.mySub.suspended) });
+                    ClearCollect(colSubs, ForAll(Table(gblV.subs), { Id: Text(ThisRecord.Value.id), Name: Text(ThisRecord.Value.name), Trade: Text(ThisRecord.Value.trade), Suspended: Boolean(ThisRecord.Value.suspended) }));
+                    ClearCollect(colReq, ForAll(Table(gblV.requests), {
+                        Id: Value(ThisRecord.Value.id), SubId: Text(ThisRecord.Value.subId), Company: Text(ThisRecord.Value.subName),
+                        Activity: Text(ThisRecord.Value.activityId), ActivityName: Text(ThisRecord.Value.activityName), Gate: Text(ThisRecord.Value.gateId),
+                        DateText: Text(ThisRecord.Value.date), Date: DateValue(Text(ThisRecord.Value.date)), Slot: Text(ThisRecord.Value.slot),
+                        Zone: Text(ThisRecord.Value.zoneId), Material: Text(ThisRecord.Value.material), Qty: Value(ThisRecord.Value.quantity),
+                        Unit: Text(ThisRecord.Value.unit), Pallets: Value(ThisRecord.Value.pallets), Weight: Value(ThisRecord.Value.weightLbs),
+                        Carrier: Text(ThisRecord.Value.carrier), Truck: Text(ThisRecord.Value.truck), Contact: Text(ThisRecord.Value.pocName),
+                        Phone: Text(ThisRecord.Value.pocPhone), Status: Text(ThisRecord.Value.status), Pass: Text(ThisRecord.Value.passCode),
+                        Reasons: Text(ThisRecord.Value.reasonText), NextOpen: Text(ThisRecord.Value.nextOpen), By: Text(ThisRecord.Value.submittedBy),
+                        DecidedBy: Text(ThisRecord.Value.decidedBy), Justification: Text(ThisRecord.Value.justification),
+                        Maint: Boolean(ThisRecord.Value.maintenance), StagedUntil: Text(ThisRecord.Value.stagedUntil), Override: Boolean(ThisRecord.Value.override)
+                    }));
+                    ClearCollect(colPasses, ForAll(Table(gblV.passes), {
+                        Code: Text(ThisRecord.Value.code), ReqId: Value(ThisRecord.Value.requestId), Status: Text(ThisRecord.Value.status),
+                        UsedAt: Text(ThisRecord.Value.usedAt), Open: DateTimeValue(Text(ThisRecord.Value.windowOpen)), Close: DateTimeValue(Text(ThisRecord.Value.windowClose)),
+                        Override: Boolean(ThisRecord.Value.override), Qr: Text(ThisRecord.Value.qrSvg), ZoneName: Text(ThisRecord.Value.zoneName), GateName: Text(ThisRecord.Value.gateName)
+                    }));
+                    ClearCollect(colActive, ForAll(Filter(colReq, Status = "Approved" || Status = "Needs review"), {
+                        Id: ThisRecord.Id, Gate: ThisRecord.Gate, DateText: ThisRecord.DateText, Slot: ThisRecord.Slot, Zone: ThisRecord.Zone,
+                        Pallets: ThisRecord.Pallets, From: ThisRecord.Date, Until: Coalesce(DateValue(ThisRecord.StagedUntil), ThisRecord.Date)
+                    }));
+                    Collect(colActive, ForAll(Table(gblV.occupancy), {
+                        Id: Value(ThisRecord.Value.id), Gate: Text(ThisRecord.Value.gateId), DateText: Text(ThisRecord.Value.date), Slot: Text(ThisRecord.Value.slot),
+                        Zone: Text(ThisRecord.Value.zoneId), Pallets: Value(ThisRecord.Value.pallets), From: DateValue(Text(ThisRecord.Value.date)),
+                        Until: DateValue(Text(ThisRecord.Value.stagedUntil))
+                    }));
+                    ClearCollect(colLog, ForAll(Table(gblV.gatelog), {
+                        At: DateTimeValue(Text(ThisRecord.Value.at)), Code: Text(ThisRecord.Value.code), Result: Text(ThisRecord.Value.result),
+                        Reason: Text(ThisRecord.Value.reason), Action: Text(ThisRecord.Value.action), Guard: Text(ThisRecord.Value.guard)
+                    }));
+                    ClearCollect(colMembers, ForAll(Table(gblV.members), {
+                        Id: Value(ThisRecord.Value.id), Email: Text(ThisRecord.Value.email), Name: Text(ThisRecord.Value.name), Company: Text(ThisRecord.Value.company),
+                        Phone: Text(ThisRecord.Value.phone), Role: Text(ThisRecord.Value.role), Trade: Text(ThisRecord.Value.trade)
+                    }));
+                    ClearCollect(colJoin, ForAll(Table(gblV.joinreqs), {
+                        Id: Value(ThisRecord.Value.id), Name: Text(ThisRecord.Value.name), Email: Text(ThisRecord.Value.email), Company: Text(ThisRecord.Value.company),
+                        Phone: Text(ThisRecord.Value.phone), At: DateTimeValue(Text(ThisRecord.Value.at)), IsHome: Boolean(ThisRecord.Value.isHome)
+                    }));
+                    ClearCollect(colInvites, ForAll(Table(gblV.invites), { Id: Value(ThisRecord.Value.id), Email: Text(ThisRecord.Value.email), Role: Text(ThisRecord.Value.role), Trade: Text(ThisRecord.Value.trade) }));
+                    ClearCollect(colMail, ForAll(Table(gblV.mail), {
+                        At: DateTimeValue(Text(ThisRecord.Value.at)), Subject: Text(ThisRecord.Value.subject), Body: Text(ThisRecord.Value.body), To: Text(ThisRecord.Value.to)
+                    }));
+                    If(gblRole = "Access Control" || gblRole = "Admin", SaveData(colPasses, "grantedPasses"); SaveData(colReq, "grantedRequests"));
+                    ClearCollect(colPrefs, { Key: "pid", Value: gblPid }); SaveData(colPrefs, "grantedPrefs"),
+                    Notify(Text(gblV.message), NotificationType.Error)
+                )
+            )
+        TrueFill: |-
+            =ColorValue("#0133A2")
+        TrueText: |-
+            ="On"
+        Visible: =gblCanMaintain
+        Width: =120
+        X: =496
+        Y: =456
+
+    capProjects As label:
+        Color: |-
+            =ColorValue("#5A6478")
+        FontWeight: =FontWeight.Semibold
+        Height: =28
+        PaddingLeft: =0
+        PaddingRight: =0
+        Size: =11
+        Text: |-
+            ="THIS PROJECT"
+        VerticalAlign: =VerticalAlign.Middle
+        Width: =592
+        X: =24
+        Y: =530
+
+    btnSetLeave As button:
+        BorderColor: |-
+            =ColorValue("#0133A2")
+        BorderThickness: =2
+        Color: |-
+            =ColorValue("#0133A2")
+        DisabledBorderColor: |-
+            =ColorValue("#B8C2D6")
+        DisabledColor: =Color.White
+        DisabledFill: |-
+            =ColorValue("#B8C2D6")
+        Fill: =Color.White
+        FontWeight: =FontWeight.Semibold
+        Height: =48
+        HoverColor: |-
+            =ColorValue("#0133A2")
+        HoverFill: =ColorFade(Color.White, -10%)
+        OnSelect: |-
+            =If(!locConfirmLeave, Set(locConfirmLeave, true), IfError(
+                Set(locL, ParseJSON(GrantedF12.Run(gblPid, If(gblMaint.On && gblMaint.ViewAs <> "Admin", gblMaint.ViewAs, ""), JSON({ op: "leave" })).json)),
+                Set(locL, ParseJSON("{""ok"":false,""message"":""No connection. Check your signal and try again.""}"))
+            );
+            Notify(Text(locL.message), If(Boolean(locL.ok), NotificationType.Success, NotificationType.Error));
+            If(Boolean(locL.ok), Set(gblPid, Blank()); IfError(
+                Set(gblS, ParseJSON(GrantedF00.Run("", "", "{""op"":""session""}").json)),
+                Set(gblS, ParseJSON("{""ok"":false,""message"":""No connection. Check your signal and try again.""}"))
+            );
+            Set(gblNeedsProfile, Boolean(gblS.needsProfile));
+            If(!Boolean(gblS.ok), Notify(Text(gblS.message), NotificationType.Error));
+            If(gblNeedsProfile, Set(gblSignInEmail, Text(gblS.email)); Set(gblHomeDomainUser, Boolean(gblS.isHome)));
+            If(Boolean(gblS.ok) && !gblNeedsProfile,
+                Set(gblMe, {
+                    Email: Text(gblS.me.email), First: Text(gblS.me.first), Last: Text(gblS.me.last), Phone: Text(gblS.me.phone),
+                    Company: Text(gblS.me.company), IsHome: Boolean(gblS.me.isHome), IsAdminAccount: Boolean(gblS.me.isAdminAccount)
+                });
+                Set(gblSupport, Text(gblS.settings.supportEmail));
+                ClearCollect(colProjects, ForAll(Table(gblS.projects), {
+                    Id: Text(ThisRecord.Value.id), Name: Text(ThisRecord.Value.name), Code: Text(ThisRecord.Value.code),
+                    Location: Text(ThisRecord.Value.location), Role: Text(ThisRecord.Value.role)
+                }));
+                ClearCollect(colPending, ForAll(Table(gblS.pending), { Id: Text(ThisRecord.Value.projectId), Name: Text(ThisRecord.Value.name) }));
+                ForAll(Table(gblS.notices), Notify(Text(ThisRecord.Value), NotificationType.Success));
+                If(IsBlank(LookUp(colProjects, Id = gblPid)), Set(gblPid, First(SortByColumns(colProjects, Name)).Id))
+            ); If(IsBlank(gblPid),
+                Set(gblRole, Blank()); Set(gblP, Blank()),
+                IfError(
+                    Set(gblV, ParseJSON(GrantedF00.Run(gblPid, If(gblMaint.On && gblMaint.ViewAs <> "Admin", gblMaint.ViewAs, ""), "{""op"":""view""}").json)),
+                    Set(gblV, ParseJSON("{""ok"":false,""message"":""No connection. Showing what was loaded last.""}"))
+                );
+                If(Boolean(gblV.ok),
+                    Set(gblRole, Text(gblV.role)); Set(gblCanMaintain, Boolean(gblV.canMaintain)); Set(gblInMaint, Boolean(gblV.maintenance));
+                    Set(gblP, {
+                        Id: Text(gblV.project.id), Name: Text(gblV.project.name), Code: Text(gblV.project.code), Location: Text(gblV.project.location),
+                        TimeZone: Text(gblV.project.timeZone), DutyPhone: Text(gblV.project.dutyPhone)
+                    });
+                    Set(gblCfg, {
+                        MinNotice: Coalesce(Value(gblV.project.settings.minNoticeHours), 48), MaxEarly: Coalesce(Value(gblV.project.settings.maxDaysBeforeInstall), 7),
+                        Tolerance: Coalesce(Value(gblV.project.settings.gateToleranceMinutes), 60), MaxPallets: Coalesce(Value(gblV.project.settings.maxPalletsPerRequest), 20),
+                        SlotMinutes: Coalesce(Value(gblV.project.settings.slotMinutes), 60), GateOpen: Coalesce(Text(gblV.project.settings.gateOpen), "06:00"),
+                        GateClose: Coalesce(Text(gblV.project.settings.gateClose), "16:00")
+                    });
+                    IfError(
+                        ClearCollect(colWorkDays, ForAll(Table(gblV.project.settings.workDays), { Day: Value(ThisRecord.Value) })),
+                        ClearCollect(colWorkDays, { Day: 1 }, { Day: 2 }, { Day: 3 }, { Day: 4 }, { Day: 5 }, { Day: 6 })
+                    );
+                    Set(gblToday, DateValue(Text(gblV.today)));
+                    Set(gblNowLocal, DateTimeValue(Text(gblV.nowLocal)));
+                    Set(gblLoadedAt, Now());
+                    ClearCollect(colGates, ForAll(Table(gblV.project.gates), { Id: Text(ThisRecord.Value.id), Name: Text(ThisRecord.Value.name), Cap: Value(ThisRecord.Value.capacityPerSlot) }));
+                    ClearCollect(colZones, ForAll(Table(gblV.project.zones), { Id: Text(ThisRecord.Value.id), Name: Text(ThisRecord.Value.name), Cap: Value(ThisRecord.Value.capacityPallets) }));
+                    ClearCollect(colActs, ForAll(Table(gblV.project.activities), {
+                        Id: Text(ThisRecord.Value.id), Name: Text(ThisRecord.Value.name), Trade: Text(ThisRecord.Value.trade),
+                        Start: DateValue(Text(ThisRecord.Value.start)), Finish: DateValue(Text(ThisRecord.Value.finish))
+                    }));
+                    ClearCollect(colBlackouts, ForAll(Table(gblV.project.blackouts), { Day: Text(ThisRecord.Value) }));
+                    Set(gblMySub, { Id: Text(gblV.mySub.id), Name: Text(gblV.mySub.name), Trade: Text(gblV.mySub.trade), Suspended: Boolean(gblV.mySub.suspended) });
+                    ClearCollect(colSubs, ForAll(Table(gblV.subs), { Id: Text(ThisRecord.Value.id), Name: Text(ThisRecord.Value.name), Trade: Text(ThisRecord.Value.trade), Suspended: Boolean(ThisRecord.Value.suspended) }));
+                    ClearCollect(colReq, ForAll(Table(gblV.requests), {
+                        Id: Value(ThisRecord.Value.id), SubId: Text(ThisRecord.Value.subId), Company: Text(ThisRecord.Value.subName),
+                        Activity: Text(ThisRecord.Value.activityId), ActivityName: Text(ThisRecord.Value.activityName), Gate: Text(ThisRecord.Value.gateId),
+                        DateText: Text(ThisRecord.Value.date), Date: DateValue(Text(ThisRecord.Value.date)), Slot: Text(ThisRecord.Value.slot),
+                        Zone: Text(ThisRecord.Value.zoneId), Material: Text(ThisRecord.Value.material), Qty: Value(ThisRecord.Value.quantity),
+                        Unit: Text(ThisRecord.Value.unit), Pallets: Value(ThisRecord.Value.pallets), Weight: Value(ThisRecord.Value.weightLbs),
+                        Carrier: Text(ThisRecord.Value.carrier), Truck: Text(ThisRecord.Value.truck), Contact: Text(ThisRecord.Value.pocName),
+                        Phone: Text(ThisRecord.Value.pocPhone), Status: Text(ThisRecord.Value.status), Pass: Text(ThisRecord.Value.passCode),
+                        Reasons: Text(ThisRecord.Value.reasonText), NextOpen: Text(ThisRecord.Value.nextOpen), By: Text(ThisRecord.Value.submittedBy),
+                        DecidedBy: Text(ThisRecord.Value.decidedBy), Justification: Text(ThisRecord.Value.justification),
+                        Maint: Boolean(ThisRecord.Value.maintenance), StagedUntil: Text(ThisRecord.Value.stagedUntil), Override: Boolean(ThisRecord.Value.override)
+                    }));
+                    ClearCollect(colPasses, ForAll(Table(gblV.passes), {
+                        Code: Text(ThisRecord.Value.code), ReqId: Value(ThisRecord.Value.requestId), Status: Text(ThisRecord.Value.status),
+                        UsedAt: Text(ThisRecord.Value.usedAt), Open: DateTimeValue(Text(ThisRecord.Value.windowOpen)), Close: DateTimeValue(Text(ThisRecord.Value.windowClose)),
+                        Override: Boolean(ThisRecord.Value.override), Qr: Text(ThisRecord.Value.qrSvg), ZoneName: Text(ThisRecord.Value.zoneName), GateName: Text(ThisRecord.Value.gateName)
+                    }));
+                    ClearCollect(colActive, ForAll(Filter(colReq, Status = "Approved" || Status = "Needs review"), {
+                        Id: ThisRecord.Id, Gate: ThisRecord.Gate, DateText: ThisRecord.DateText, Slot: ThisRecord.Slot, Zone: ThisRecord.Zone,
+                        Pallets: ThisRecord.Pallets, From: ThisRecord.Date, Until: Coalesce(DateValue(ThisRecord.StagedUntil), ThisRecord.Date)
+                    }));
+                    Collect(colActive, ForAll(Table(gblV.occupancy), {
+                        Id: Value(ThisRecord.Value.id), Gate: Text(ThisRecord.Value.gateId), DateText: Text(ThisRecord.Value.date), Slot: Text(ThisRecord.Value.slot),
+                        Zone: Text(ThisRecord.Value.zoneId), Pallets: Value(ThisRecord.Value.pallets), From: DateValue(Text(ThisRecord.Value.date)),
+                        Until: DateValue(Text(ThisRecord.Value.stagedUntil))
+                    }));
+                    ClearCollect(colLog, ForAll(Table(gblV.gatelog), {
+                        At: DateTimeValue(Text(ThisRecord.Value.at)), Code: Text(ThisRecord.Value.code), Result: Text(ThisRecord.Value.result),
+                        Reason: Text(ThisRecord.Value.reason), Action: Text(ThisRecord.Value.action), Guard: Text(ThisRecord.Value.guard)
+                    }));
+                    ClearCollect(colMembers, ForAll(Table(gblV.members), {
+                        Id: Value(ThisRecord.Value.id), Email: Text(ThisRecord.Value.email), Name: Text(ThisRecord.Value.name), Company: Text(ThisRecord.Value.company),
+                        Phone: Text(ThisRecord.Value.phone), Role: Text(ThisRecord.Value.role), Trade: Text(ThisRecord.Value.trade)
+                    }));
+                    ClearCollect(colJoin, ForAll(Table(gblV.joinreqs), {
+                        Id: Value(ThisRecord.Value.id), Name: Text(ThisRecord.Value.name), Email: Text(ThisRecord.Value.email), Company: Text(ThisRecord.Value.company),
+                        Phone: Text(ThisRecord.Value.phone), At: DateTimeValue(Text(ThisRecord.Value.at)), IsHome: Boolean(ThisRecord.Value.isHome)
+                    }));
+                    ClearCollect(colInvites, ForAll(Table(gblV.invites), { Id: Value(ThisRecord.Value.id), Email: Text(ThisRecord.Value.email), Role: Text(ThisRecord.Value.role), Trade: Text(ThisRecord.Value.trade) }));
+                    ClearCollect(colMail, ForAll(Table(gblV.mail), {
+                        At: DateTimeValue(Text(ThisRecord.Value.at)), Subject: Text(ThisRecord.Value.subject), Body: Text(ThisRecord.Value.body), To: Text(ThisRecord.Value.to)
+                    }));
+                    If(gblRole = "Access Control" || gblRole = "Admin", SaveData(colPasses, "grantedPasses"); SaveData(colReq, "grantedRequests"));
+                    ClearCollect(colPrefs, { Key: "pid", Value: gblPid }); SaveData(colPrefs, "grantedPrefs"),
+                    Notify(Text(gblV.message), NotificationType.Error)
+                )
+            )); Set(locConfirmLeave, false))
+        PressedColor: |-
+            =ColorValue("#0133A2")
+        PressedFill: =ColorFade(Color.White, -20%)
+        RadiusBottomLeft: =10
+        RadiusBottomRight: =10
+        RadiusTopLeft: =10
+        RadiusTopRight: =10
+        Size: =14
+        Text: =If(locConfirmLeave, "Tap again to leave " & gblP.Name, "Leave " & gblP.Name)
+        Visible: =!IsBlank(gblPid)
+        Width: =592
+        X: =24
+        Y: =560
+
+    capAccount As label:
+        Color: |-
+            =ColorValue("#5A6478")
+        FontWeight: =FontWeight.Semibold
+        Height: =28
+        PaddingLeft: =0
+        PaddingRight: =0
+        Size: =11
+        Text: |-
+            ="ACCOUNT"
+        VerticalAlign: =VerticalAlign.Middle
+        Width: =592
+        X: =24
+        Y: =628
+
+    btnSetPassword As button:
+        BorderColor: |-
+            =ColorValue("#0133A2")
+        BorderThickness: =2
+        Color: |-
+            =ColorValue("#0133A2")
+        DisabledBorderColor: |-
+            =ColorValue("#B8C2D6")
+        DisabledColor: =Color.White
+        DisabledFill: |-
+            =ColorValue("#B8C2D6")
+        Fill: =Color.White
+        FontWeight: =FontWeight.Semibold
+        Height: =48
+        HoverColor: |-
+            =ColorValue("#0133A2")
+        HoverFill: =ColorFade(Color.White, -10%)
+        OnSelect: =Launch("https://mysignins.microsoft.com/security-info")
+        PressedColor: |-
+            =ColorValue("#0133A2")
+        PressedFill: =ColorFade(Color.White, -20%)
+        RadiusBottomLeft: =10
+        RadiusBottomRight: =10
+        RadiusTopLeft: =10
+        RadiusTopRight: =10
+        Size: =14
+        Text: |-
+            ="Change password or sign-in methods"
+        Width: =592
+        X: =24
+        Y: =658
+
+    btnSetSupport As button:
+        BorderColor: |-
+            =ColorValue("#0133A2")
+        BorderThickness: =2
+        Color: |-
+            =ColorValue("#0133A2")
+        DisabledBorderColor: |-
+            =ColorValue("#B8C2D6")
+        DisabledColor: =Color.White
+        DisabledFill: |-
+            =ColorValue("#B8C2D6")
+        Fill: =Color.White
+        FontWeight: =FontWeight.Semibold
+        Height: =48
+        HoverColor: |-
+            =ColorValue("#0133A2")
+        HoverFill: =ColorFade(Color.White, -10%)
+        OnSelect: =Launch("mailto:" & gblSupport)
+        PressedColor: |-
+            =ColorValue("#0133A2")
+        PressedFill: =ColorFade(Color.White, -20%)
+        RadiusBottomLeft: =10
+        RadiusBottomRight: =10
+        RadiusTopLeft: =10
+        RadiusTopRight: =10
+        Size: =14
+        Text: |-
+            ="Email support"
+        Visible: =!IsBlank(gblSupport)
+        Width: =592
+        X: =24
+        Y: =716
+
+    btnSetSignOut As button:
+        BorderColor: |-
+            =ColorValue("#0133A2")
+        BorderThickness: =2
+        Color: |-
+            =ColorValue("#0133A2")
+        DisabledBorderColor: |-
+            =ColorValue("#B8C2D6")
+        DisabledColor: =Color.White
+        DisabledFill: |-
+            =ColorValue("#B8C2D6")
+        Fill: =Color.White
+        FontWeight: =FontWeight.Semibold
+        Height: =48
+        HoverColor: |-
+            =ColorValue("#0133A2")
+        HoverFill: =ColorFade(Color.White, -10%)
+        OnSelect: =Exit(true)
+        PressedColor: |-
+            =ColorValue("#0133A2")
+        PressedFill: =ColorFade(Color.White, -20%)
+        RadiusBottomLeft: =10
+        RadiusBottomRight: =10
+        RadiusTopLeft: =10
+        RadiusTopRight: =10
+        Size: =14
+        Text: |-
+            ="Sign out"
+        Width: =592
+        X: =24
+        Y: =774
+
+    btnSetDelete As button:
+        BorderColor: |-
+            =ColorValue("#C2252D")
+        BorderThickness: =0
+        Color: =Color.White
+        DisabledBorderColor: |-
+            =ColorValue("#B8C2D6")
+        DisabledColor: =Color.White
+        DisabledFill: |-
+            =ColorValue("#B8C2D6")
+        Fill: |-
+            =ColorValue("#C2252D")
+        FontWeight: =FontWeight.Semibold
+        Height: =48
+        HoverColor: =Color.White
+        HoverFill: |-
+            =ColorFade(ColorValue("#C2252D"), -10%)
+        OnSelect: |-
+            =If(!locConfirmDelete, Set(locConfirmDelete, true); Notify("Tap again to delete your Granted profile.", NotificationType.Warning),
+                IfError(Set(locD, ParseJSON(GrantedF14.Run("", "", JSON({ op: "delete" })).json)), Set(locD, ParseJSON("{""ok"":false,""message"":""No connection. Check your signal and try again.""}")));
+                Notify(Text(locD.message), If(Boolean(locD.ok), NotificationType.Success, NotificationType.Error));
+                If(Boolean(locD.ok), Exit(true)))
+        PressedColor: =Color.White
+        PressedFill: |-
+            =ColorFade(ColorValue("#C2252D"), -20%)
+        RadiusBottomLeft: =10
+        RadiusBottomRight: =10
+        RadiusTopLeft: =10
+        RadiusTopRight: =10
+        Size: =14
+        Text: |-
+            =If(locConfirmDelete, "Tap again: delete my Granted profile", "Delete my Granted profile")
+        Width: =592
+        X: =24
+        Y: =840
+
+    lblSetDeleteHelp As label:
+        Color: |-
+            =ColorValue("#5A6478")
+        FontWeight: =FontWeight.Normal
+        Height: =50
+        PaddingLeft: =0
+        PaddingRight: =0
+        Size: =11
+        Text: |-
+            ="Removes your profile, access and messages. Delivery records stay for site safety, with your name removed."
+        VerticalAlign: =VerticalAlign.Middle
+        Width: =592
+        X: =24
+        Y: =896

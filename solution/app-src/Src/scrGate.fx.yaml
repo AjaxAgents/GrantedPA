@@ -1,0 +1,721 @@
+scrGate As screen:
+    Fill: |-
+        =ColorValue("#E6EAEF")
+    LoadingSpinnerColor: |-
+        =ColorValue("#0133A2")
+    OnVisible: =Set(locVerdict, Blank()); LoadData(colQueue, "grantedQueue", true)
+
+    hdrGateBar As rectangle:
+        Fill: |-
+            =ColorValue("#0133A2")
+        Height: =128
+        Width: =640
+        X: =0
+        Y: =0
+
+    hdrGateBack As icon.ChevronLeft:
+        AccessibleLabel: |-
+            ="Back"
+        Color: =Color.White
+        Height: =56
+        OnSelect: =Back()
+        PaddingBottom: =10
+        PaddingLeft: =10
+        PaddingRight: =10
+        PaddingTop: =10
+        Tooltip: |-
+            ="Back"
+        Width: =56
+        X: =8
+        Y: =36
+
+    hdrGateTitle As label:
+        Color: =Color.White
+        FontWeight: =FontWeight.Semibold
+        Height: =40
+        PaddingLeft: =0
+        PaddingRight: =0
+        Size: =20
+        Text: |-
+            ="Receive Delivery"
+        VerticalAlign: =VerticalAlign.Middle
+        Width: =540
+        X: =68
+        Y: =34
+
+    hdrGateSub As label:
+        Color: |-
+            =ColorValue("#C9D6F2")
+        FontWeight: =FontWeight.Normal
+        Height: =30
+        PaddingLeft: =0
+        PaddingRight: =0
+        Size: =12
+        Text: |-
+            =gblP.Name & If(gblInMaint, "  ·  maintenance view: " & gblRole, "")
+        VerticalAlign: =VerticalAlign.Middle
+        Width: =540
+        X: =68
+        Y: =74
+
+    lblGateClock As label:
+        Color: |-
+            =ColorValue("#5A6478")
+        FontWeight: =FontWeight.Normal
+        Height: =30
+        PaddingLeft: =0
+        PaddingRight: =0
+        Size: =12
+        Text: |-
+            ="Gate time " & Text(Now(), "ddd m/d h:mm AM/PM")
+        VerticalAlign: =VerticalAlign.Middle
+        Width: =592
+        X: =24
+        Y: =140
+
+    drpGateGate As dropdown:
+        AccessibleLabel: |-
+            ="Gate"
+        BorderColor: |-
+            =ColorValue("#DCE2EC")
+        ChevronBackground: |-
+            =ColorValue("#F1F3F6")
+        ChevronFill: |-
+            =ColorValue("#0133A2")
+        Fill: |-
+            =ColorValue("#F1F3F6")
+        Height: =52
+        Items: =ForAll(colGates, Name)
+        Size: =14
+        Width: =592
+        X: =24
+        Y: =174
+
+    txtGateCode As text:
+        AccessibleLabel: |-
+            ="Type the pass code, e.g. 7KQX9M"
+        BorderColor: |-
+            =ColorValue("#DCE2EC")
+        Default: |-
+            =""
+        Fill: |-
+            =ColorValue("#F1F3F6")
+        FocusedBorderColor: |-
+            =ColorValue("#0133A2")
+        Height: =52
+        HintText: |-
+            ="Type the pass code, e.g. 7KQX9M"
+        HoverBorderColor: |-
+            =ColorValue("#0133A2")
+        PaddingLeft: =12
+        RadiusBottomLeft: =8
+        RadiusBottomRight: =8
+        RadiusTopLeft: =8
+        RadiusTopRight: =8
+        Size: =14
+        Width: =452
+        X: =24
+        Y: =240
+
+    btnGateCheck As button:
+        BorderColor: |-
+            =ColorValue("#0133A2")
+        BorderThickness: =0
+        Color: =Color.White
+        DisabledBorderColor: |-
+            =ColorValue("#B8C2D6")
+        DisabledColor: =Color.White
+        DisabledFill: |-
+            =ColorValue("#B8C2D6")
+        Fill: |-
+            =ColorValue("#0133A2")
+        FontWeight: =FontWeight.Semibold
+        Height: =52
+        HoverColor: =Color.White
+        HoverFill: |-
+            =ColorFade(ColorValue("#0133A2"), -10%)
+        OnSelect: |-
+            =Set(locRaw, txtGateCode.Text); Set(locSource, "Typed"); Set(locCode, With({ c: Upper(Substitute(Substitute(locRaw, " ", ""), "-", "")), pre: Upper(First(Split(gblP.Code, "-")).Value) },
+                If(Len(c) = 6, pre & "-" & c, StartsWith(c, pre), pre & "-" & Mid(c, Len(pre) + 1), c)));
+            If(IsEmpty(colPasses), LoadData(colPasses, "grantedPasses", true); LoadData(colReq, "grantedRequests", true));
+            Set(locPass, LookUp(colPasses, Code = locCode));
+            Set(locReq, LookUp(colReq, Id = locPass.ReqId));
+            Set(locVerdict, If(
+                IsBlank(locPass) || IsBlank(locReq), "G01",
+                locPass.Status = "Void" || locReq.Status = "Cancelled", "G02",
+                locPass.Status = "Used", "G03",
+                !IsBlank(LookUp(colSubs, Id = locReq.SubId && Suspended)) && !locPass.Override, "G07",
+                locReq.Date <> Today(), "G04",
+                Now() < locPass.Open, "G05",
+                Now() > locPass.Close, "G06",
+                "G00"));
+            Set(locWord, LookUp(Table(
+                { Code: "G00", Title: "Approved delivery", Remedy: "Admit the truck and direct it to {zone}." },
+                { Code: "G01", Title: "No approved delivery for this code", Remedy: "The contractor must submit a delivery request with {notice} hours’ notice, or the project admin can issue an emergency pass." },
+                { Code: "G02", Title: "This delivery was cancelled", Remedy: "The contractor must submit a new delivery request." },
+                { Code: "G03", Title: "Pass already used at {used}", Remedy: "Each pass admits one truck. A second truck needs its own approved request." },
+                { Code: "G04", Title: "Approved for {date}, not today", Remedy: "Return on {date} between {open} and {close}, or reschedule in the app." },
+                { Code: "G05", Title: "Too early: window opens at {open}", Remedy: "Wait off-site until {open}, or the project admin can approve early entry." },
+                { Code: "G06", Title: "Too late: window closed at {close}", Remedy: "Reschedule in the app, or the project admin can issue an emergency pass." },
+                { Code: "G07", Title: "Contractor’s booking privileges are suspended", Remedy: "Contact the project admin." }), Code = locVerdict));
+            Set(locTitle, Substitute(Substitute(Substitute(Substitute(Substitute(Substitute(locWord.Title, "{zone}", locPass.ZoneName), "{notice}", Text(gblCfg.MinNotice)), "{used}", If(IsBlank(locPass.UsedAt), "", Text(DateTimeValue(locPass.UsedAt), "h:mm AM/PM"))), "{date}", Text(locReq.Date, "ddd m/d")), "{open}", Text(locPass.Open, "h:mm AM/PM")), "{close}", Text(locPass.Close, "h:mm AM/PM")));
+            Set(locRemedy, Substitute(Substitute(Substitute(Substitute(Substitute(Substitute(locWord.Remedy, "{zone}", locPass.ZoneName), "{notice}", Text(gblCfg.MinNotice)), "{used}", If(IsBlank(locPass.UsedAt), "", Text(DateTimeValue(locPass.UsedAt), "h:mm AM/PM"))), "{date}", Text(locReq.Date, "ddd m/d")), "{open}", Text(locPass.Open, "h:mm AM/PM")), "{close}", Text(locPass.Close, "h:mm AM/PM")))
+        PressedColor: =Color.White
+        PressedFill: |-
+            =ColorFade(ColorValue("#0133A2"), -20%)
+        RadiusBottomLeft: =10
+        RadiusBottomRight: =10
+        RadiusTopLeft: =10
+        RadiusTopRight: =10
+        Size: =14
+        Text: |-
+            ="Check"
+        Width: =128
+        X: =488
+        Y: =240
+
+    btnGateSync As button:
+        BorderColor: |-
+            =ColorValue("#0133A2")
+        BorderThickness: =2
+        Color: |-
+            =ColorValue("#0133A2")
+        DisabledBorderColor: |-
+            =ColorValue("#B8C2D6")
+        DisabledColor: =Color.White
+        DisabledFill: |-
+            =ColorValue("#B8C2D6")
+        Fill: =Color.White
+        FontWeight: =FontWeight.Semibold
+        Height: =44
+        HoverColor: |-
+            =ColorValue("#0133A2")
+        HoverFill: =ColorFade(Color.White, -10%)
+        OnSelect: |-
+            =ForAll(colQueue, IfError(GrantedF05.Run(gblPid, "", JSON(ThisRecord)), false)); Clear(colQueue); SaveData(colQueue, "grantedQueue"); Notify("Offline admits sent."); If(IsBlank(gblPid),
+                Set(gblRole, Blank()); Set(gblP, Blank()),
+                IfError(
+                    Set(gblV, ParseJSON(GrantedF00.Run(gblPid, If(gblMaint.On && gblMaint.ViewAs <> "Admin", gblMaint.ViewAs, ""), "{""op"":""view""}").json)),
+                    Set(gblV, ParseJSON("{""ok"":false,""message"":""No connection. Showing what was loaded last.""}"))
+                );
+                If(Boolean(gblV.ok),
+                    Set(gblRole, Text(gblV.role)); Set(gblCanMaintain, Boolean(gblV.canMaintain)); Set(gblInMaint, Boolean(gblV.maintenance));
+                    Set(gblP, {
+                        Id: Text(gblV.project.id), Name: Text(gblV.project.name), Code: Text(gblV.project.code), Location: Text(gblV.project.location),
+                        TimeZone: Text(gblV.project.timeZone), DutyPhone: Text(gblV.project.dutyPhone)
+                    });
+                    Set(gblCfg, {
+                        MinNotice: Coalesce(Value(gblV.project.settings.minNoticeHours), 48), MaxEarly: Coalesce(Value(gblV.project.settings.maxDaysBeforeInstall), 7),
+                        Tolerance: Coalesce(Value(gblV.project.settings.gateToleranceMinutes), 60), MaxPallets: Coalesce(Value(gblV.project.settings.maxPalletsPerRequest), 20),
+                        SlotMinutes: Coalesce(Value(gblV.project.settings.slotMinutes), 60), GateOpen: Coalesce(Text(gblV.project.settings.gateOpen), "06:00"),
+                        GateClose: Coalesce(Text(gblV.project.settings.gateClose), "16:00")
+                    });
+                    IfError(
+                        ClearCollect(colWorkDays, ForAll(Table(gblV.project.settings.workDays), { Day: Value(ThisRecord.Value) })),
+                        ClearCollect(colWorkDays, { Day: 1 }, { Day: 2 }, { Day: 3 }, { Day: 4 }, { Day: 5 }, { Day: 6 })
+                    );
+                    Set(gblToday, DateValue(Text(gblV.today)));
+                    Set(gblNowLocal, DateTimeValue(Text(gblV.nowLocal)));
+                    Set(gblLoadedAt, Now());
+                    ClearCollect(colGates, ForAll(Table(gblV.project.gates), { Id: Text(ThisRecord.Value.id), Name: Text(ThisRecord.Value.name), Cap: Value(ThisRecord.Value.capacityPerSlot) }));
+                    ClearCollect(colZones, ForAll(Table(gblV.project.zones), { Id: Text(ThisRecord.Value.id), Name: Text(ThisRecord.Value.name), Cap: Value(ThisRecord.Value.capacityPallets) }));
+                    ClearCollect(colActs, ForAll(Table(gblV.project.activities), {
+                        Id: Text(ThisRecord.Value.id), Name: Text(ThisRecord.Value.name), Trade: Text(ThisRecord.Value.trade),
+                        Start: DateValue(Text(ThisRecord.Value.start)), Finish: DateValue(Text(ThisRecord.Value.finish))
+                    }));
+                    ClearCollect(colBlackouts, ForAll(Table(gblV.project.blackouts), { Day: Text(ThisRecord.Value) }));
+                    Set(gblMySub, { Id: Text(gblV.mySub.id), Name: Text(gblV.mySub.name), Trade: Text(gblV.mySub.trade), Suspended: Boolean(gblV.mySub.suspended) });
+                    ClearCollect(colSubs, ForAll(Table(gblV.subs), { Id: Text(ThisRecord.Value.id), Name: Text(ThisRecord.Value.name), Trade: Text(ThisRecord.Value.trade), Suspended: Boolean(ThisRecord.Value.suspended) }));
+                    ClearCollect(colReq, ForAll(Table(gblV.requests), {
+                        Id: Value(ThisRecord.Value.id), SubId: Text(ThisRecord.Value.subId), Company: Text(ThisRecord.Value.subName),
+                        Activity: Text(ThisRecord.Value.activityId), ActivityName: Text(ThisRecord.Value.activityName), Gate: Text(ThisRecord.Value.gateId),
+                        DateText: Text(ThisRecord.Value.date), Date: DateValue(Text(ThisRecord.Value.date)), Slot: Text(ThisRecord.Value.slot),
+                        Zone: Text(ThisRecord.Value.zoneId), Material: Text(ThisRecord.Value.material), Qty: Value(ThisRecord.Value.quantity),
+                        Unit: Text(ThisRecord.Value.unit), Pallets: Value(ThisRecord.Value.pallets), Weight: Value(ThisRecord.Value.weightLbs),
+                        Carrier: Text(ThisRecord.Value.carrier), Truck: Text(ThisRecord.Value.truck), Contact: Text(ThisRecord.Value.pocName),
+                        Phone: Text(ThisRecord.Value.pocPhone), Status: Text(ThisRecord.Value.status), Pass: Text(ThisRecord.Value.passCode),
+                        Reasons: Text(ThisRecord.Value.reasonText), NextOpen: Text(ThisRecord.Value.nextOpen), By: Text(ThisRecord.Value.submittedBy),
+                        DecidedBy: Text(ThisRecord.Value.decidedBy), Justification: Text(ThisRecord.Value.justification),
+                        Maint: Boolean(ThisRecord.Value.maintenance), StagedUntil: Text(ThisRecord.Value.stagedUntil), Override: Boolean(ThisRecord.Value.override)
+                    }));
+                    ClearCollect(colPasses, ForAll(Table(gblV.passes), {
+                        Code: Text(ThisRecord.Value.code), ReqId: Value(ThisRecord.Value.requestId), Status: Text(ThisRecord.Value.status),
+                        UsedAt: Text(ThisRecord.Value.usedAt), Open: DateTimeValue(Text(ThisRecord.Value.windowOpen)), Close: DateTimeValue(Text(ThisRecord.Value.windowClose)),
+                        Override: Boolean(ThisRecord.Value.override), Qr: Text(ThisRecord.Value.qrSvg), ZoneName: Text(ThisRecord.Value.zoneName), GateName: Text(ThisRecord.Value.gateName)
+                    }));
+                    ClearCollect(colActive, ForAll(Filter(colReq, Status = "Approved" || Status = "Needs review"), {
+                        Id: ThisRecord.Id, Gate: ThisRecord.Gate, DateText: ThisRecord.DateText, Slot: ThisRecord.Slot, Zone: ThisRecord.Zone,
+                        Pallets: ThisRecord.Pallets, From: ThisRecord.Date, Until: Coalesce(DateValue(ThisRecord.StagedUntil), ThisRecord.Date)
+                    }));
+                    Collect(colActive, ForAll(Table(gblV.occupancy), {
+                        Id: Value(ThisRecord.Value.id), Gate: Text(ThisRecord.Value.gateId), DateText: Text(ThisRecord.Value.date), Slot: Text(ThisRecord.Value.slot),
+                        Zone: Text(ThisRecord.Value.zoneId), Pallets: Value(ThisRecord.Value.pallets), From: DateValue(Text(ThisRecord.Value.date)),
+                        Until: DateValue(Text(ThisRecord.Value.stagedUntil))
+                    }));
+                    ClearCollect(colLog, ForAll(Table(gblV.gatelog), {
+                        At: DateTimeValue(Text(ThisRecord.Value.at)), Code: Text(ThisRecord.Value.code), Result: Text(ThisRecord.Value.result),
+                        Reason: Text(ThisRecord.Value.reason), Action: Text(ThisRecord.Value.action), Guard: Text(ThisRecord.Value.guard)
+                    }));
+                    ClearCollect(colMembers, ForAll(Table(gblV.members), {
+                        Id: Value(ThisRecord.Value.id), Email: Text(ThisRecord.Value.email), Name: Text(ThisRecord.Value.name), Company: Text(ThisRecord.Value.company),
+                        Phone: Text(ThisRecord.Value.phone), Role: Text(ThisRecord.Value.role), Trade: Text(ThisRecord.Value.trade)
+                    }));
+                    ClearCollect(colJoin, ForAll(Table(gblV.joinreqs), {
+                        Id: Value(ThisRecord.Value.id), Name: Text(ThisRecord.Value.name), Email: Text(ThisRecord.Value.email), Company: Text(ThisRecord.Value.company),
+                        Phone: Text(ThisRecord.Value.phone), At: DateTimeValue(Text(ThisRecord.Value.at)), IsHome: Boolean(ThisRecord.Value.isHome)
+                    }));
+                    ClearCollect(colInvites, ForAll(Table(gblV.invites), { Id: Value(ThisRecord.Value.id), Email: Text(ThisRecord.Value.email), Role: Text(ThisRecord.Value.role), Trade: Text(ThisRecord.Value.trade) }));
+                    ClearCollect(colMail, ForAll(Table(gblV.mail), {
+                        At: DateTimeValue(Text(ThisRecord.Value.at)), Subject: Text(ThisRecord.Value.subject), Body: Text(ThisRecord.Value.body), To: Text(ThisRecord.Value.to)
+                    }));
+                    If(gblRole = "Access Control" || gblRole = "Admin", SaveData(colPasses, "grantedPasses"); SaveData(colReq, "grantedRequests"));
+                    ClearCollect(colPrefs, { Key: "pid", Value: gblPid }); SaveData(colPrefs, "grantedPrefs"),
+                    Notify(Text(gblV.message), NotificationType.Error)
+                )
+            )
+        PressedColor: |-
+            =ColorValue("#0133A2")
+        PressedFill: =ColorFade(Color.White, -20%)
+        RadiusBottomLeft: =10
+        RadiusBottomRight: =10
+        RadiusTopLeft: =10
+        RadiusTopRight: =10
+        Size: =12
+        Text: |-
+            ="Send " & CountRows(colQueue) & " offline admits"
+        Visible: =CountRows(colQueue) > 0 && Connection.Connected
+        Width: =592
+        X: =24
+        Y: =300
+
+    rctVerdict As rectangle:
+        Fill: |-
+            =If(locVerdict = "G00", ColorValue("#12804A"), ColorValue("#C2252D"))
+        Height: =420
+        Visible: =!IsBlank(locVerdict)
+        Width: =592
+        X: =24
+        Y: =356
+
+    lblVerdictBig As label:
+        Align: =Align.Center
+        Color: =Color.White
+        FontWeight: =FontWeight.Semibold
+        Height: =80
+        PaddingLeft: =0
+        PaddingRight: =0
+        Size: =40
+        Text: =If(locVerdict = "G00", "ADMIT", "TURN AWAY")
+        VerticalAlign: =VerticalAlign.Middle
+        Visible: =!IsBlank(locVerdict)
+        Width: =592
+        X: =24
+        Y: =370
+
+    lblVerdictTitle As label:
+        Align: =Align.Center
+        Color: =Color.White
+        FontWeight: =FontWeight.Semibold
+        Height: =60
+        PaddingLeft: =0
+        PaddingRight: =0
+        Size: =16
+        Text: =locTitle
+        VerticalAlign: =VerticalAlign.Middle
+        Visible: =!IsBlank(locVerdict)
+        Width: =552
+        X: =44
+        Y: =452
+
+    lblVerdictRemedy As label:
+        Align: =Align.Center
+        Color: =Color.White
+        FontWeight: =FontWeight.Normal
+        Height: =90
+        PaddingLeft: =0
+        PaddingRight: =0
+        Size: =13
+        Text: |-
+            =If(locVerdict = "G00", "Next: ", "What has to happen: ") & locRemedy
+        VerticalAlign: =VerticalAlign.Middle
+        Visible: =!IsBlank(locVerdict)
+        Width: =552
+        X: =44
+        Y: =514
+
+    lblVerdictDetail As label:
+        Align: =Align.Center
+        Color: =Color.White
+        FontWeight: =FontWeight.Normal
+        Height: =70
+        PaddingLeft: =0
+        PaddingRight: =0
+        Size: =11
+        Text: =If(IsBlank(locReq), "Code " & locCode, locReq.Company & " · " & locReq.Material & " · " & locReq.Pallets & " pallets · booked " & locReq.Slot & " · contact " & locReq.Contact & " " & locReq.Phone)
+        VerticalAlign: =VerticalAlign.Middle
+        Visible: =!IsBlank(locVerdict)
+        Width: =552
+        X: =44
+        Y: =606
+
+    btnGateAdmit As button:
+        BorderColor: =Color.White
+        BorderThickness: =0
+        Color: |-
+            =ColorValue("#12804A")
+        DisabledBorderColor: |-
+            =ColorValue("#B8C2D6")
+        DisabledColor: =Color.White
+        DisabledFill: |-
+            =ColorValue("#B8C2D6")
+        DisplayMode: =If(locBusy, DisplayMode.Disabled, DisplayMode.Edit)
+        Fill: =Color.White
+        FontWeight: =FontWeight.Semibold
+        Height: =64
+        HoverColor: |-
+            =ColorValue("#12804A")
+        HoverFill: =ColorFade(Color.White, -10%)
+        OnSelect: |-
+            =Set(locBusy, true);
+            IfError(Set(locG, ParseJSON(GrantedF05.Run(gblPid, If(gblMaint.On && gblMaint.ViewAs <> "Admin", gblMaint.ViewAs, ""), JSON({ passCode: locCode, action: "admit", gateId: LookUp(colGates, Name = drpGateGate.Selected.Value).Id, source: locSource, deviceTime: Text(Now(), DateTimeFormat.UTC) })).json)),
+                Collect(colQueue, { passCode: locCode, action: "admit", gateId: LookUp(colGates, Name = drpGateGate.Selected.Value).Id, source: "Offline sync", deviceTime: Text(Now(), DateTimeFormat.UTC) }); SaveData(colQueue, "grantedQueue");
+                Set(locG, ParseJSON("{""ok"":false,""message"":""No signal: admitted on this device. It will be sent when the signal is back.""}")));
+            Notify(Text(locG.message), If(Boolean(locG.ok), NotificationType.Success, NotificationType.Error));
+            If(Boolean(locG.ok), Set(locVerdict, Blank()); Set(locRaw, ""); Reset(txtGateCode); If(IsBlank(gblPid),
+                Set(gblRole, Blank()); Set(gblP, Blank()),
+                IfError(
+                    Set(gblV, ParseJSON(GrantedF00.Run(gblPid, If(gblMaint.On && gblMaint.ViewAs <> "Admin", gblMaint.ViewAs, ""), "{""op"":""view""}").json)),
+                    Set(gblV, ParseJSON("{""ok"":false,""message"":""No connection. Showing what was loaded last.""}"))
+                );
+                If(Boolean(gblV.ok),
+                    Set(gblRole, Text(gblV.role)); Set(gblCanMaintain, Boolean(gblV.canMaintain)); Set(gblInMaint, Boolean(gblV.maintenance));
+                    Set(gblP, {
+                        Id: Text(gblV.project.id), Name: Text(gblV.project.name), Code: Text(gblV.project.code), Location: Text(gblV.project.location),
+                        TimeZone: Text(gblV.project.timeZone), DutyPhone: Text(gblV.project.dutyPhone)
+                    });
+                    Set(gblCfg, {
+                        MinNotice: Coalesce(Value(gblV.project.settings.minNoticeHours), 48), MaxEarly: Coalesce(Value(gblV.project.settings.maxDaysBeforeInstall), 7),
+                        Tolerance: Coalesce(Value(gblV.project.settings.gateToleranceMinutes), 60), MaxPallets: Coalesce(Value(gblV.project.settings.maxPalletsPerRequest), 20),
+                        SlotMinutes: Coalesce(Value(gblV.project.settings.slotMinutes), 60), GateOpen: Coalesce(Text(gblV.project.settings.gateOpen), "06:00"),
+                        GateClose: Coalesce(Text(gblV.project.settings.gateClose), "16:00")
+                    });
+                    IfError(
+                        ClearCollect(colWorkDays, ForAll(Table(gblV.project.settings.workDays), { Day: Value(ThisRecord.Value) })),
+                        ClearCollect(colWorkDays, { Day: 1 }, { Day: 2 }, { Day: 3 }, { Day: 4 }, { Day: 5 }, { Day: 6 })
+                    );
+                    Set(gblToday, DateValue(Text(gblV.today)));
+                    Set(gblNowLocal, DateTimeValue(Text(gblV.nowLocal)));
+                    Set(gblLoadedAt, Now());
+                    ClearCollect(colGates, ForAll(Table(gblV.project.gates), { Id: Text(ThisRecord.Value.id), Name: Text(ThisRecord.Value.name), Cap: Value(ThisRecord.Value.capacityPerSlot) }));
+                    ClearCollect(colZones, ForAll(Table(gblV.project.zones), { Id: Text(ThisRecord.Value.id), Name: Text(ThisRecord.Value.name), Cap: Value(ThisRecord.Value.capacityPallets) }));
+                    ClearCollect(colActs, ForAll(Table(gblV.project.activities), {
+                        Id: Text(ThisRecord.Value.id), Name: Text(ThisRecord.Value.name), Trade: Text(ThisRecord.Value.trade),
+                        Start: DateValue(Text(ThisRecord.Value.start)), Finish: DateValue(Text(ThisRecord.Value.finish))
+                    }));
+                    ClearCollect(colBlackouts, ForAll(Table(gblV.project.blackouts), { Day: Text(ThisRecord.Value) }));
+                    Set(gblMySub, { Id: Text(gblV.mySub.id), Name: Text(gblV.mySub.name), Trade: Text(gblV.mySub.trade), Suspended: Boolean(gblV.mySub.suspended) });
+                    ClearCollect(colSubs, ForAll(Table(gblV.subs), { Id: Text(ThisRecord.Value.id), Name: Text(ThisRecord.Value.name), Trade: Text(ThisRecord.Value.trade), Suspended: Boolean(ThisRecord.Value.suspended) }));
+                    ClearCollect(colReq, ForAll(Table(gblV.requests), {
+                        Id: Value(ThisRecord.Value.id), SubId: Text(ThisRecord.Value.subId), Company: Text(ThisRecord.Value.subName),
+                        Activity: Text(ThisRecord.Value.activityId), ActivityName: Text(ThisRecord.Value.activityName), Gate: Text(ThisRecord.Value.gateId),
+                        DateText: Text(ThisRecord.Value.date), Date: DateValue(Text(ThisRecord.Value.date)), Slot: Text(ThisRecord.Value.slot),
+                        Zone: Text(ThisRecord.Value.zoneId), Material: Text(ThisRecord.Value.material), Qty: Value(ThisRecord.Value.quantity),
+                        Unit: Text(ThisRecord.Value.unit), Pallets: Value(ThisRecord.Value.pallets), Weight: Value(ThisRecord.Value.weightLbs),
+                        Carrier: Text(ThisRecord.Value.carrier), Truck: Text(ThisRecord.Value.truck), Contact: Text(ThisRecord.Value.pocName),
+                        Phone: Text(ThisRecord.Value.pocPhone), Status: Text(ThisRecord.Value.status), Pass: Text(ThisRecord.Value.passCode),
+                        Reasons: Text(ThisRecord.Value.reasonText), NextOpen: Text(ThisRecord.Value.nextOpen), By: Text(ThisRecord.Value.submittedBy),
+                        DecidedBy: Text(ThisRecord.Value.decidedBy), Justification: Text(ThisRecord.Value.justification),
+                        Maint: Boolean(ThisRecord.Value.maintenance), StagedUntil: Text(ThisRecord.Value.stagedUntil), Override: Boolean(ThisRecord.Value.override)
+                    }));
+                    ClearCollect(colPasses, ForAll(Table(gblV.passes), {
+                        Code: Text(ThisRecord.Value.code), ReqId: Value(ThisRecord.Value.requestId), Status: Text(ThisRecord.Value.status),
+                        UsedAt: Text(ThisRecord.Value.usedAt), Open: DateTimeValue(Text(ThisRecord.Value.windowOpen)), Close: DateTimeValue(Text(ThisRecord.Value.windowClose)),
+                        Override: Boolean(ThisRecord.Value.override), Qr: Text(ThisRecord.Value.qrSvg), ZoneName: Text(ThisRecord.Value.zoneName), GateName: Text(ThisRecord.Value.gateName)
+                    }));
+                    ClearCollect(colActive, ForAll(Filter(colReq, Status = "Approved" || Status = "Needs review"), {
+                        Id: ThisRecord.Id, Gate: ThisRecord.Gate, DateText: ThisRecord.DateText, Slot: ThisRecord.Slot, Zone: ThisRecord.Zone,
+                        Pallets: ThisRecord.Pallets, From: ThisRecord.Date, Until: Coalesce(DateValue(ThisRecord.StagedUntil), ThisRecord.Date)
+                    }));
+                    Collect(colActive, ForAll(Table(gblV.occupancy), {
+                        Id: Value(ThisRecord.Value.id), Gate: Text(ThisRecord.Value.gateId), DateText: Text(ThisRecord.Value.date), Slot: Text(ThisRecord.Value.slot),
+                        Zone: Text(ThisRecord.Value.zoneId), Pallets: Value(ThisRecord.Value.pallets), From: DateValue(Text(ThisRecord.Value.date)),
+                        Until: DateValue(Text(ThisRecord.Value.stagedUntil))
+                    }));
+                    ClearCollect(colLog, ForAll(Table(gblV.gatelog), {
+                        At: DateTimeValue(Text(ThisRecord.Value.at)), Code: Text(ThisRecord.Value.code), Result: Text(ThisRecord.Value.result),
+                        Reason: Text(ThisRecord.Value.reason), Action: Text(ThisRecord.Value.action), Guard: Text(ThisRecord.Value.guard)
+                    }));
+                    ClearCollect(colMembers, ForAll(Table(gblV.members), {
+                        Id: Value(ThisRecord.Value.id), Email: Text(ThisRecord.Value.email), Name: Text(ThisRecord.Value.name), Company: Text(ThisRecord.Value.company),
+                        Phone: Text(ThisRecord.Value.phone), Role: Text(ThisRecord.Value.role), Trade: Text(ThisRecord.Value.trade)
+                    }));
+                    ClearCollect(colJoin, ForAll(Table(gblV.joinreqs), {
+                        Id: Value(ThisRecord.Value.id), Name: Text(ThisRecord.Value.name), Email: Text(ThisRecord.Value.email), Company: Text(ThisRecord.Value.company),
+                        Phone: Text(ThisRecord.Value.phone), At: DateTimeValue(Text(ThisRecord.Value.at)), IsHome: Boolean(ThisRecord.Value.isHome)
+                    }));
+                    ClearCollect(colInvites, ForAll(Table(gblV.invites), { Id: Value(ThisRecord.Value.id), Email: Text(ThisRecord.Value.email), Role: Text(ThisRecord.Value.role), Trade: Text(ThisRecord.Value.trade) }));
+                    ClearCollect(colMail, ForAll(Table(gblV.mail), {
+                        At: DateTimeValue(Text(ThisRecord.Value.at)), Subject: Text(ThisRecord.Value.subject), Body: Text(ThisRecord.Value.body), To: Text(ThisRecord.Value.to)
+                    }));
+                    If(gblRole = "Access Control" || gblRole = "Admin", SaveData(colPasses, "grantedPasses"); SaveData(colReq, "grantedRequests"));
+                    ClearCollect(colPrefs, { Key: "pid", Value: gblPid }); SaveData(colPrefs, "grantedPrefs"),
+                    Notify(Text(gblV.message), NotificationType.Error)
+                )
+            ));
+            Set(locBusy, false)
+        PressedColor: |-
+            =ColorValue("#12804A")
+        PressedFill: =ColorFade(Color.White, -20%)
+        RadiusBottomLeft: =10
+        RadiusBottomRight: =10
+        RadiusTopLeft: =10
+        RadiusTopRight: =10
+        Size: =14
+        Text: |-
+            ="Admit and log"
+        Visible: =!IsBlank(locVerdict) && locVerdict = "G00"
+        Width: =552
+        X: =44
+        Y: =690
+
+    btnGateDeny As button:
+        BorderColor: =Color.White
+        BorderThickness: =0
+        Color: |-
+            =ColorValue("#C2252D")
+        DisabledBorderColor: |-
+            =ColorValue("#B8C2D6")
+        DisabledColor: =Color.White
+        DisabledFill: |-
+            =ColorValue("#B8C2D6")
+        DisplayMode: =If(locBusy, DisplayMode.Disabled, DisplayMode.Edit)
+        Fill: =Color.White
+        FontWeight: =FontWeight.Semibold
+        Height: =64
+        HoverColor: |-
+            =ColorValue("#C2252D")
+        HoverFill: =ColorFade(Color.White, -10%)
+        OnSelect: |-
+            =Set(locBusy, true);
+            IfError(Set(locG, ParseJSON(GrantedF05.Run(gblPid, If(gblMaint.On && gblMaint.ViewAs <> "Admin", gblMaint.ViewAs, ""), JSON({ passCode: locCode, action: "deny", gateId: LookUp(colGates, Name = drpGateGate.Selected.Value).Id, source: locSource, reasonCode: locVerdict, reasonTitle: locTitle, remedy: locRemedy, deviceTime: Text(Now(), DateTimeFormat.UTC) })).json)),
+                Set(locG, ParseJSON("{""ok"":false,""message"":""No signal. Turn the truck away and log it when the signal is back.""}")));
+            Notify(Text(locG.message), If(Boolean(locG.ok), NotificationType.Success, NotificationType.Error));
+            If(Boolean(locG.ok), Set(locVerdict, Blank()); Set(locRaw, ""); Reset(txtGateCode); If(IsBlank(gblPid),
+                Set(gblRole, Blank()); Set(gblP, Blank()),
+                IfError(
+                    Set(gblV, ParseJSON(GrantedF00.Run(gblPid, If(gblMaint.On && gblMaint.ViewAs <> "Admin", gblMaint.ViewAs, ""), "{""op"":""view""}").json)),
+                    Set(gblV, ParseJSON("{""ok"":false,""message"":""No connection. Showing what was loaded last.""}"))
+                );
+                If(Boolean(gblV.ok),
+                    Set(gblRole, Text(gblV.role)); Set(gblCanMaintain, Boolean(gblV.canMaintain)); Set(gblInMaint, Boolean(gblV.maintenance));
+                    Set(gblP, {
+                        Id: Text(gblV.project.id), Name: Text(gblV.project.name), Code: Text(gblV.project.code), Location: Text(gblV.project.location),
+                        TimeZone: Text(gblV.project.timeZone), DutyPhone: Text(gblV.project.dutyPhone)
+                    });
+                    Set(gblCfg, {
+                        MinNotice: Coalesce(Value(gblV.project.settings.minNoticeHours), 48), MaxEarly: Coalesce(Value(gblV.project.settings.maxDaysBeforeInstall), 7),
+                        Tolerance: Coalesce(Value(gblV.project.settings.gateToleranceMinutes), 60), MaxPallets: Coalesce(Value(gblV.project.settings.maxPalletsPerRequest), 20),
+                        SlotMinutes: Coalesce(Value(gblV.project.settings.slotMinutes), 60), GateOpen: Coalesce(Text(gblV.project.settings.gateOpen), "06:00"),
+                        GateClose: Coalesce(Text(gblV.project.settings.gateClose), "16:00")
+                    });
+                    IfError(
+                        ClearCollect(colWorkDays, ForAll(Table(gblV.project.settings.workDays), { Day: Value(ThisRecord.Value) })),
+                        ClearCollect(colWorkDays, { Day: 1 }, { Day: 2 }, { Day: 3 }, { Day: 4 }, { Day: 5 }, { Day: 6 })
+                    );
+                    Set(gblToday, DateValue(Text(gblV.today)));
+                    Set(gblNowLocal, DateTimeValue(Text(gblV.nowLocal)));
+                    Set(gblLoadedAt, Now());
+                    ClearCollect(colGates, ForAll(Table(gblV.project.gates), { Id: Text(ThisRecord.Value.id), Name: Text(ThisRecord.Value.name), Cap: Value(ThisRecord.Value.capacityPerSlot) }));
+                    ClearCollect(colZones, ForAll(Table(gblV.project.zones), { Id: Text(ThisRecord.Value.id), Name: Text(ThisRecord.Value.name), Cap: Value(ThisRecord.Value.capacityPallets) }));
+                    ClearCollect(colActs, ForAll(Table(gblV.project.activities), {
+                        Id: Text(ThisRecord.Value.id), Name: Text(ThisRecord.Value.name), Trade: Text(ThisRecord.Value.trade),
+                        Start: DateValue(Text(ThisRecord.Value.start)), Finish: DateValue(Text(ThisRecord.Value.finish))
+                    }));
+                    ClearCollect(colBlackouts, ForAll(Table(gblV.project.blackouts), { Day: Text(ThisRecord.Value) }));
+                    Set(gblMySub, { Id: Text(gblV.mySub.id), Name: Text(gblV.mySub.name), Trade: Text(gblV.mySub.trade), Suspended: Boolean(gblV.mySub.suspended) });
+                    ClearCollect(colSubs, ForAll(Table(gblV.subs), { Id: Text(ThisRecord.Value.id), Name: Text(ThisRecord.Value.name), Trade: Text(ThisRecord.Value.trade), Suspended: Boolean(ThisRecord.Value.suspended) }));
+                    ClearCollect(colReq, ForAll(Table(gblV.requests), {
+                        Id: Value(ThisRecord.Value.id), SubId: Text(ThisRecord.Value.subId), Company: Text(ThisRecord.Value.subName),
+                        Activity: Text(ThisRecord.Value.activityId), ActivityName: Text(ThisRecord.Value.activityName), Gate: Text(ThisRecord.Value.gateId),
+                        DateText: Text(ThisRecord.Value.date), Date: DateValue(Text(ThisRecord.Value.date)), Slot: Text(ThisRecord.Value.slot),
+                        Zone: Text(ThisRecord.Value.zoneId), Material: Text(ThisRecord.Value.material), Qty: Value(ThisRecord.Value.quantity),
+                        Unit: Text(ThisRecord.Value.unit), Pallets: Value(ThisRecord.Value.pallets), Weight: Value(ThisRecord.Value.weightLbs),
+                        Carrier: Text(ThisRecord.Value.carrier), Truck: Text(ThisRecord.Value.truck), Contact: Text(ThisRecord.Value.pocName),
+                        Phone: Text(ThisRecord.Value.pocPhone), Status: Text(ThisRecord.Value.status), Pass: Text(ThisRecord.Value.passCode),
+                        Reasons: Text(ThisRecord.Value.reasonText), NextOpen: Text(ThisRecord.Value.nextOpen), By: Text(ThisRecord.Value.submittedBy),
+                        DecidedBy: Text(ThisRecord.Value.decidedBy), Justification: Text(ThisRecord.Value.justification),
+                        Maint: Boolean(ThisRecord.Value.maintenance), StagedUntil: Text(ThisRecord.Value.stagedUntil), Override: Boolean(ThisRecord.Value.override)
+                    }));
+                    ClearCollect(colPasses, ForAll(Table(gblV.passes), {
+                        Code: Text(ThisRecord.Value.code), ReqId: Value(ThisRecord.Value.requestId), Status: Text(ThisRecord.Value.status),
+                        UsedAt: Text(ThisRecord.Value.usedAt), Open: DateTimeValue(Text(ThisRecord.Value.windowOpen)), Close: DateTimeValue(Text(ThisRecord.Value.windowClose)),
+                        Override: Boolean(ThisRecord.Value.override), Qr: Text(ThisRecord.Value.qrSvg), ZoneName: Text(ThisRecord.Value.zoneName), GateName: Text(ThisRecord.Value.gateName)
+                    }));
+                    ClearCollect(colActive, ForAll(Filter(colReq, Status = "Approved" || Status = "Needs review"), {
+                        Id: ThisRecord.Id, Gate: ThisRecord.Gate, DateText: ThisRecord.DateText, Slot: ThisRecord.Slot, Zone: ThisRecord.Zone,
+                        Pallets: ThisRecord.Pallets, From: ThisRecord.Date, Until: Coalesce(DateValue(ThisRecord.StagedUntil), ThisRecord.Date)
+                    }));
+                    Collect(colActive, ForAll(Table(gblV.occupancy), {
+                        Id: Value(ThisRecord.Value.id), Gate: Text(ThisRecord.Value.gateId), DateText: Text(ThisRecord.Value.date), Slot: Text(ThisRecord.Value.slot),
+                        Zone: Text(ThisRecord.Value.zoneId), Pallets: Value(ThisRecord.Value.pallets), From: DateValue(Text(ThisRecord.Value.date)),
+                        Until: DateValue(Text(ThisRecord.Value.stagedUntil))
+                    }));
+                    ClearCollect(colLog, ForAll(Table(gblV.gatelog), {
+                        At: DateTimeValue(Text(ThisRecord.Value.at)), Code: Text(ThisRecord.Value.code), Result: Text(ThisRecord.Value.result),
+                        Reason: Text(ThisRecord.Value.reason), Action: Text(ThisRecord.Value.action), Guard: Text(ThisRecord.Value.guard)
+                    }));
+                    ClearCollect(colMembers, ForAll(Table(gblV.members), {
+                        Id: Value(ThisRecord.Value.id), Email: Text(ThisRecord.Value.email), Name: Text(ThisRecord.Value.name), Company: Text(ThisRecord.Value.company),
+                        Phone: Text(ThisRecord.Value.phone), Role: Text(ThisRecord.Value.role), Trade: Text(ThisRecord.Value.trade)
+                    }));
+                    ClearCollect(colJoin, ForAll(Table(gblV.joinreqs), {
+                        Id: Value(ThisRecord.Value.id), Name: Text(ThisRecord.Value.name), Email: Text(ThisRecord.Value.email), Company: Text(ThisRecord.Value.company),
+                        Phone: Text(ThisRecord.Value.phone), At: DateTimeValue(Text(ThisRecord.Value.at)), IsHome: Boolean(ThisRecord.Value.isHome)
+                    }));
+                    ClearCollect(colInvites, ForAll(Table(gblV.invites), { Id: Value(ThisRecord.Value.id), Email: Text(ThisRecord.Value.email), Role: Text(ThisRecord.Value.role), Trade: Text(ThisRecord.Value.trade) }));
+                    ClearCollect(colMail, ForAll(Table(gblV.mail), {
+                        At: DateTimeValue(Text(ThisRecord.Value.at)), Subject: Text(ThisRecord.Value.subject), Body: Text(ThisRecord.Value.body), To: Text(ThisRecord.Value.to)
+                    }));
+                    If(gblRole = "Access Control" || gblRole = "Admin", SaveData(colPasses, "grantedPasses"); SaveData(colReq, "grantedRequests"));
+                    ClearCollect(colPrefs, { Key: "pid", Value: gblPid }); SaveData(colPrefs, "grantedPrefs"),
+                    Notify(Text(gblV.message), NotificationType.Error)
+                )
+            ));
+            Set(locBusy, false)
+        PressedColor: |-
+            =ColorValue("#C2252D")
+        PressedFill: =ColorFade(Color.White, -20%)
+        RadiusBottomLeft: =10
+        RadiusBottomRight: =10
+        RadiusTopLeft: =10
+        RadiusTopRight: =10
+        Size: =14
+        Text: |-
+            ="Log turn-away and notify"
+        Visible: =!IsBlank(locVerdict) && !(locVerdict = "G00")
+        Width: =552
+        X: =44
+        Y: =690
+
+    btnGateClear As button:
+        BorderColor: |-
+            =ColorValue("#0133A2")
+        BorderThickness: =2
+        Color: |-
+            =ColorValue("#0133A2")
+        DisabledBorderColor: |-
+            =ColorValue("#B8C2D6")
+        DisabledColor: =Color.White
+        DisabledFill: |-
+            =ColorValue("#B8C2D6")
+        Fill: =Color.White
+        FontWeight: =FontWeight.Semibold
+        Height: =44
+        HoverColor: |-
+            =ColorValue("#0133A2")
+        HoverFill: =ColorFade(Color.White, -10%)
+        OnSelect: =Set(locVerdict, Blank()); Reset(txtGateCode)
+        PressedColor: |-
+            =ColorValue("#0133A2")
+        PressedFill: =ColorFade(Color.White, -20%)
+        RadiusBottomLeft: =10
+        RadiusBottomRight: =10
+        RadiusTopLeft: =10
+        RadiusTopRight: =10
+        Size: =14
+        Text: |-
+            ="Clear"
+        Visible: =!IsBlank(locVerdict)
+        Width: =592
+        X: =24
+        Y: =790
+
+    capGateToday As label:
+        Color: |-
+            =ColorValue("#5A6478")
+        FontWeight: =FontWeight.Semibold
+        Height: =28
+        PaddingLeft: =0
+        PaddingRight: =0
+        Size: =11
+        Text: |-
+            ="EXPECTED TODAY · TAP TO CHECK"
+        VerticalAlign: =VerticalAlign.Middle
+        Width: =592
+        X: =24
+        Y: =If(IsBlank(locVerdict), 360, 846)
+
+    galGateToday As gallery.galleryVertical:
+        Height: =1136 - Self.Y
+        Items: =SortByColumns(Filter(colReq, Date = Today() && Status = "Approved"), Slot, SortOrder.Ascending)
+        Layout: =Layout.Vertical
+        OnSelect: |-
+            =Set(locRaw, ThisItem.Pass); Set(locSource, "List"); Set(locCode, With({ c: Upper(Substitute(Substitute(locRaw, " ", ""), "-", "")), pre: Upper(First(Split(gblP.Code, "-")).Value) },
+                If(Len(c) = 6, pre & "-" & c, StartsWith(c, pre), pre & "-" & Mid(c, Len(pre) + 1), c)));
+            If(IsEmpty(colPasses), LoadData(colPasses, "grantedPasses", true); LoadData(colReq, "grantedRequests", true));
+            Set(locPass, LookUp(colPasses, Code = locCode));
+            Set(locReq, LookUp(colReq, Id = locPass.ReqId));
+            Set(locVerdict, If(
+                IsBlank(locPass) || IsBlank(locReq), "G01",
+                locPass.Status = "Void" || locReq.Status = "Cancelled", "G02",
+                locPass.Status = "Used", "G03",
+                !IsBlank(LookUp(colSubs, Id = locReq.SubId && Suspended)) && !locPass.Override, "G07",
+                locReq.Date <> Today(), "G04",
+                Now() < locPass.Open, "G05",
+                Now() > locPass.Close, "G06",
+                "G00"));
+            Set(locWord, LookUp(Table(
+                { Code: "G00", Title: "Approved delivery", Remedy: "Admit the truck and direct it to {zone}." },
+                { Code: "G01", Title: "No approved delivery for this code", Remedy: "The contractor must submit a delivery request with {notice} hours’ notice, or the project admin can issue an emergency pass." },
+                { Code: "G02", Title: "This delivery was cancelled", Remedy: "The contractor must submit a new delivery request." },
+                { Code: "G03", Title: "Pass already used at {used}", Remedy: "Each pass admits one truck. A second truck needs its own approved request." },
+                { Code: "G04", Title: "Approved for {date}, not today", Remedy: "Return on {date} between {open} and {close}, or reschedule in the app." },
+                { Code: "G05", Title: "Too early: window opens at {open}", Remedy: "Wait off-site until {open}, or the project admin can approve early entry." },
+                { Code: "G06", Title: "Too late: window closed at {close}", Remedy: "Reschedule in the app, or the project admin can issue an emergency pass." },
+                { Code: "G07", Title: "Contractor’s booking privileges are suspended", Remedy: "Contact the project admin." }), Code = locVerdict));
+            Set(locTitle, Substitute(Substitute(Substitute(Substitute(Substitute(Substitute(locWord.Title, "{zone}", locPass.ZoneName), "{notice}", Text(gblCfg.MinNotice)), "{used}", If(IsBlank(locPass.UsedAt), "", Text(DateTimeValue(locPass.UsedAt), "h:mm AM/PM"))), "{date}", Text(locReq.Date, "ddd m/d")), "{open}", Text(locPass.Open, "h:mm AM/PM")), "{close}", Text(locPass.Close, "h:mm AM/PM")));
+            Set(locRemedy, Substitute(Substitute(Substitute(Substitute(Substitute(Substitute(locWord.Remedy, "{zone}", locPass.ZoneName), "{notice}", Text(gblCfg.MinNotice)), "{used}", If(IsBlank(locPass.UsedAt), "", Text(DateTimeValue(locPass.UsedAt), "h:mm AM/PM"))), "{date}", Text(locReq.Date, "ddd m/d")), "{open}", Text(locPass.Open, "h:mm AM/PM")), "{close}", Text(locPass.Close, "h:mm AM/PM")))
+        ShowScrollbar: =false
+        TemplatePadding: =0
+        TemplateSize: =78
+        Width: =640
+        X: =0
+        Y: =capGateToday.Y + 30
+
+        rctGateRow As rectangle:
+            Fill: =Color.White
+            Height: =70
+            OnSelect: =Select(Parent)
+            Width: =592
+            X: =24
+            Y: =4
+
+        lblGateRowTime As label:
+            Color: |-
+                =ColorValue("#172033")
+            FontWeight: =FontWeight.Semibold
+            Height: =70
+            OnSelect: =Select(Parent)
+            PaddingLeft: =0
+            PaddingRight: =0
+            Size: =15
+            Text: =ThisItem.Slot
+            VerticalAlign: =VerticalAlign.Middle
+            Width: =90
+            X: =36
+            Y: =4
+
+        lblGateRowWho As label:
+            Color: |-
+                =ColorValue("#172033")
+            FontWeight: =FontWeight.Normal
+            Height: =70
+            OnSelect: =Select(Parent)
+            PaddingLeft: =0
+            PaddingRight: =0
+            Size: =11
+            Text: =ThisItem.Company & Char(10) & ThisItem.Material & " · " & ThisItem.Pass
+            VerticalAlign: =VerticalAlign.Middle
+            Width: =472
+            X: =130
+            Y: =4

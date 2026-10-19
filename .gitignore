@@ -5,3 +5,8 @@ powerapps/exports/*.tmp
 .granted-setup.json
 GrantedPA-setup-summary.txt
 docs/setup-guide/.guide.built.html
+GrantedPA-ready.zip
+solution/src/CanvasApps/*.msapp
+solution/src/CanvasApps/*_BackgroundImageUri
+tools/app/fxcheck/bin/
+tools/app/fxcheck/obj/

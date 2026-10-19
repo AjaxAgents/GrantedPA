@@ -5,7 +5,7 @@
   "description": "Granted on Microsoft Power Platform: rules reference, Office Scripts, SharePoint schema, flow and app specs",
   "scripts": {
     "build": "node tools/build.js",
-    "test": "node tools/build.js && TZ=America/Chicago node --test rules/rules.test.js rules/accounts.test.js qr/qr.test.js officescripts/check-admin-code.test.js officescripts/engine.test.js setup/setup.test.js",
+    "test": "node tools/build.js && TZ=America/Chicago node --test rules/rules.test.js rules/accounts.test.js qr/qr.test.js officescripts/check-admin-code.test.js officescripts/engine.test.js setup/setup.test.js tools/solution/solution.test.js",
     "check": "tsc --noEmit --strict --noImplicitAny --noImplicitReturns --target ES2017 --lib ES2017 officescripts/GenerateGatePassQR.ts tools/excelscript-stub.d.ts && tsc --noEmit --strict --target ES2017 --lib ES2017 officescripts/CheckAdminCode.ts tools/excelscript-stub.d.ts && tsc --noEmit --strict --noImplicitAny --noImplicitReturns --target ES2017 --lib ES2017 officescripts/GrantedEngine.ts tools/excelscript-stub.d.ts"
   },
   "devDependencies": {

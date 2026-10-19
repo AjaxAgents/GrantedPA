@@ -125,7 +125,7 @@ function build() {
   if (withApp) {
   const app = require('../app/build-app').buildApp(Object.fromEntries(APP_FLOWS.map((k) => [k, ids[k]])));
   fs.mkdirSync(path.join(out, 'CanvasApps'), { recursive: true });
-  fs.copyFileSync(app.msapp, path.join(out, 'CanvasApps', appName + '_DocumentUri.msapp'));
+  if (fs.existsSync(app.msapp)) fs.copyFileSync(app.msapp, path.join(out, 'CanvasApps', appName + '_DocumentUri.msapp'));
   fs.copyFileSync(path.join(root, 'assets', 'brand', 'icon-192.png'), path.join(out, 'CanvasApps', appName + '_BackgroundImageUri'));
   write(`CanvasApps/${appName}.meta.xml`, `<?xml version="1.0" encoding="utf-8"?>
 <CanvasApp xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">

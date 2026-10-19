@@ -144,10 +144,9 @@ if (-not $SkipSeedData) {
   $settings = Get-Content (Join-Path $root 'config/settings.json') -Raw
   $app = [ordered]@{
     ServiceAccount = $ServiceAccount
-    SupportEmail = '<support@ajaxbuilding.com>'
-    AppLink = '<link to the Granted app in Power Apps, or the wrapped app>'
-    SignUpFormLink = '<link to the Granted sign-up Microsoft Form>'
-    AjaxDomain = 'ajaxbuilding.com'
+    SupportEmail = ''
+    AppLink = ''
+    AjaxDomain = ''
     DefaultTimeZone = 'Central Standard Time'
     DefaultSettingsJson = ($settings -replace '\s+', ' ')
     InviteDays = '7'
@@ -163,7 +162,7 @@ if (-not $SkipSeedData) {
     if ($haveCodes -contains $c.code) { continue }
     Add-PnPListItem -List 'ReasonCodes' -Values @{ Title = $c.code; Key = $c.key; Outcome = $c.outcome; Message = $c.title; Remedy = $c.remedy } | Out-Null
   }
-  Write-Host "App settings, reason codes and the AdminCodeHash placeholder loaded. Fill in the <placeholders> in AppSettings." -ForegroundColor Yellow
+  Write-Host "App settings, reason codes and the AdminCodeHash placeholder loaded." -ForegroundColor Yellow
 }
 
 # ---------------------------------------------------------------- optional sample project (for testing)

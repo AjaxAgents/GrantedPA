@@ -1,0 +1,34 @@
+{
+  "appActions": [
+    "Run"
+  ],
+  "connectionRef": {
+    "apiTier": "Standard",
+    "displayName": "Logic flows",
+    "iconUri": "https://conn-afd-prod-endpoint-bmc9bqahasf3grgk.b01.azurefd.net/v1.0.1752/1.0.1752.4216/logicflows/icon.png",
+    "id": "/providers/microsoft.powerapps/apis/shared_logicflows",
+    "parameterHints": {
+      "workflowEntityId": {
+        "value": "6fda1b2d-3904-ec11-94ef-00224826a4d2"
+      },
+      "workflowName": {
+        "value": "3aee354f-97b1-4f10-ba8e-80216b7d12f0"
+      }
+    },
+    "parameterHintsV2": {
+      "workflowEntityId": {
+        "value": "6fda1b2d-3904-ec11-94ef-00224826a4d2"
+      },
+      "workflowName": {
+        "value": "3aee354f-97b1-4f10-ba8e-80216b7d12f0"
+      }
+    }
+  },
+  "datasets": {},
+  "dataSources": [
+    "HELPER-ObjectOperations"
+  ],
+  "dependencies": {},
+  "dependents": [],
+  "id": "e28b0129-3f78-4110-ace6-57f719783ebe"
+}

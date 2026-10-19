@@ -51,6 +51,7 @@
       <RootComponent type="29" id="{4dd18217-fe8b-5338-8640-5b9ebec4d909}" behavior="0" />
       <RootComponent type="29" id="{21e49585-777c-53ea-a8f0-e59e029fae73}" behavior="0" />
       <RootComponent type="29" id="{f33098a2-fb61-5205-9466-ac526cede012}" behavior="0" />
+      <RootComponent type="300" schemaName="gr_granted_7c41e" behavior="0" />
     </RootComponents>
     <MissingDependencies />
   </SolutionManifest>

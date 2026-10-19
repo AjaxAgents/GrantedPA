@@ -4,7 +4,7 @@
 
 > **No approved delivery, no gate access.**
 
-### 👉 Setting it up? Open **[START-HERE.md](START-HERE.md)** and the illustrated **[set-up guide (PDF)](docs/Granted-Setup-Guide.pdf)**. Both editions, step by step.
+### 👉 Setting it up? Open **[START-HERE.md](START-HERE.md)** (or the [PDF](docs/Granted-Setup-Guide.pdf)): one script, one import, a working app.
 
 This is one of two editions, built so management can choose:
 
@@ -40,16 +40,16 @@ qr/              The QR encoder source and tests that decode its output
 prototype/       A clickable UI reference (open prototype/index.html in a browser; admin set-up disabled)
 config/          settings.json and reason-codes.json (generated from the rules), sample gates, zones, look-ahead
 assets/brand/    Logo and app icons
-setup/           Setup-GrantedPA.ps1 (builds the whole SharePoint side in one run), Import-GrantedPASolution.ps1
-solution/        Where the exported app-and-flows solution goes after the first build (then installs are an import)
-tools/           build.js, schema-src.js, gen-docs.js, admin-code-hash.mjs
+setup/           Setup-GrantedPA.ps1: builds the SharePoint side and writes GrantedPA-ready.zip
+solution/        GrantedPA.zip: the app and its 17 flows, ready to import (generated from tools/solution and tools/app)
+tools/           build.js, schema-src.js, gen-docs.js, admin-code-hash.mjs, solution/ (flows), app/ (screens)
 ```
 
 ## Commands
 
 ```bash
 npm install
-npm test        # rebuilds generated files, then runs 55 tests (rules, accounts, QR decode, admin-code check, set-up hash)
+npm test        # rebuilds generated files, then runs 64 tests (rules, engine vs rules, accounts, QR decode, admin-code check, flows and app)
 npm run check   # strict type-check of both Office Scripts
 ```
 

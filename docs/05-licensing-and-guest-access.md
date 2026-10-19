@@ -9,7 +9,7 @@ The decision that matters most for GrantedPA is how subcontractors and gate staf
 | Ajax staff | A Microsoft 365 licence that includes Power Apps and Power Automate for Office 365 (standard connectors) | Yes, with Ajax's Microsoft 365 plans |
 | Service account | A Microsoft 365 licence with Exchange, SharePoint and Power Automate | IT assigns one |
 | **Guests** (subcontractors, gate company) | A Power Apps right recognised in Ajax's tenant | **It depends** (below) |
-| People filling in the sign-up form | Nothing (*Anyone can respond*) | — |
+| The Granted environment | About 1 GB of Dataverse database capacity, to hold the app and flows (the data stays in SharePoint) | Check Power Platform admin center → Licensing → Capacity. If there isn't enough, import into an existing environment that has Dataverse, or add capacity |
 
 Microsoft's table for guests running a canvas app with standard connectors:
 

@@ -2,10 +2,9 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Setting up Granted: illustrated guide</title>
+<title>Set up Granted</title>
 <!--
-  Source of docs/Granted-Setup-Guide.pdf. Edit this file, then run:
-    node tools/build-setup-guide.mjs
+  Source of docs/Granted-Setup-Guide.pdf. Edit this file, then run: node tools/build-setup-guide.mjs
   {{...}} placeholders are filled in by that script (QR codes, logos, fonts).
 -->
 <style>
@@ -17,559 +16,155 @@
 @font-face { font-family: Barlow; font-weight: 600; src: url({{FONT_barlow600}}) format('woff2'); }
 @font-face { font-family: Barlow; font-weight: 700; src: url({{FONT_barlow700}}) format('woff2'); }
 @font-face { font-family: PlexMono; font-weight: 500; src: url({{FONT_mono500}}) format('woff2'); }
-
-:root {
-  --ajax: #0133A2; --navy: #0A1F52; --ink: #172033; --muted: #5A6478; --line: #DCE2EC; --paper: #F3F5F9; --white: #fff;
-  --a: #5B2BB5; --a-soft: #EFE9FA; --a-mid: #C9B6EE;     /* Track A · Power Apps */
-  --b: #0A6ED1; --b-soft: #E5F1FC; --b-mid: #A9D0F5;     /* Track B · Azure */
-  --done: #178A4C; --done-soft: #E3F4EA;
-  --quick: #C98A06; --quick-soft: #FDF3DC;
-  --you: #C8432F; --you-soft: #FBE7E3;
-}
+:root { --ajax: #0133A2; --navy: #0A1F52; --ink: #172033; --muted: #5A6478; --line: #DCE2EC; --paper: #F3F5F9;
+  --a: #5B2BB5; --a-soft: #EFE9FA; --b: #0A6ED1; --b-soft: #E5F1FC; --go: #178A4C; --go-soft: #E3F4EA; }
 @page { size: Letter; margin: 0; }
 * { box-sizing: border-box; }
-html, body { margin: 0; padding: 0; }
-body { font: 400 10.5pt/1.42 Plex, system-ui, sans-serif; color: var(--ink); background: #888; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-.page { width: 8.5in; height: 11in; background: var(--white); position: relative; overflow: hidden; margin: 0 auto 24px; page-break-after: always; break-after: page; padding: 0.5in 0.55in 0.62in; }
+html, body { margin: 0; }
+body { font: 400 11pt/1.45 Plex, system-ui, sans-serif; color: var(--ink); background: #888; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+.page { width: 8.5in; height: 11in; background: #fff; position: relative; overflow: hidden; margin: 0 auto 24px; break-after: page; }
 @media print { body { background: none; } .page { margin: 0; } }
-
-h1, h2, h3, .display { font-family: Barlow, 'Arial Narrow', sans-serif; font-weight: 700; letter-spacing: .01em; margin: 0; line-height: 1.05; }
-h2 { font-size: 25pt; color: var(--navy); }
-h3 { font-size: 13.5pt; color: var(--navy); }
-p { margin: 0 0 6px; }
-.eyebrow { font: 600 8.5pt/1 Barlow, sans-serif; letter-spacing: .18em; text-transform: uppercase; color: var(--muted); }
-.lede { font-size: 11.5pt; color: var(--muted); max-width: 6.2in; margin-top: 6px; }
-.mono, code { font-family: PlexMono, ui-monospace, monospace; font-weight: 500; }
-.i { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; flex: none; }
-.i.sm { width: 15px; height: 15px; stroke-width: 2; }
-.i.lg { width: 34px; height: 34px; stroke-width: 1.6; }
-
-/* page furniture */
-.folio { position: absolute; left: .55in; right: .55in; bottom: .26in; display: flex; justify-content: space-between; align-items: center; font-size: 8pt; color: var(--muted); border-top: 1px solid var(--line); padding-top: 7px; }
-.folio b { color: var(--navy); font-weight: 600; }
-.track-tag { display: inline-flex; align-items: center; gap: 6px; font: 700 9pt/1 Barlow, sans-serif; letter-spacing: .12em; text-transform: uppercase; padding: 6px 10px 6px 8px; border-radius: 999px; color: #fff; }
-.track-tag.a { background: var(--a); } .track-tag.b { background: var(--b); }
-
-/* status chips */
-.chip { display: inline-flex; align-items: center; gap: 5px; font: 600 8pt/1 Plex, sans-serif; padding: 4px 8px; border-radius: 999px; white-space: nowrap; }
-.chip.done { background: var(--done-soft); color: var(--done); }
-.chip.quick { background: var(--quick-soft); color: #8A5E00; }
-.chip.you { background: var(--you-soft); color: var(--you); }
-.chip.who { background: var(--paper); color: var(--ink); border: 1px solid var(--line); }
-.dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; flex: none; }
-.dot.done { background: var(--done); } .dot.quick { background: var(--quick); } .dot.you { background: var(--you); }
-
-/* ------------------------------------------------ page 1: cover */
-.cover { padding: 0; }
-.cover .hero { background: linear-gradient(135deg, var(--navy) 0%, var(--ajax) 100%); color: #fff; padding: .42in .55in .34in; position: relative; overflow: hidden; display: grid; grid-template-columns: 1fr auto; gap: 22px; align-items: end; }
-.cover .hero .qrs { display: flex; flex-direction: column; gap: 10px; position: relative; z-index: 1; }
-.cover .hero .qrs .qrbox { color: rgba(255,255,255,.75); max-width: 1.7in; }
-.cover .hero .qrs .qrbox b { color: #fff; }
-.cover .hero .qrs svg { width: 58px; height: 58px; border-radius: 4px; }
-.cover .hero::after { content: ''; position: absolute; right: -60px; top: -60px; width: 320px; height: 320px; border-radius: 50%; border: 46px solid rgba(255,255,255,.06); }
-.cover .hero .logo { height: 40px; display: block; margin-bottom: 18px; }
-.cover .hero .eyebrow { color: rgba(255,255,255,.72); }
-.cover .hero h1 { font-size: 33pt; margin: 7px 0 8px; }
-.cover .hero .lede { color: rgba(255,255,255,.85); font-size: 10.8pt; max-width: 5in; }
-.cover .slogan { display: inline-block; margin-top: 12px; font: 700 10pt/1 Barlow, sans-serif; letter-spacing: .14em; text-transform: uppercase; background: rgba(255,255,255,.12); padding: 8px 12px; border-radius: 6px; }
-.cover .body { padding: .24in .55in 0; }
-.flow4 { display: grid; grid-template-columns: 1fr 18px 1fr 18px 1fr 18px 1fr; align-items: stretch; margin: 10px 0 0; }
-.flow4 .st { background: var(--paper); border-radius: 10px; padding: 11px 11px 10px; }
-.flow4 .st .n { font: 700 8pt/1 Barlow, sans-serif; letter-spacing: .14em; color: var(--ajax); }
-.flow4 .st .i { color: var(--ajax); margin: 6px 0 4px; display: block; }
-.flow4 .st b { display: block; font-size: 10.5pt; margin-bottom: 2px; }
-.flow4 .st span { font-size: 8.6pt; color: var(--muted); line-height: 1.35; display: block; }
-.flow4 .ar { display: flex; align-items: center; justify-content: center; color: var(--line); }
-.tracks { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 10px; }
-.tcard { border-radius: 14px; padding: 15px 16px 14px; border: 2px solid; position: relative; }
-.tcard.a { border-color: var(--a-mid); background: var(--a-soft); }
-.tcard.b { border-color: var(--b-mid); background: var(--b-soft); }
-.tcard h3 { font-size: 19pt; margin: 9px 0 3px; }
-.rec { margin-left: 7px; font: 600 8pt/1 Plex, sans-serif; color: var(--a); background: #fff; border: 1.5px solid var(--a-mid); padding: 5px 8px; border-radius: 999px; vertical-align: 1px; }
-.rec.b { color: var(--b); border-color: var(--b-mid); }
-.tcard.a h3 { color: var(--a); } .tcard.b h3 { color: var(--b); }
-.tcard .what { font-size: 9.5pt; color: var(--ink); margin-bottom: 9px; min-height: 40px; }
-.tcard dl { margin: 0; display: grid; grid-template-columns: 92px 1fr; row-gap: 5px; font-size: 8.8pt; }
-.tcard dt { color: var(--muted); font-weight: 500; }
-.tcard dd { margin: 0; font-weight: 500; }
-.tcard .meter { margin-top: 11px; background: #fff; border-radius: 10px; padding: 9px 10px; display: flex; align-items: center; gap: 10px; }
-.tcard .meter .big { font: 700 24pt/1 Barlow, sans-serif; }
-.tcard.a .meter .big { color: var(--a); } .tcard.b .meter .big { color: var(--b); }
-.tcard .meter .lbl { font-size: 8.5pt; color: var(--muted); line-height: 1.3; }
-.tcard .best { margin-top: 9px; font-size: 8.8pt; }
-.tcard .best b { color: var(--navy); }
-.cover-foot { display: grid; grid-template-columns: 1fr auto auto; gap: 16px; align-items: center; margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--line); }
-.legend { display: flex; gap: 16px; font-size: 8.2pt; margin-top: 7px; color: var(--muted); }
-.legend > div { white-space: nowrap; } .legend b { color: var(--ink); } .legend .dot { margin-right: 5px; vertical-align: -1px; }
-.legend div { display: flex; align-items: center; gap: 7px; }
-.qrbox { display: flex; align-items: center; gap: 8px; font-size: 8pt; color: var(--muted); max-width: 1.75in; line-height: 1.3; }
-.qrbox svg { width: 62px; height: 62px; flex: none; }
-.qrbox b { color: var(--navy); display: block; font-size: 9pt; }
-
-/* ------------------------------------------------ page 2: done vs to do */
-.cols2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-.tally { border-radius: 14px; padding: 13px 14px 12px; border: 1.5px solid var(--line); }
-.tally .head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
-.tally .score { display: flex; align-items: baseline; gap: 6px; margin: 4px 0 6px; }
-.tally .score .big { font: 700 28pt/1 Barlow, sans-serif; }
-.tally.a .score .big { color: var(--a); } .tally.b .score .big { color: var(--b); }
-.tally .score .of { font: 600 13pt/1 Barlow, sans-serif; color: var(--muted); }
-.bar { display: flex; height: 12px; border-radius: 6px; overflow: hidden; margin-bottom: 9px; gap: 2px; }
-.bar span { display: block; height: 100%; }
-.bar .done { background: var(--done); } .bar .quick { background: var(--quick); } .bar .you { background: var(--you); }
-.items { list-style: none; margin: 0; padding: 0; font-size: 8.7pt; }
-.items li { display: grid; grid-template-columns: 12px 1fr auto; align-items: center; gap: 7px; padding: 2.4px 0; border-top: 1px dashed var(--line); }
-.items li:first-child { border-top: 0; }
-.items li .t { color: var(--muted); font-size: 7.8pt; white-space: nowrap; }
-.timeline { margin-top: 11px; border-radius: 14px; background: var(--paper); padding: 13px 16px 12px; }
-.tl-scale { display: grid; grid-template-columns: 1.85in 1fr; font-size: 7.6pt; color: var(--muted); margin: 8px 0 3px; }
-.tl-scale .ticks { position: relative; height: 12px; }
-.tl-scale .ticks span { position: absolute; transform: translateX(-50%); white-space: nowrap; }
-.tl-row { display: grid; grid-template-columns: 1.85in 1fr; align-items: center; margin: 4px 0; font-size: 8.8pt; }
-.tl-row .lab b { display: block; font-size: 9.2pt; }
-.tl-row .lab span { color: var(--muted); font-size: 7.8pt; }
-.tl-track { position: relative; height: 26px; background: repeating-linear-gradient(90deg, transparent 0, transparent calc(25% - 1px), #D5DBE6 calc(25% - 1px), #D5DBE6 25%); border-radius: 4px; }
-.seg { position: absolute; top: 3px; height: 20px; border-radius: 5px; font-size: 7.4pt; font-weight: 600; color: #fff; display: flex; align-items: center; padding: 0 6px; white-space: nowrap; overflow: visible; }
-.seg.it { background: #5A6478; } .seg.script { background: var(--done); } .seg.build { background: var(--you); } .seg.test { background: var(--quick); color: #3b2a00; } .seg.cmd { background: var(--done); }
-.seg.ghost { background: transparent; color: var(--muted); font-weight: 500; padding-left: 4px; }
-.whos { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 6px; }
-.whos > div { border: 1.5px solid var(--line); border-radius: 12px; padding: 7px 9px; font-size: 8pt; line-height: 1.3; color: var(--muted); }
-.whos .hd { display: flex; align-items: center; gap: 6px; margin-bottom: 3px; }
-.whos .i { color: var(--ajax); width: 18px; height: 18px; }
-.whos b { font-size: 9.2pt; color: var(--ink); margin-right: auto; }
-.whos .tr { display: flex; gap: 3px; }
-.mini { font: 700 7pt/1 Barlow, sans-serif; letter-spacing: .1em; padding: 3px 6px; border-radius: 4px; color: #fff; }
-.mini.a { background: var(--a); } .mini.b { background: var(--b); } .mini.off { background: var(--line); color: var(--muted); }
-
-/* ------------------------------------------------ pages 3-4: steps */
-.track-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; }
-.track-head .lede { max-width: 4.9in; }
-.analogy { border-radius: 12px; padding: 9px 11px; font-size: 8.6pt; line-height: 1.35; width: 2.55in; flex: none; display: flex; gap: 8px; }
-.analogy.a { background: var(--a-soft); } .analogy.b { background: var(--b-soft); }
-.analogy .i { margin-top: 1px; }
-.analogy.a .i { color: var(--a); } .analogy.b .i { color: var(--b); }
-.analogy b { display: block; font-size: 8pt; letter-spacing: .12em; text-transform: uppercase; font-family: Barlow, sans-serif; margin-bottom: 2px; }
-.steps { margin-top: 10px; position: relative; }
-.step { display: grid; grid-template-columns: 38px 1fr; gap: 12px; position: relative; padding-bottom: 7px; }
-.step::before { content: ''; position: absolute; left: 18px; top: 38px; bottom: 0; width: 2px; background: var(--line); }
-.step:last-child::before { display: none; }
-.step .num { width: 38px; height: 38px; border-radius: 50%; color: #fff; display: flex; align-items: center; justify-content: center; font: 700 16pt/1 Barlow, sans-serif; position: relative; z-index: 1; }
-.a .step .num { background: var(--a); } .b .step .num { background: var(--b); }
-.step .card { border: 1.5px solid var(--line); border-radius: 12px; padding: 8px 12px 8px; }
-.step .top { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; margin-bottom: 3px; }
-.step .top h3 { margin-right: auto; font-size: 12.5pt; }
-.step p { font-size: 9pt; }
-.step .eli5 { font-size: 8.8pt; color: var(--muted); font-style: italic; }
-.step ul { margin: 3px 0 0; padding-left: 16px; font-size: 8.7pt; }
-.step ul li { margin: 1px 0; }
-.term { background: #0E1626; color: #E8EEF9; border-radius: 9px; padding: 8px 11px; font: 500 8.4pt/1.5 PlexMono, monospace; margin: 5px 0 3px; white-space: pre; }
-.term .p { color: #6FD39B; } .term .c { color: #7D8BA6; }
-.fork { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 5px; }
-.fork > div { border-radius: 9px; padding: 7px 9px; font-size: 8.4pt; }
-.fork .first { background: var(--you-soft); } .fork .after { background: var(--done-soft); }
-.fork b { display: block; font-size: 8.8pt; margin-bottom: 1px; }
-.builds { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin-top: 6px; }
-.builds > div { background: var(--paper); border-radius: 8px; padding: 6px 7px; font-size: 7.8pt; line-height: 1.3; }
-.builds .i { color: var(--done); width: 18px; height: 18px; display: block; margin-bottom: 2px; }
-.builds b { display: block; font-size: 8.2pt; }
-
-/* azure diagram */
-.arch { display: grid; grid-template-columns: 1.05in 24px 1.85in 24px 1fr; align-items: center; margin-top: 6px; }
-.arch .node { border-radius: 10px; padding: 8px 9px; font-size: 8pt; line-height: 1.3; text-align: center; }
-.arch .node .i { display: block; margin: 0 auto 3px; }
-.arch .node b { display: block; font-size: 8.6pt; }
-.arch .users { background: var(--paper); }
-.arch .app { background: var(--b); color: #fff; }
-.arch .app .addr { font: 500 7pt/1.3 PlexMono, monospace; opacity: .85; margin-top: 3px; }
-.arch .svc { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; }
-.arch .svc > div { background: var(--b-soft); border-radius: 8px; padding: 5px 7px; font-size: 7.8pt; display: flex; gap: 6px; align-items: center; }
-.arch .svc .i { color: var(--b); width: 18px; height: 18px; }
-.arch .ln { height: 2px; background: var(--b-mid); position: relative; }
-.arch .ln::after { content: ''; position: absolute; right: -1px; top: -4px; border: 5px solid transparent; border-left-color: var(--b-mid); border-right: 0; }
-
-/* ------------------------------------------------ page 5: reference */
-.ref { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 12px; }
-.box { border: 1.5px solid var(--line); border-radius: 12px; padding: 11px 13px; }
-.box h3 { display: flex; align-items: center; gap: 7px; margin-bottom: 7px; font-size: 12.5pt; }
-.box h3 .i { color: var(--ajax); }
-.box table { width: 100%; border-collapse: collapse; font-size: 8.5pt; }
-.box th { text-align: left; font: 700 7.6pt/1.2 Barlow, sans-serif; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); padding: 0 6px 4px 0; }
-.box td { padding: 4px 6px 4px 0; border-top: 1px solid var(--line); vertical-align: top; }
-.box ul { margin: 0; padding-left: 15px; font-size: 8.7pt; }
-.box li { margin: 2px 0; }
-.check { list-style: none; padding-left: 0 !important; }
-.check li { display: flex; gap: 7px; align-items: flex-start; }
-.check li::before { content: ''; width: 11px; height: 11px; border: 1.6px solid var(--muted); border-radius: 3px; flex: none; margin-top: 2px; }
-.secret { background: var(--navy); color: #fff; border: 0; }
-.secret h3 { color: #fff; } .secret h3 .i { color: #9FC2FF; }
-.secret p { font-size: 8.9pt; color: rgba(255,255,255,.88); }
-.links { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 14px; }
-.links > div { text-align: center; font-size: 8pt; color: var(--muted); }
-.links svg { width: 84px; height: 84px; display: block; margin: 0 auto 4px; }
-.links b { display: block; color: var(--navy); font-size: 9pt; }
-.links .u { font: 500 6.8pt/1.25 PlexMono, monospace; word-break: break-all; display: block; margin-top: 2px; }
+.band { color: #fff; padding: .42in .6in .34in; display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; }
+.band.a { background: linear-gradient(135deg, #2E1A66 0%, var(--a) 100%); }
+.band.b { background: linear-gradient(135deg, #07325E 0%, var(--b) 100%); }
+.band .logo { height: 34px; display: block; margin-bottom: 16px; }
+.band .kicker { font: 700 9pt/1 Barlow, sans-serif; letter-spacing: .2em; text-transform: uppercase; opacity: .8; }
+.band h1 { font: 700 34pt/1.02 Barlow, sans-serif; margin: 8px 0 6px; }
+.band p { margin: 0; font-size: 11.5pt; opacity: .9; }
+.band .qr { display: flex; align-items: center; gap: 9px; font-size: 8.5pt; line-height: 1.3; opacity: .95; max-width: 1.55in; }
+.band .qr svg { width: 64px; height: 64px; border-radius: 4px; flex: none; }
+.band .qr b { display: block; font-size: 9.5pt; }
+.body { padding: .3in .6in 0; }
+.ready { display: flex; gap: 12px; align-items: flex-start; background: var(--paper); border-radius: 12px; padding: 12px 16px; font-size: 10pt; }
+.ready > b { font: 700 9pt/1.6 Barlow, sans-serif; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); white-space: nowrap; }
+.ready ul { margin: 0; padding-left: 16px; } .ready li { margin: 1px 0; }
+.steps { margin-top: 18px; }
+.step { display: grid; grid-template-columns: 54px 1fr; column-gap: 16px; position: relative; padding-bottom: 18px; }
+.step::before { content: ''; position: absolute; left: 26px; top: 54px; bottom: 2px; width: 3px; border-radius: 2px; background: var(--line); }
+.n { width: 54px; height: 54px; border-radius: 50%; color: #fff; display: flex; align-items: center; justify-content: center; font: 700 24pt/1 Barlow, sans-serif; position: relative; z-index: 1; }
+.a .n { background: var(--a); } .b .n { background: var(--b); }
+.step h2 { font: 700 17pt/1.1 Barlow, sans-serif; margin: 4px 0 4px; color: var(--navy); }
+.step h2 .who { font: 600 9pt/1 Plex, sans-serif; color: var(--muted); margin-left: 8px; letter-spacing: 0; }
+.step p { margin: 0 0 4px; font-size: 10.5pt; }
+.path { font-size: 10.5pt; margin: 2px 0; }
+.path b { color: var(--navy); }
+.path .arr { color: var(--muted); margin: 0 4px; }
+.term { background: #0E1626; color: #E8EEF9; border-radius: 9px; padding: 9px 13px; font: 500 9.6pt/1.55 PlexMono, monospace; margin: 6px 0 4px; white-space: pre; }
+.term .p { color: #6FD39B; }
+.done { margin-top: 2px; display: flex; align-items: center; gap: 14px; border-radius: 14px; padding: 14px 18px; background: var(--go-soft); color: var(--go); }
+.done .tick { width: 46px; height: 46px; border-radius: 50%; background: var(--go); color: #fff; display: flex; align-items: center; justify-content: center; flex: none; }
+.done .tick svg { width: 26px; height: 26px; fill: none; stroke: #fff; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+.done b { font: 700 17pt/1 Barlow, sans-serif; display: block; }
+.done span { font-size: 10pt; color: var(--ink); }
+.foot { position: absolute; left: .6in; right: .6in; bottom: .32in; display: flex; justify-content: space-between; align-items: center; font-size: 8.5pt; color: var(--muted); border-top: 1px solid var(--line); padding-top: 8px; }
+.foot b { color: var(--navy); }
+.note { margin-top: 14px; font-size: 9.5pt; color: var(--muted); }
+.note b { color: var(--ink); }
 </style>
 </head>
 <body>
-<svg width="0" height="0" style="position:absolute" aria-hidden="true">
-  <symbol id="i-truck" viewBox="0 0 24 24"><path d="M2 6h11v9H2z"/><path d="M13 9h4l3 3v3h-7"/><circle cx="6" cy="17" r="2"/><circle cx="17" cy="17" r="2"/></symbol>
-  <symbol id="i-rules" viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8l1.5 1.5L13 7M9 13l1.5 1.5L13 12M15 8h1M15 13h1M9 18h6"/></symbol>
-  <symbol id="i-qr" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3M21 14v1M14 20h3M20 18v3M17 17h1"/></symbol>
-  <symbol id="i-gate" viewBox="0 0 24 24"><path d="M4 21V9M4 11h17l-2 3H4"/><circle cx="4" cy="7" r="2"/><path d="M8 11l2 3M12 11l2 3M16 11l2 3"/></symbol>
-  <symbol id="i-m365" viewBox="0 0 24 24"><rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="3" width="8" height="8" rx="1.5"/><rect x="3" y="13" width="8" height="8" rx="1.5"/><rect x="13" y="13" width="8" height="8" rx="1.5"/></symbol>
-  <symbol id="i-cloud" viewBox="0 0 24 24"><path d="M7 18h10a4 4 0 0 0 .5-8A6 6 0 0 0 6 9.5 4.3 4.3 0 0 0 7 18z"/></symbol>
-  <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></symbol>
-  <symbol id="i-it" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4M7 9l2 2-2 2M12 13h4"/></symbol>
-  <symbol id="i-maker" viewBox="0 0 24 24"><path d="M14.5 5.5l4 4L9 19H5v-4z"/><path d="M12.5 7.5l4 4"/></symbol>
-  <symbol id="i-phone" viewBox="0 0 24 24"><rect x="7" y="2" width="10" height="20" rx="2"/><path d="M11 18h2"/></symbol>
-  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
-  <symbol id="i-term" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 9l3 3-3 3M12 15h5"/></symbol>
-  <symbol id="i-list" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M3 14h18M9 9v11"/></symbol>
-  <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></symbol>
-  <symbol id="i-key" viewBox="0 0 24 24"><circle cx="8" cy="15" r="4"/><path d="M11 12l9-9M17 6l3 3M15 8l2 2"/></symbol>
-  <symbol id="i-db" viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/></symbol>
-  <symbol id="i-mail" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></symbol>
-  <symbol id="i-chart" viewBox="0 0 24 24"><path d="M4 20V4M4 20h16M8 16v-4M12 16V8M16 16v-6"/></symbol>
-  <symbol id="i-sheet" viewBox="0 0 24 24"><path d="M6 2h9l5 5v15H6z"/><path d="M15 2v5h5M9 12h8M9 16h8M12 10v9"/></symbol>
-  <symbol id="i-page" viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></symbol>
-  <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c1-3.5 3.5-5.5 6.5-5.5s5.5 2 6.5 5.5"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7M18 14.8c1.8.8 3 2.6 3.5 5.2"/></symbol>
-  <symbol id="i-box" viewBox="0 0 24 24"><path d="M3 7l9-4 9 4v10l-9 4-9-4z"/><path d="M3 7l9 4 9-4M12 11v10"/></symbol>
-  <symbol id="i-flag" viewBox="0 0 24 24"><path d="M5 21V4M5 4h11l-2 4 2 4H5"/></symbol>
-  <symbol id="i-bulb" viewBox="0 0 24 24"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2V17h5v-1.1c0-.8.4-1.5 1-2A6 6 0 0 0 12 3z"/></symbol>
-  <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h13M13 6l6 6-6 6"/></symbol>
-  <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7"/></symbol>
-  <symbol id="i-wrench" viewBox="0 0 24 24"><path d="M14.5 6.5a4 4 0 0 0 5 5L12 19a2.1 2.1 0 0 1-3-3z"/><path d="M14.5 6.5L17 4l3 3-2.5 2.5"/></symbol>
-  <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 4.5-3.4 8.3-8 9-4.6-.7-8-4.5-8-9V6z"/><path d="M8.5 12l2.5 2.5 4.5-4.5"/></symbol>
-  <symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.7 3.7 5.7 3.7 9s-1.2 6.3-3.7 9c-2.5-2.7-3.7-5.7-3.7-9S9.5 5.7 12 3z"/></symbol>
-</svg>
 
-<!-- =============================================================== PAGE 1 · COVER -->
-<section class="page cover">
-  <div class="hero">
+<!-- =============================================================== POWER APPS -->
+<section class="page a">
+  <div class="band a">
     <div>
       <img class="logo" src="{{LOGO_white}}" alt="Ajax">
-      <div class="eyebrow">Set-up guide · for your project team and IT</div>
-      <h1>From a GitHub link to a working jobsite gate</h1>
-      <p class="lede">Granted books deliveries and checks them in at the gate. This guide shows how to set it up yourselves, what's already been done for you, and who does each remaining step.</p>
-      <div class="slogan">No approved delivery, no gate access</div>
+      <div class="kicker">Set up Granted · Option 1 of 2</div>
+      <h1>Power Apps</h1>
+      <p>Runs inside your Microsoft 365. Five steps to a working app.</p>
     </div>
-    <div class="qrs">
-      <div class="qrbox">{{QR_demo}}<div><b>Try it first</b>working demo, nothing to install</div></div>
-      <div class="qrbox">{{QR_start}}<div><b>Start here</b>START-HERE.md on GitHub</div></div>
-    </div>
+    <div class="qr">{{QR_start}}<div><b>Start here</b>the same steps on GitHub</div></div>
   </div>
   <div class="body">
-    <div class="eyebrow">What Granted does, in 20 seconds</div>
-    <div class="flow4">
-      <div class="st"><div class="n">1 · BOOK</div><svg class="i lg"><use href="#i-truck"/></svg><b>Contractor books</b><span>picks a day, gate and time slot for the delivery, days ahead</span></div>
-      <div class="ar"><svg class="i sm"><use href="#i-arrow"/></svg></div>
-      <div class="st"><div class="n">2 · CHECK</div><svg class="i lg"><use href="#i-rules"/></svg><b>Rules decide</b><span>12 fixed checks approve it, reject it, or send it to a project admin</span></div>
-      <div class="ar"><svg class="i sm"><use href="#i-arrow"/></svg></div>
-      <div class="st"><div class="n">3 · PASS</div><svg class="i lg"><use href="#i-qr"/></svg><b>QR gate pass</b><span>an approved delivery gets a pass by email and in the app</span></div>
-      <div class="ar"><svg class="i sm"><use href="#i-arrow"/></svg></div>
-      <div class="st"><div class="n">4 · GATE</div><svg class="i lg"><use href="#i-gate"/></svg><b>Scan at the gate</b><span>green: let them in. Red: turn away, and everyone is told why</span></div>
-    </div>
+    <div class="ready"><b>Have ready</b><ul>
+      <li>An IT admin who is a <b>SharePoint admin</b> and a <b>Power Platform admin</b></li>
+      <li>A licensed <b>Granted account</b> with a mailbox, e.g. <span style="font-family:PlexMono">granted@yourcompany.com</span></li>
+      <li>A PC with <b>PowerShell 7</b> (aka.ms/powershell)</li>
+    </ul></div>
 
-    <div class="eyebrow" style="margin-top:16px">Two ways to run it · pick one</div>
-    <div class="tracks">
-      <div class="tcard a">
-        <span class="track-tag a"><svg class="i sm"><use href="#i-m365"/></svg>Track A</span><span class="rec">Standard for Ajax</span>
-        <h3>Power Apps</h3>
-        <div class="what">Lives inside your <b>Microsoft 365</b>: SharePoint lists, Power Automate flows and a Power Apps app.</div>
-        <dl>
-          <dt>People use</dt><dd>the Power Apps app (phone or browser)</dd>
-          <dt>Outside firms</dt><dd>guest accounts in your Microsoft 365</dd>
-          <dt>Set-up team</dt><dd>IT + a Power Platform maker</dd>
-          <dt>First set-up</dt><dd>~1 day IT, 20-min script, then 2–3 weeks to build the app and flows</dd>
-          <dt>After that</dt><dd>about 2 days (import instead of build)</dd>
-        </dl>
-        <div class="meter"><div class="big">9/15</div><div class="lbl">set-up items already done for you<br>+1 is a 15-minute paste</div></div>
-        <div class="best"><b>Best when</b> your company already runs on Microsoft 365 and has a Power Apps maker.</div>
-      </div>
-      <div class="tcard b">
-        <span class="track-tag b"><svg class="i sm"><use href="#i-cloud"/></svg>Track B</span><span class="rec b">As needed</span>
-        <h3>Azure</h3>
-        <div class="what">Its own small website on your <b>Azure</b> subscription: web app, database and email, all set up by one command.</div>
-        <dl>
-          <dt>People use</dt><dd>any phone browser (iPhone app optional)</dd>
-          <dt>Outside firms</dt><dd>their own email and password, no Microsoft licence</dd>
-          <dt>Set-up team</dt><dd>one IT person with Azure Owner</dd>
-          <dt>First set-up</dt><dd>about 1 hour, mostly waiting</dd>
-          <dt>Before go-live</dt><dd>about ½ day of polish</dd>
-        </dl>
-        <div class="meter"><div class="big">5/9</div><div class="lbl">set-up items already done for you<br>the rest are accounts only you can own</div></div>
-        <div class="best"><b>Best when</b> you want it running this week, or have many outside subcontractors.</div>
-      </div>
-    </div>
-
-  </div>
-  <div class="folio" style="left:.55in;right:.55in"><span><b>Granted</b> · Set-up guide</span><span>1 / 5</span></div>
-</section>
-
-<!-- =============================================================== PAGE 2 · DONE VS TO DO -->
-<section class="page">
-  <div class="eyebrow">The honest breakdown</div>
-  <h2>How much is already done for you?</h2>
-  <p class="lede">Everything that could be built ahead of time is already in GitHub. Here's what's left, and how long it takes.</p>
-  <div class="legend"><div><span class="dot done"></span><b>Done for you</b> · in GitHub or made by a script</div><div><span class="dot quick"></span><b>Quick step</b> · minutes</div><div><span class="dot you"></span><b>Your team</b> · your accounts, decisions or building</div></div>
-
-  <div class="cols2" style="margin-top:12px">
-    <div class="tally a">
-      <div class="head"><span class="track-tag a"><svg class="i sm"><use href="#i-m365"/></svg>Track A · Power Apps</span></div>
-      <div class="score"><span class="big">9</span><span class="of">of 15 done for you</span></div>
-      <div class="bar"><span class="done" style="flex:9"></span><span class="quick" style="flex:2"></span><span class="you" style="flex:4"></span></div>
-      <ul class="items">
-        <li><span class="dot done"></span>Rules, wording, reason codes; 55 tests<span class="t">in GitHub</span></li>
-        <li><span class="dot done"></span>SharePoint site + guest sharing<span class="t">script</span></li>
-        <li><span class="dot done"></span>18 lists, 2 libraries, columns, colours<span class="t">script</span></li>
-        <li><span class="dot done"></span>Owners-only permissions; locked secrets<span class="t">script</span></li>
-        <li><span class="dot done"></span>Reason codes, settings, sample project<span class="t">script</span></li>
-        <li><span class="dot done"></span>QR workbook uploaded<span class="t">script</span></li>
-        <li><span class="dot done"></span>Admin code stored as a hash<span class="t">script</span></li>
-        <li><span class="dot done"></span>Welcome page for guests<span class="t">script</span></li>
-        <li><span class="dot done"></span>"Granted Users" group<span class="t">script</span></li>
-        <li><span class="dot quick"></span>Paste 2 Office Scripts<span class="t">15 min</span></li>
-        <li><span class="dot quick"></span>Sign-up form, app link, share app<span class="t">30 min</span></li>
-        <li><span class="dot you"></span>Microsoft 365 set-up by IT<span class="t">~1 day</span></li>
-        <li><span class="dot you"></span>Build 20 flows from the specs*<span class="t">1–2 weeks</span></li>
-        <li><span class="dot you"></span>Build the app from the specs*<span class="t">~1 week</span></li>
-        <li><span class="dot you"></span>Test, then pilot<span class="t">½ day +</span></li>
-      </ul>
-      <p style="font-size:7.8pt;color:var(--muted);margin:5px 0 0">* Only possible inside your tenant. Export it once afterwards: every later install is a <b>30-minute import</b>.</p>
-    </div>
-    <div class="tally b">
-      <div class="head"><span class="track-tag b"><svg class="i sm"><use href="#i-cloud"/></svg>Track B · Azure</span></div>
-      <div class="score"><span class="big">5</span><span class="of">of 9 done for you</span></div>
-      <div class="bar"><span class="done" style="flex:5"></span><span class="quick" style="flex:2"></span><span class="you" style="flex:2"></span></div>
-      <ul class="items">
-        <li><span class="dot done"></span>Whole app, API, database design; 96 tests<span class="t">in GitHub</span></li>
-        <li><span class="dot done"></span>All Azure resources and permissions<span class="t">command</span></li>
-        <li><span class="dot done"></span>Secrets: session key, admin code hash<span class="t">command</span></li>
-        <li><span class="dot done"></span>Database tables + least-privilege user<span class="t">command</span></li>
-        <li><span class="dot done"></span>App installed, started and checked<span class="t">command</span></li>
-        <li><span class="dot quick"></span>First admin account and project<span class="t">5 min</span></li>
-        <li><span class="dot quick"></span>Web address, email domain, alerts<span class="t">½ day</span></li>
-        <li><span class="dot you"></span>Azure subscription + Owner access<span class="t">IT</span></li>
-        <li><span class="dot you"></span>iPhone app (optional; needs a Mac)<span class="t">1–2 days</span></li>
-      </ul>
-      <div style="margin-top:10px;background:var(--b-soft);border-radius:10px;padding:9px 10px;font-size:8.6pt;display:flex;gap:8px">
-        <svg class="i" style="color:var(--b)"><use href="#i-bulb"/></svg>
-        <div><b>Why so few steps?</b> Azure lets everything (servers, database, keys, email) be described in a file. The command reads that file and builds it, so there's nothing to click through.</div>
-      </div>
-    </div>
-  </div>
-
-  <div class="timeline">
-    <div style="display:flex;align-items:center;gap:8px"><svg class="i" style="color:var(--ajax)"><use href="#i-clock"/></svg><h3>How long until a working pilot?</h3></div>
-    <div class="tl-scale"><span></span><div class="ticks"><span style="left:0;transform:none">Start</span><span style="left:25%">1 week</span><span style="left:50%">2 weeks</span><span style="left:75%">3 weeks</span><span style="left:100%;transform:translateX(-100%)">4 weeks</span></div></div>
-    <div class="tl-row"><div class="lab"><b style="color:var(--a)">Power Apps · first time</b><span>building the flows and app once</span></div>
-      <div class="tl-track"><span class="seg it" style="left:0;width:5%">IT</span><span class="seg script" style="left:5.2%;width:2%"></span><span class="seg build" style="left:7.5%;width:57%">build 20 flows + the app (2–3 weeks)</span><span class="seg test" style="left:64.8%;width:3%"></span><span class="seg ghost" style="left:68%">test, then pilot</span></div></div>
-    <div class="tl-row"><div class="lab"><b style="color:var(--a)">Power Apps · every time after</b><span>import the saved solution</span></div>
-      <div class="tl-track"><span class="seg it" style="left:0;width:5%">IT</span><span class="seg script" style="left:5.2%;width:2.5%"></span><span class="seg test" style="left:7.9%;width:2.2%"></span><span class="seg ghost" style="left:10.3%">~2 days</span></div></div>
-    <div class="tl-row"><div class="lab"><b style="color:var(--b)">Azure</b><span>one command, then polish</span></div>
-      <div class="tl-track"><span class="seg cmd" style="left:0;width:1.2%"></span><span class="seg test" style="left:1.4%;width:2%"></span><span class="seg ghost" style="left:3.6%">~1 day, including production polish</span></div></div>
-    <div style="display:flex;gap:12px;margin-top:6px;font-size:7.8pt;color:var(--muted)"><span><span class="dot" style="background:#5A6478"></span> IT set-up</span><span><span class="dot done"></span> script / command</span><span><span class="dot you"></span> building</span><span><span class="dot quick"></span> testing, polish</span></div>
-  </div>
-
-  <div class="eyebrow" style="margin-top:11px">Who you'll need</div>
-  <div class="whos">
-    <div><div class="hd"><svg class="i"><use href="#i-it"/></svg><b>IT admin</b><span class="tr"><span class="mini a">A</span><span class="mini b">B</span></span></div>Microsoft 365 or Azure admin rights; runs the script or command</div>
-    <div><div class="hd"><svg class="i"><use href="#i-maker"/></svg><b>App maker</b><span class="tr"><span class="mini a">A</span><span class="mini off">B</span></span></div>builds the flows and app the first time, from the specs</div>
-    <div><div class="hd"><svg class="i"><use href="#i-user"/></svg><b>Project admin</b><span class="tr"><span class="mini a">A</span><span class="mini b">B</span></span></div>creates the project, approves people, reviews bookings</div>
-    <div><div class="hd"><svg class="i"><use href="#i-phone"/></svg><b>iPhone dev</b><span class="tr"><span class="mini off">A</span><span class="mini b">B</span></span></div>only for an App Store app; needs a Mac and Apple account</div>
-  </div>
-  <div class="folio"><span><b>Granted</b> · Set-up guide</span><span>2 / 5</span></div>
-</section>
-
-<!-- =============================================================== PAGE 3 · TRACK A -->
-<section class="page a">
-  <div class="track-head">
-    <div>
-      <span class="track-tag a"><svg class="i sm"><use href="#i-m365"/></svg>Track A · Power Apps</span>
-      <h2 style="margin-top:9px">Power Apps, step by step</h2>
-      <p class="lede">Five steps. A script does all of step 2. Step 4 is the big one the first time, and a 30-minute import after that.</p>
-    </div>
-    <div class="analogy a"><svg class="i"><use href="#i-bulb"/></svg><div><b>Think of it like</b>a LEGO set. The script sorts every brick. The first time, your maker follows the booklet to build the model; after that, you just copy the finished model.</div></div>
-  </div>
-
-  <div class="steps">
-    <div class="step"><div class="num">1</div><div class="card">
-      <div class="top"><h3>IT prepares Microsoft 365</h3><span class="chip who"><svg class="i sm"><use href="#i-it"/></svg>IT admin</span><span class="chip you">~1 day</span></div>
-      <p class="eli5">Making room: a separate space for Granted, an account for it to work as, and rules for outside guests.</p>
-      <ul>
-        <li>A Power Platform <b>environment</b> called "Granted", with a data policy (checklist: <span class="mono">docs/04 §6</span>)</li>
-        <li>A <b>service account</b> such as <span class="mono">svc-granted@yourcompany.com</span>, with a licence and a mailbox</li>
-        <li>Guests: one-time passcodes on, MFA for guests; decide how guests are licensed (<span class="mono">docs/05</span>)</li>
-      </ul>
-    </div></div>
-
-    <div class="step"><div class="num">2</div><div class="card">
-      <div class="top"><h3>Run the set-up script</h3><span class="chip who"><svg class="i sm"><use href="#i-it"/></svg>SharePoint admin</span><span class="chip done">20 min</span></div>
-      <p class="eli5">One script builds the whole filing system the app keeps its records in, and locks it so only the app can use it.</p>
-      <div class="term"><span class="c"># PowerShell 7 on any PC (no git? GitHub → Code → Download ZIP)</span>
-<span class="p">&gt;</span> git clone https://github.com/AjaxAgents/GrantedPA
+    <div class="steps">
+      <div class="step"><div class="n">1</div><div>
+        <h2>Run the set-up script <span class="who">IT admin</span></h2>
+        <div class="term"><span class="p">&gt;</span> git clone https://github.com/AjaxAgents/GrantedPA
 <span class="p">&gt;</span> cd GrantedPA
 <span class="p">&gt;</span> pwsh ./setup/Setup-GrantedPA.ps1</div>
-      <p style="font-size:8.6pt;margin:2px 0 0">It asks for your SharePoint name, the service account, a support email and the admin set-up code. Then it builds:</p>
-      <div class="builds">
-        <div><svg class="i"><use href="#i-globe"/></svg><b>Site</b>"Granted", guests allowed on it only</div>
-        <div><svg class="i"><use href="#i-list"/></svg><b>18 lists</b>+ 2 libraries, indexes, colours</div>
-        <div><svg class="i"><use href="#i-lock"/></svg><b>Locks</b>owners only; secrets for the app only</div>
-        <div><svg class="i"><use href="#i-sheet"/></svg><b>Starter data</b>codes, settings, QR workbook, sample</div>
-        <div><svg class="i"><use href="#i-users"/></svg><b>Group + page</b>Granted Users, guest Welcome page</div>
-      </div>
-    </div></div>
+        <p>Answer its questions. It makes <b>GrantedPA-ready.zip</b>.</p>
+      </div></div>
 
-    <div class="step"><div class="num">3</div><div class="card">
-      <div class="top"><h3>Paste two Office Scripts</h3><span class="chip who"><svg class="i sm"><use href="#i-user"/></svg>as the service account</span><span class="chip quick">15 min</span></div>
-      <p class="eli5">Two small helpers that draw QR codes and check the admin code. Already written and tested; they just need pasting in.</p>
-      <ul><li>Open <span class="mono">QRRunner / QR-Runner.xlsx</span> in Excel for the web → <b>Automate → New script</b></li>
-      <li>Paste <span class="mono">GenerateGatePassQR.ts</span> and <span class="mono">CheckAdminCode.ts</span> from <span class="mono">officescripts/</span>, saved under those names</li></ul>
-    </div></div>
+      <div class="step"><div class="n">2</div><div>
+        <h2>Make the environment <span class="who">IT admin</span></h2>
+        <p class="path"><b>admin.powerplatform.microsoft.com</b><span class="arr">→</span>Environments<span class="arr">→</span><b>+ New</b>: name <b>Granted</b>, type <b>Production</b>, Dataverse <b>Yes</b><span class="arr">→</span>Save</p>
+        <p class="path">Open it<span class="arr">→</span>Users<span class="arr">→</span><b>+ Add user</b>: the Granted account as <b>System Administrator</b></p>
+      </div></div>
 
-    <div class="step"><div class="num">4</div><div class="card">
-      <div class="top"><h3>Add the app and the flows</h3><span class="chip who"><svg class="i sm"><use href="#i-maker"/></svg>Power Apps maker</span></div>
-      <p class="eli5">The app is what people tap; the flows are the behind-the-scenes workers that apply the rules and send the emails.</p>
-      <div class="fork">
-        <div class="first"><b>The first time · 2–3 weeks</b>Build the 20 flows (<span class="mono">powerautomate/</span>) and the app (<span class="mono">powerapps/</span>) in the order in <span class="mono">docs/06</span>; every step and formula is written out. Then <strong>export the solution</strong> into <span class="mono">solution/</span>.</div>
-        <div class="after"><b>Every time after · 30 minutes</b>Import the saved solution, connect it to the service account and switch the flows on:<div class="term" style="font-size:7.4pt;padding:5px 8px;margin:4px 0 0">pwsh ./setup/Import-GrantedPASolution.ps1</div></div>
-      </div>
-    </div></div>
+      <div class="step"><div class="n">3</div><div>
+        <h2>Import the app <span class="who">as the Granted account</span></h2>
+        <p class="path"><b>make.powerapps.com</b><span class="arr">→</span>environment <b>Granted</b><span class="arr">→</span>Solutions<span class="arr">→</span><b>Import solution</b><span class="arr">→</span>GrantedPA-ready.zip</p>
+        <p class="path">Each connection: <b>+ New connection</b> and sign in<span class="arr">→</span><b>Import</b></p>
+      </div></div>
 
-    <div class="step"><div class="num">5</div><div class="card">
-      <div class="top"><h3>Finish, test, go live</h3><span class="chip who"><svg class="i sm"><use href="#i-user"/></svg>Maker + project admin</span><span class="chip quick">½ day</span></div>
-      <ul><li>Create the sign-up Microsoft Form; put the app link in <span class="mono">AppSettings</span> and on the Welcome page</li>
-      <li>Share the app with <b>Granted Users</b>; run the scenario test in <span class="mono">docs/07-test-plan.md</span></li>
-      <li>Ajax staff type the <b>admin set-up code</b> as a project code to become admins, then create the project</li></ul>
-    </div></div>
+      <div class="step"><div class="n">4</div><div>
+        <h2>Share it</h2>
+        <p class="path">Apps<span class="arr">→</span><b>Granted</b><span class="arr">→</span>Share<span class="arr">→</span><b>Granted Users</b><span class="arr">→</span>Share</p>
+      </div></div>
+
+      <div class="step"><div class="n">5</div><div>
+        <h2>Open Granted</h2>
+        <p>Set up your profile. Type the <b>admin set-up code</b> as a project code. Create the project. Invite your team from <b>Team &amp; Invites</b>.</p>
+      </div></div>
+    </div>
+
+    <div class="done"><div class="tick"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7"/></svg></div>
+      <div><b>A working app</b><span>Bookings, approvals, QR gate passes and gate checks, on phones and browsers.</span></div></div>
   </div>
-  <div class="folio"><span><b>Granted</b> · Set-up guide · Track A · Power Apps</span><span>3 / 5</span></div>
+  <div class="foot"><span><b>Granted</b> · No approved delivery, no gate access</span><span>Stuck? Run the script again: it says what to fix.</span></div>
 </section>
 
-<!-- =============================================================== PAGE 4 · TRACK B -->
+<!-- =============================================================== AZURE -->
 <section class="page b">
-  <div class="track-head">
+  <div class="band b">
     <div>
-      <span class="track-tag b"><svg class="i sm"><use href="#i-cloud"/></svg>Track B · Azure</span>
-      <h2 style="margin-top:9px">Azure, step by step</h2>
-      <p class="lede">Five steps, and only one of them is technical: pasting one line into Azure's own command window. It builds everything below by itself.</p>
+      <img class="logo" src="{{LOGO_white}}" alt="Ajax">
+      <div class="kicker">Set up Granted · Option 2 of 2</div>
+      <h1>Azure</h1>
+      <p>Its own small website on your Azure. Four steps to a working app.</p>
     </div>
-    <div class="analogy b"><svg class="i"><use href="#i-bulb"/></svg><div><b>Think of it like</b>a flat-pack kit that builds itself. You choose where it goes and press one button; about 15 minutes later it's standing and switched on.</div></div>
+    <div class="qr">{{QR_demo}}<div><b>Try it first</b>the working demo, nothing to install</div></div>
   </div>
+  <div class="body">
+    <div class="ready"><b>Have ready</b><ul>
+      <li>Someone with <b>Owner</b> on an Azure subscription</li>
+    </ul></div>
 
-  <div class="steps">
-    <div class="step"><div class="num">1</div><div class="card">
-      <div class="top"><h3>Open Azure Cloud Shell</h3><span class="chip who"><svg class="i sm"><use href="#i-it"/></svg>IT · Azure Owner</span><span class="chip quick">2 min</span></div>
-      <p class="eli5">A command window that runs inside your web browser, already signed in to Azure. Nothing to install.</p>
-      <ul><li>Go to <span class="mono">shell.azure.com</span>, sign in, and choose <b>Bash</b></li>
-      <li>You need <b>Owner</b> on the Azure subscription (or Contributor + User Access Administrator)</li></ul>
-    </div></div>
+    <div class="steps">
+      <div class="step"><div class="n">1</div><div>
+        <h2>Open Azure Cloud Shell</h2>
+        <p class="path"><b>shell.azure.com</b><span class="arr">→</span>sign in<span class="arr">→</span><b>Bash</b></p>
+      </div></div>
 
-    <div class="step"><div class="num">2</div><div class="card">
-      <div class="top"><h3>Paste one line, press Enter</h3><span class="chip done">1 command</span></div>
-      <div class="term"><span class="p">$</span> git clone https://github.com/AjaxAgents/Granted &amp;&amp; bash Granted/setup/azure-setup.sh</div>
-    </div></div>
+      <div class="step"><div class="n">2</div><div>
+        <h2>Paste this, press Enter</h2>
+        <div class="term"><span class="p">$</span> git clone https://github.com/AjaxAgents/Granted
+<span class="p">$</span> bash Granted/setup/azure-setup.sh</div>
+      </div></div>
 
-    <div class="step"><div class="num">3</div><div class="card">
-      <div class="top"><h3>Answer four questions</h3><span class="chip quick">1 min</span></div>
-      <div class="term"><span class="c">  Resource group name [rg-granted-pilot]:</span>       <span class="p">↵</span>
-<span class="c">  Azure region (southcentralus is Texas) [southcentralus]:</span>  <span class="p">↵</span>
-<span class="c">  pilot or prod [pilot]:</span>       <span class="p">↵</span>
-<span class="c">  Admin set-up code:</span>           <span class="p">••••••••</span>   <span class="c">(typed twice, never shown or saved)</span></div>
-    </div></div>
+      <div class="step"><div class="n">3</div><div>
+        <h2>Answer four questions</h2>
+        <p>Name, region, pilot or production, and the admin set-up code. It builds everything and prints your Granted address.</p>
+      </div></div>
 
-    <div class="step"><div class="num">4</div><div class="card">
-      <div class="top"><h3>Wait while it builds</h3><span class="chip done">~15 min, automatic</span></div>
-      <p class="eli5">It creates every piece, connects them with secure keys (no passwords anywhere), sets up the database and starts the app. Then it prints your address.</p>
-      <div class="arch">
-        <div class="node users"><svg class="i"><use href="#i-phone"/></svg><b>Phones &amp; PCs</b>contractors, gate, admins</div>
-        <div class="ln"></div>
-        <div class="node app"><svg class="i" style="color:#fff"><use href="#i-globe"/></svg><b>Granted app</b>web app + API at one address<div class="addr">https://func-granted-…azurewebsites.net</div></div>
-        <div class="ln"></div>
-        <div class="svc">
-          <div><svg class="i"><use href="#i-db"/></svg><span><b>Database</b><br>Azure SQL</span></div>
-          <div><svg class="i"><use href="#i-key"/></svg><span><b>Key Vault</b><br>secrets</span></div>
-          <div><svg class="i"><use href="#i-mail"/></svg><span><b>Email</b><br>codes, passes</span></div>
-          <div><svg class="i"><use href="#i-chart"/></svg><span><b>Monitoring</b><br>health, alerts</span></div>
-        </div>
-      </div>
-    </div></div>
-
-    <div class="step"><div class="num">5</div><div class="card">
-      <div class="top"><h3>Become the first admin</h3><span class="chip who"><svg class="i sm"><use href="#i-user"/></svg>Project admin</span><span class="chip quick">5 min</span></div>
-      <ul><li>Open the address it printed → <b>Create account</b> with your company email (check junk mail for the code the first time)</li>
-      <li>On "Join a project", type the <b>admin set-up code</b>. You can now create projects</li>
-      <li><b>New project</b> → share its project code with your team. They sign up and you approve them</li></ul>
-    </div></div>
-  </div>
-
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:2px">
-    <div class="box" style="padding:9px 12px"><h3 style="font-size:11.5pt;margin-bottom:4px"><svg class="i"><use href="#i-flag"/></svg>Before production · ½ day</h3>
-      <ul class="check" style="font-size:8.4pt"><li>Your own web address (e.g. granted.yourcompany.com)</li><li>Your own email sender domain</li><li>An IT group, not one person, as database admin</li><li>Alerts in Application Insights</li></ul></div>
-    <div class="box" style="padding:9px 12px"><h3 style="font-size:11.5pt;margin-bottom:4px"><svg class="i"><use href="#i-wrench"/></svg>Updating later</h3>
-      <p style="font-size:8.6pt">Run the same line again. It keeps your data, secrets and settings, and installs the newest release. Something went wrong? Running it again is also the fix for most problems.</p></div>
-  </div>
-  <div class="folio"><span><b>Granted</b> · Set-up guide · Track B · Azure</span><span>4 / 5</span></div>
-</section>
-
-<!-- =============================================================== PAGE 5 · REFERENCE -->
-<section class="page">
-  <div class="eyebrow">Keep this page handy</div>
-  <h2>Before you start, and if you get stuck</h2>
-
-  <div class="ref">
-    <div class="box">
-      <h3><svg class="i"><use href="#i-shield"/></svg>Permissions checklist</h3>
-      <table>
-        <tr><th>Who</th><th>Track A · Power Apps</th><th>Track B · Azure</th></tr>
-        <tr><td><b>IT admin</b></td><td>SharePoint Administrator; Application Admin (one consent); Power Platform Admin</td><td>Owner on the Azure subscription</td></tr>
-        <tr><td><b>Service account</b></td><td>Microsoft 365 licence with Exchange, SharePoint, Power Automate</td><td>Not needed (the app has its own managed identity)</td></tr>
-        <tr><td><b>Maker</b></td><td>Environment Maker in "Granted"</td><td>Not needed</td></tr>
-        <tr><td><b>Outside users</b></td><td>Guest account; a Power Apps licence they bring, or one you assign</td><td>Just an email address</td></tr>
-        <tr><td><b>Cost owner</b></td><td>Microsoft 365 and guest licences</td><td>Azure usage (SQL is the largest part)</td></tr>
-      </table>
+      <div class="step"><div class="n">4</div><div>
+        <h2>Open the address</h2>
+        <p>Create your account. Type the <b>admin set-up code</b> as a project code. Create the project. Share its code with your team.</p>
+      </div></div>
     </div>
-    <div class="box secret">
-      <h3><svg class="i"><use href="#i-key"/></svg>The admin set-up code</h3>
-      <p>Ajax staff with a confirmed company email type it as a project code to become <b>admins who can create projects</b>.</p>
-      <p>It is <b>not in GitHub and not in either app.</b> You type it during set-up; the script keeps only a one-way scramble (a hash), in Key Vault (Azure) or a locked list (Power Apps).</p>
-      <p>Ask the project owner for it privately, never by group email. To change it, run the set-up again and type a new one.</p>
-      <p style="margin-top:10px;padding-top:9px;border-top:1px solid rgba(255,255,255,.18)"><b>Passing Granted to another team?</b> Send them the GitHub link and this PDF. Give them the code separately, by phone or in person, or let them choose their own when they run the set-up.</p>
-    </div>
-    <div class="box">
-      <h3><svg class="i"><use href="#i-wrench"/></svg>If something goes wrong</h3>
-      <table>
-        <tr><th>You see</th><th>Do this</th></tr>
-        <tr><td>Any error in a script</td><td>Run it again. Both are safe to re-run and print the fix.</td></tr>
-        <tr><td>Azure: region doesn't offer Flex Consumption</td><td>Run again; choose <span class="mono">centralus</span> or <span class="mono">eastus2</span></td></tr>
-        <tr><td>Azure: Key Vault name in use</td><td>Use a new resource group name</td></tr>
-        <tr><td>Power Apps: consent prompt fails</td><td>An Application or Global Admin approves "Granted Setup (PnP)"</td></tr>
-        <tr><td>Guests can't open the app</td><td>Check guest sharing on the site, the Granted Users group, and their licence</td></tr>
-        <tr><td>No sign-up email</td><td>Check junk mail; for production, set up your own email domain</td></tr>
-      </table>
-    </div>
-    <div class="box">
-      <h3><svg class="i"><use href="#i-page"/></svg>Where to read more</h3>
-      <ul>
-        <li><b>START-HERE.md</b>: this guide in text, with links</li>
-        <li><b>docs/06-build-guide.md</b>: Power Apps build, step by step</li>
-        <li><b>docs/04 · security and compliance</b>: for your IT review</li>
-        <li><b>docs/05 · licensing and guest access</b>: decide before Track A</li>
-        <li><b>Granted / docs/operations.md</b>: Azure set-up, updates, running it</li>
-        <li><b>docs/decision.md</b>: the two tracks side by side</li>
-      </ul>
-      <p style="font-size:8.4pt;color:var(--muted);margin-top:7px">Can't decide? Try the demo first. <b>Track A is the standard choice</b> for Ajax teams; Track B is there if you need Granted running sooner or have many outside subcontractors.</p>
-    </div>
-  </div>
 
-  <div class="eyebrow" style="margin-top:14px">Scan to open</div>
-  <div class="links">
-    <div>{{QR_start}}<b>Start here</b>set-up steps for both tracks<span class="u">github.com/AjaxAgents/GrantedPA/blob/main/START-HERE.md</span></div>
-    <div>{{QR_demo}}<b>Live demo</b>sample data, in your browser<span class="u">ajaxagents.github.io/Granted</span></div>
-    <div>{{QR_pa}}<b>Track A code</b>Power Apps edition<span class="u">github.com/AjaxAgents/GrantedPA</span></div>
-    <div>{{QR_azure}}<b>Track B code</b>Azure edition<span class="u">github.com/AjaxAgents/Granted</span></div>
+    <div class="done"><div class="tick"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7"/></svg></div>
+      <div><b>A working app</b><span>Bookings, approvals, QR gate passes and gate checks, in any phone browser.</span></div></div>
+
+    <p class="note"><b>The admin set-up code</b> is never in GitHub or the app. You choose it while setting up; only a one-way hash is kept. Give it to people by phone or in person.</p>
   </div>
-  <div class="folio"><span><b>Granted</b> · Set-up guide · © Ajax Building Company</span><span>5 / 5</span></div>
+  <div class="foot"><span><b>Granted</b> · No approved delivery, no gate access</span><span>Stuck? Run the same command again: it says what to fix.</span></div>
 </section>
 </body>
 </html>

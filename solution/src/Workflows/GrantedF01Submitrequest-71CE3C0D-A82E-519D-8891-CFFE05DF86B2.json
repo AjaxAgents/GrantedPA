@@ -49,14 +49,6 @@
             "description": "Drive id of the QRRunner library"
           }
         },
-        "Granted Excel site (gr_ExcelSite)": {
-          "defaultValue": "",
-          "type": "String",
-          "metadata": {
-            "schemaName": "gr_ExcelSite",
-            "description": "Graph site id of the Granted site (sites/host,siteId,webId), for Run script"
-          }
-        },
         "Granted engine script (gr_EngineScript)": {
           "defaultValue": "",
           "type": "String",
@@ -686,10 +678,10 @@
                   "apiId": "/providers/Microsoft.PowerApps/apis/shared_excelonlinebusiness"
                 },
                 "parameters": {
-                  "source": "@parameters('Granted Excel site (gr_ExcelSite)')",
+                  "source": "@parameters('Granted site URL (gr_SiteUrl)')",
                   "drive": "@parameters('Granted Excel library (gr_ExcelDrive)')",
                   "file": "@parameters('Granted Excel workbook (gr_ExcelWorkbook)')",
-                  "scriptSource": "@parameters('Granted Excel site (gr_ExcelSite)')",
+                  "scriptSource": "@parameters('Granted site URL (gr_SiteUrl)')",
                   "scriptDrive": "@parameters('Granted Excel library (gr_ExcelDrive)')",
                   "scriptId": "@parameters('Granted engine script (gr_EngineScript)')",
                   "ScriptParameters/op": "evaluate",

@@ -1,0 +1,218 @@
+scrPasses As screen:
+    Fill: |-
+        =ColorValue("#E6EAEF")
+    LoadingSpinnerColor: |-
+        =ColorValue("#0133A2")
+
+    hdrPassesBar As rectangle:
+        Fill: |-
+            =ColorValue("#0133A2")
+        Height: =128
+        Width: =640
+        X: =0
+        Y: =0
+
+    hdrPassesBack As icon.ChevronLeft:
+        AccessibleLabel: |-
+            ="Back"
+        Color: =Color.White
+        Height: =56
+        OnSelect: =Back()
+        PaddingBottom: =10
+        PaddingLeft: =10
+        PaddingRight: =10
+        PaddingTop: =10
+        Tooltip: |-
+            ="Back"
+        Width: =56
+        X: =8
+        Y: =36
+
+    hdrPassesTitle As label:
+        Color: =Color.White
+        FontWeight: =FontWeight.Semibold
+        Height: =40
+        PaddingLeft: =0
+        PaddingRight: =0
+        Size: =20
+        Text: |-
+            ="Confirm Delivery"
+        VerticalAlign: =VerticalAlign.Middle
+        Width: =540
+        X: =68
+        Y: =34
+
+    hdrPassesSub As label:
+        Color: |-
+            =ColorValue("#C9D6F2")
+        FontWeight: =FontWeight.Normal
+        Height: =30
+        PaddingLeft: =0
+        PaddingRight: =0
+        Size: =12
+        Text: |-
+            =gblP.Name & If(gblInMaint, "  ·  maintenance view: " & gblRole, "")
+        VerticalAlign: =VerticalAlign.Middle
+        Width: =540
+        X: =68
+        Y: =74
+
+    lblPassesEmpty As label:
+        Color: |-
+            =ColorValue("#5A6478")
+        FontWeight: =FontWeight.Normal
+        Height: =70
+        PaddingLeft: =0
+        PaddingRight: =0
+        Size: =13
+        Text: |-
+            ="No gate passes yet. Schedule a delivery; approved ones appear here and in your email."
+        VerticalAlign: =VerticalAlign.Middle
+        Visible: =CountRows(galPasses.AllItems) = 0
+        Width: =592
+        X: =24
+        Y: =160
+
+    btnPassesBook As button:
+        BorderColor: |-
+            =ColorValue("#0133A2")
+        BorderThickness: =0
+        Color: =Color.White
+        DisabledBorderColor: |-
+            =ColorValue("#B8C2D6")
+        DisabledColor: =Color.White
+        DisabledFill: |-
+            =ColorValue("#B8C2D6")
+        Fill: |-
+            =ColorValue("#0133A2")
+        FontWeight: =FontWeight.Semibold
+        Height: =56
+        HoverColor: =Color.White
+        HoverFill: |-
+            =ColorFade(ColorValue("#0133A2"), -10%)
+        OnSelect: =Navigate(scrBook, ScreenTransition.Cover)
+        PressedColor: =Color.White
+        PressedFill: |-
+            =ColorFade(ColorValue("#0133A2"), -20%)
+        RadiusBottomLeft: =10
+        RadiusBottomRight: =10
+        RadiusTopLeft: =10
+        RadiusTopRight: =10
+        Size: =14
+        Text: |-
+            ="Schedule a delivery"
+        Visible: =CountRows(galPasses.AllItems) = 0
+        Width: =592
+        X: =24
+        Y: =240
+
+    galPasses As gallery.galleryVertical:
+        Height: =996
+        Items: =SortByColumns(AddColumns(Filter(colReq, Status = "Approved" && Date >= gblToday && SubId = gblMySub.Id && !IsBlank(LookUp(colPasses, Code = Pass && Status = "Active"))), PassRec, LookUp(colPasses, Code = Pass)), DateText, SortOrder.Ascending, Slot, SortOrder.Ascending)
+        Layout: =Layout.Vertical
+        ShowScrollbar: =false
+        TemplatePadding: =0
+        TemplateSize: =640
+        Width: =640
+        X: =0
+        Y: =140
+
+        rctPassCard As rectangle:
+            Fill: =Color.White
+            Height: =600
+            Width: =592
+            X: =24
+            Y: =16
+
+        rctPassTop As rectangle:
+            Fill: |-
+                =ColorValue("#0133A2")
+            Height: =110
+            Width: =592
+            X: =24
+            Y: =16
+
+        lblPassMat As label:
+            Color: =Color.White
+            FontWeight: =FontWeight.Semibold
+            Height: =40
+            PaddingLeft: =0
+            PaddingRight: =0
+            Size: =18
+            Text: =ThisItem.Material
+            VerticalAlign: =VerticalAlign.Middle
+            Width: =552
+            X: =44
+            Y: =28
+
+        lblPassWhen As label:
+            Color: |-
+                =ColorValue("#C9D6F2")
+            FontWeight: =FontWeight.Normal
+            Height: =34
+            PaddingLeft: =0
+            PaddingRight: =0
+            Size: =13
+            Text: =Text(ThisItem.Date, "ddd m/d") & " · " & Text(Time(Value(Left(ThisItem.Slot, 2)), Value(Right(ThisItem.Slot, 2)), 0), "h:mm AM/PM") & " · " & ThisItem.PassRec.GateName
+            VerticalAlign: =VerticalAlign.Middle
+            Width: =552
+            X: =44
+            Y: =72
+
+        imgPassQr As image:
+            AccessibleLabel: |-
+                ="Gate pass QR code"
+            Height: =300
+            Image: =If(IsBlank(ThisItem.PassRec.Qr), "", "data:image/svg+xml;utf8," & EncodeUrl(ThisItem.PassRec.Qr))
+            ImagePosition: =ImagePosition.Fit
+            Width: =300
+            X: =170
+            Y: =140
+
+        lblPassCode As label:
+            Align: =Align.Center
+            Color: |-
+                =ColorValue("#172033")
+            Font: =Font.'Courier New'
+            FontWeight: =FontWeight.Semibold
+            Height: =52
+            PaddingLeft: =0
+            PaddingRight: =0
+            Size: =26
+            Text: =ThisItem.Pass
+            VerticalAlign: =VerticalAlign.Middle
+            Width: =592
+            X: =24
+            Y: =446
+
+        lblPassWindow As label:
+            Align: =Align.Center
+            Color: |-
+                =ColorValue("#12804A")
+            FontWeight: =FontWeight.Normal
+            Height: =32
+            PaddingLeft: =0
+            PaddingRight: =0
+            Size: =13
+            Text: |-
+                ="Arrive between " & Text(ThisItem.PassRec.Open, "h:mm AM/PM") & " and " & Text(ThisItem.PassRec.Close, "h:mm AM/PM")
+            VerticalAlign: =VerticalAlign.Middle
+            Width: =592
+            X: =24
+            Y: =500
+
+        lblPassMore As label:
+            Align: =Align.Center
+            Color: |-
+                =ColorValue("#5A6478")
+            FontWeight: =FontWeight.Normal
+            Height: =60
+            PaddingLeft: =0
+            PaddingRight: =0
+            Size: =11
+            Text: |-
+                ="Staging: " & ThisItem.PassRec.ZoneName & " · " & ThisItem.Qty & " " & ThisItem.Unit & ", " & ThisItem.Pallets & " pallets · Contact " & ThisItem.Contact
+            VerticalAlign: =VerticalAlign.Middle
+            Width: =552
+            X: =44
+            Y: =536

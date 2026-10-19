@@ -1,0 +1,376 @@
+{
+  "b03ca379-9e4d-4bbd-824c-c8b8df7421a4": {
+    "appActions": [
+      "Run"
+    ],
+    "connectionRef": {
+      "apiTier": "Standard",
+      "displayName": "Logic flows",
+      "iconUri": "https://conn-afd-prod-endpoint-bmc9bqahasf3grgk.b01.azurefd.net/v1.0.1752/1.0.1752.4216/logicflows/icon.png",
+      "id": "/providers/microsoft.powerapps/apis/shared_logicflows",
+      "parameterHints": {
+        "workflowEntityId": {
+          "value": "750e6bf6-57a9-501a-8efd-2e552df62125"
+        },
+        "workflowName": {
+          "value": "750e6bf6-57a9-501a-8efd-2e552df62125"
+        }
+      },
+      "parameterHintsV2": {
+        "workflowEntityId": {
+          "value": "750e6bf6-57a9-501a-8efd-2e552df62125"
+        },
+        "workflowName": {
+          "value": "750e6bf6-57a9-501a-8efd-2e552df62125"
+        }
+      }
+    },
+    "datasets": {},
+    "dataSources": [
+      "GrantedF00"
+    ],
+    "dependencies": {},
+    "dependents": [],
+    "id": "b03ca379-9e4d-4bbd-824c-c8b8df7421a4"
+  },
+  "d42d29b7-fff9-4482-8ccb-82aea73f5328": {
+    "appActions": [
+      "Run"
+    ],
+    "connectionRef": {
+      "apiTier": "Standard",
+      "displayName": "Logic flows",
+      "iconUri": "https://conn-afd-prod-endpoint-bmc9bqahasf3grgk.b01.azurefd.net/v1.0.1752/1.0.1752.4216/logicflows/icon.png",
+      "id": "/providers/microsoft.powerapps/apis/shared_logicflows",
+      "parameterHints": {
+        "workflowEntityId": {
+          "value": "71ce3c0d-a82e-519d-8891-cffe05df86b2"
+        },
+        "workflowName": {
+          "value": "71ce3c0d-a82e-519d-8891-cffe05df86b2"
+        }
+      },
+      "parameterHintsV2": {
+        "workflowEntityId": {
+          "value": "71ce3c0d-a82e-519d-8891-cffe05df86b2"
+        },
+        "workflowName": {
+          "value": "71ce3c0d-a82e-519d-8891-cffe05df86b2"
+        }
+      }
+    },
+    "datasets": {},
+    "dataSources": [
+      "GrantedF01"
+    ],
+    "dependencies": {},
+    "dependents": [],
+    "id": "d42d29b7-fff9-4482-8ccb-82aea73f5328"
+  },
+  "42716eca-906b-48d6-86df-db57e8bac0e6": {
+    "appActions": [
+      "Run"
+    ],
+    "connectionRef": {
+      "apiTier": "Standard",
+      "displayName": "Logic flows",
+      "iconUri": "https://conn-afd-prod-endpoint-bmc9bqahasf3grgk.b01.azurefd.net/v1.0.1752/1.0.1752.4216/logicflows/icon.png",
+      "id": "/providers/microsoft.powerapps/apis/shared_logicflows",
+      "parameterHints": {
+        "workflowEntityId": {
+          "value": "6620b0d9-fbc8-5d01-8fb6-985ec4770fd3"
+        },
+        "workflowName": {
+          "value": "6620b0d9-fbc8-5d01-8fb6-985ec4770fd3"
+        }
+      },
+      "parameterHintsV2": {
+        "workflowEntityId": {
+          "value": "6620b0d9-fbc8-5d01-8fb6-985ec4770fd3"
+        },
+        "workflowName": {
+          "value": "6620b0d9-fbc8-5d01-8fb6-985ec4770fd3"
+        }
+      }
+    },
+    "datasets": {},
+    "dataSources": [
+      "GrantedF04"
+    ],
+    "dependencies": {},
+    "dependents": [],
+    "id": "42716eca-906b-48d6-86df-db57e8bac0e6"
+  },
+  "9da13369-3b6f-4085-8556-d402fe4a1336": {
+    "appActions": [
+      "Run"
+    ],
+    "connectionRef": {
+      "apiTier": "Standard",
+      "displayName": "Logic flows",
+      "iconUri": "https://conn-afd-prod-endpoint-bmc9bqahasf3grgk.b01.azurefd.net/v1.0.1752/1.0.1752.4216/logicflows/icon.png",
+      "id": "/providers/microsoft.powerapps/apis/shared_logicflows",
+      "parameterHints": {
+        "workflowEntityId": {
+          "value": "feaecd91-1ac8-5935-bc4d-c31b83384dbf"
+        },
+        "workflowName": {
+          "value": "feaecd91-1ac8-5935-bc4d-c31b83384dbf"
+        }
+      },
+      "parameterHintsV2": {
+        "workflowEntityId": {
+          "value": "feaecd91-1ac8-5935-bc4d-c31b83384dbf"
+        },
+        "workflowName": {
+          "value": "feaecd91-1ac8-5935-bc4d-c31b83384dbf"
+        }
+      }
+    },
+    "datasets": {},
+    "dataSources": [
+      "GrantedF05"
+    ],
+    "dependencies": {},
+    "dependents": [],
+    "id": "9da13369-3b6f-4085-8556-d402fe4a1336"
+  },
+  "1d26dcda-0feb-4301-8d06-eaf96f0fa08f": {
+    "appActions": [
+      "Run"
+    ],
+    "connectionRef": {
+      "apiTier": "Standard",
+      "displayName": "Logic flows",
+      "iconUri": "https://conn-afd-prod-endpoint-bmc9bqahasf3grgk.b01.azurefd.net/v1.0.1752/1.0.1752.4216/logicflows/icon.png",
+      "id": "/providers/microsoft.powerapps/apis/shared_logicflows",
+      "parameterHints": {
+        "workflowEntityId": {
+          "value": "5c92a610-55c0-56aa-afe2-104be654e32a"
+        },
+        "workflowName": {
+          "value": "5c92a610-55c0-56aa-afe2-104be654e32a"
+        }
+      },
+      "parameterHintsV2": {
+        "workflowEntityId": {
+          "value": "5c92a610-55c0-56aa-afe2-104be654e32a"
+        },
+        "workflowName": {
+          "value": "5c92a610-55c0-56aa-afe2-104be654e32a"
+        }
+      }
+    },
+    "datasets": {},
+    "dataSources": [
+      "GrantedF06"
+    ],
+    "dependencies": {},
+    "dependents": [],
+    "id": "1d26dcda-0feb-4301-8d06-eaf96f0fa08f"
+  },
+  "06f45120-d2c0-4a42-8d09-2bef917f5742": {
+    "appActions": [
+      "Run"
+    ],
+    "connectionRef": {
+      "apiTier": "Standard",
+      "displayName": "Logic flows",
+      "iconUri": "https://conn-afd-prod-endpoint-bmc9bqahasf3grgk.b01.azurefd.net/v1.0.1752/1.0.1752.4216/logicflows/icon.png",
+      "id": "/providers/microsoft.powerapps/apis/shared_logicflows",
+      "parameterHints": {
+        "workflowEntityId": {
+          "value": "5cac0d44-b422-5d62-bf9c-3781fe7a0376"
+        },
+        "workflowName": {
+          "value": "5cac0d44-b422-5d62-bf9c-3781fe7a0376"
+        }
+      },
+      "parameterHintsV2": {
+        "workflowEntityId": {
+          "value": "5cac0d44-b422-5d62-bf9c-3781fe7a0376"
+        },
+        "workflowName": {
+          "value": "5cac0d44-b422-5d62-bf9c-3781fe7a0376"
+        }
+      }
+    },
+    "datasets": {},
+    "dataSources": [
+      "GrantedF09"
+    ],
+    "dependencies": {},
+    "dependents": [],
+    "id": "06f45120-d2c0-4a42-8d09-2bef917f5742"
+  },
+  "99caace8-3bf3-442a-8d23-4a208549f20d": {
+    "appActions": [
+      "Run"
+    ],
+    "connectionRef": {
+      "apiTier": "Standard",
+      "displayName": "Logic flows",
+      "iconUri": "https://conn-afd-prod-endpoint-bmc9bqahasf3grgk.b01.azurefd.net/v1.0.1752/1.0.1752.4216/logicflows/icon.png",
+      "id": "/providers/microsoft.powerapps/apis/shared_logicflows",
+      "parameterHints": {
+        "workflowEntityId": {
+          "value": "52fd1d23-1ad7-5942-899e-fea96ee6ed75"
+        },
+        "workflowName": {
+          "value": "52fd1d23-1ad7-5942-899e-fea96ee6ed75"
+        }
+      },
+      "parameterHintsV2": {
+        "workflowEntityId": {
+          "value": "52fd1d23-1ad7-5942-899e-fea96ee6ed75"
+        },
+        "workflowName": {
+          "value": "52fd1d23-1ad7-5942-899e-fea96ee6ed75"
+        }
+      }
+    },
+    "datasets": {},
+    "dataSources": [
+      "GrantedF10"
+    ],
+    "dependencies": {},
+    "dependents": [],
+    "id": "99caace8-3bf3-442a-8d23-4a208549f20d"
+  },
+  "c86e9c77-2641-415f-8f39-38a1782aa5d8": {
+    "appActions": [
+      "Run"
+    ],
+    "connectionRef": {
+      "apiTier": "Standard",
+      "displayName": "Logic flows",
+      "iconUri": "https://conn-afd-prod-endpoint-bmc9bqahasf3grgk.b01.azurefd.net/v1.0.1752/1.0.1752.4216/logicflows/icon.png",
+      "id": "/providers/microsoft.powerapps/apis/shared_logicflows",
+      "parameterHints": {
+        "workflowEntityId": {
+          "value": "0736b7c7-bfb3-58b4-9cc4-8b998a283c07"
+        },
+        "workflowName": {
+          "value": "0736b7c7-bfb3-58b4-9cc4-8b998a283c07"
+        }
+      },
+      "parameterHintsV2": {
+        "workflowEntityId": {
+          "value": "0736b7c7-bfb3-58b4-9cc4-8b998a283c07"
+        },
+        "workflowName": {
+          "value": "0736b7c7-bfb3-58b4-9cc4-8b998a283c07"
+        }
+      }
+    },
+    "datasets": {},
+    "dataSources": [
+      "GrantedF11"
+    ],
+    "dependencies": {},
+    "dependents": [],
+    "id": "c86e9c77-2641-415f-8f39-38a1782aa5d8"
+  },
+  "238b061f-1043-4177-80ea-335d0f89404f": {
+    "appActions": [
+      "Run"
+    ],
+    "connectionRef": {
+      "apiTier": "Standard",
+      "displayName": "Logic flows",
+      "iconUri": "https://conn-afd-prod-endpoint-bmc9bqahasf3grgk.b01.azurefd.net/v1.0.1752/1.0.1752.4216/logicflows/icon.png",
+      "id": "/providers/microsoft.powerapps/apis/shared_logicflows",
+      "parameterHints": {
+        "workflowEntityId": {
+          "value": "4dd18217-fe8b-5338-8640-5b9ebec4d909"
+        },
+        "workflowName": {
+          "value": "4dd18217-fe8b-5338-8640-5b9ebec4d909"
+        }
+      },
+      "parameterHintsV2": {
+        "workflowEntityId": {
+          "value": "4dd18217-fe8b-5338-8640-5b9ebec4d909"
+        },
+        "workflowName": {
+          "value": "4dd18217-fe8b-5338-8640-5b9ebec4d909"
+        }
+      }
+    },
+    "datasets": {},
+    "dataSources": [
+      "GrantedF12"
+    ],
+    "dependencies": {},
+    "dependents": [],
+    "id": "238b061f-1043-4177-80ea-335d0f89404f"
+  },
+  "5baf3ab6-19bc-4a04-82e2-72c13209950f": {
+    "appActions": [
+      "Run"
+    ],
+    "connectionRef": {
+      "apiTier": "Standard",
+      "displayName": "Logic flows",
+      "iconUri": "https://conn-afd-prod-endpoint-bmc9bqahasf3grgk.b01.azurefd.net/v1.0.1752/1.0.1752.4216/logicflows/icon.png",
+      "id": "/providers/microsoft.powerapps/apis/shared_logicflows",
+      "parameterHints": {
+        "workflowEntityId": {
+          "value": "21e49585-777c-53ea-a8f0-e59e029fae73"
+        },
+        "workflowName": {
+          "value": "21e49585-777c-53ea-a8f0-e59e029fae73"
+        }
+      },
+      "parameterHintsV2": {
+        "workflowEntityId": {
+          "value": "21e49585-777c-53ea-a8f0-e59e029fae73"
+        },
+        "workflowName": {
+          "value": "21e49585-777c-53ea-a8f0-e59e029fae73"
+        }
+      }
+    },
+    "datasets": {},
+    "dataSources": [
+      "GrantedF13"
+    ],
+    "dependencies": {},
+    "dependents": [],
+    "id": "5baf3ab6-19bc-4a04-82e2-72c13209950f"
+  },
+  "bf848c09-8fdc-437d-8ab6-047ac4e38d7c": {
+    "appActions": [
+      "Run"
+    ],
+    "connectionRef": {
+      "apiTier": "Standard",
+      "displayName": "Logic flows",
+      "iconUri": "https://conn-afd-prod-endpoint-bmc9bqahasf3grgk.b01.azurefd.net/v1.0.1752/1.0.1752.4216/logicflows/icon.png",
+      "id": "/providers/microsoft.powerapps/apis/shared_logicflows",
+      "parameterHints": {
+        "workflowEntityId": {
+          "value": "f33098a2-fb61-5205-9466-ac526cede012"
+        },
+        "workflowName": {
+          "value": "f33098a2-fb61-5205-9466-ac526cede012"
+        }
+      },
+      "parameterHintsV2": {
+        "workflowEntityId": {
+          "value": "f33098a2-fb61-5205-9466-ac526cede012"
+        },
+        "workflowName": {
+          "value": "f33098a2-fb61-5205-9466-ac526cede012"
+        }
+      }
+    },
+    "datasets": {},
+    "dataSources": [
+      "GrantedF14"
+    ],
+    "dependencies": {},
+    "dependents": [],
+    "id": "bf848c09-8fdc-437d-8ab6-047ac4e38d7c"
+  }
+}

@@ -1,0 +1,10 @@
+[
+  {
+    "ApiId": "/providers/microsoft.powerapps/apis/shared_logicflows",
+    "FlowNameId": "71ce3c0d-a82e-519d-8891-cffe05df86b2",
+    "Name": "GrantedF01",
+    "ServiceKind": "ConnectedWadl",
+    "Type": "ServiceInfo",
+    "WorkflowEntityId": "71ce3c0d-a82e-519d-8891-cffe05df86b2"
+  }
+]

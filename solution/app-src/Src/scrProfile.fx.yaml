@@ -1,0 +1,317 @@
+scrProfile As screen:
+    Fill: =Color.White
+    LoadingSpinnerColor: |-
+        =ColorValue("#0133A2")
+
+    rctPfTop As rectangle:
+        Fill: |-
+            =ColorValue("#0133A2")
+        Height: =120
+        Width: =640
+        X: =0
+        Y: =0
+
+    imgPfLogo As image:
+        Height: =64
+        Image: =gblLogoWhite
+        ImagePosition: =ImagePosition.Fit
+        Width: =120
+        X: =24
+        Y: =30
+
+    lblPfTitle As label:
+        Color: |-
+            =ColorValue("#172033")
+        FontWeight: =FontWeight.Semibold
+        Height: =44
+        PaddingLeft: =0
+        PaddingRight: =0
+        Size: =22
+        Text: |-
+            ="Create your Granted profile"
+        VerticalAlign: =VerticalAlign.Middle
+        Width: =592
+        X: =24
+        Y: =140
+
+    lblPfWho As label:
+        Color: |-
+            =ColorValue("#5A6478")
+        FontWeight: =FontWeight.Normal
+        Height: =30
+        PaddingLeft: =0
+        PaddingRight: =0
+        Size: =13
+        Text: |-
+            ="Signed in as " & gblSignInEmail
+        VerticalAlign: =VerticalAlign.Middle
+        Width: =592
+        X: =24
+        Y: =186
+
+    lblPfFirstLbl As label:
+        Color: |-
+            =ColorValue("#5A6478")
+        FontWeight: =FontWeight.Normal
+        Height: =26
+        PaddingLeft: =0
+        PaddingRight: =0
+        Size: =12
+        Text: |-
+            ="First name"
+        VerticalAlign: =VerticalAlign.Middle
+        Width: =592
+        X: =24
+        Y: =236
+
+    txtPfFirst As text:
+        AccessibleLabel: |-
+            ="e.g. Dana"
+        BorderColor: |-
+            =ColorValue("#DCE2EC")
+        Default: |-
+            =""
+        Fill: |-
+            =ColorValue("#F1F3F6")
+        FocusedBorderColor: |-
+            =ColorValue("#0133A2")
+        Height: =52
+        HintText: |-
+            ="e.g. Dana"
+        HoverBorderColor: |-
+            =ColorValue("#0133A2")
+        PaddingLeft: =12
+        RadiusBottomLeft: =8
+        RadiusBottomRight: =8
+        RadiusTopLeft: =8
+        RadiusTopRight: =8
+        Size: =14
+        Width: =592
+        X: =24
+        Y: =264
+
+    lblPfLastLbl As label:
+        Color: |-
+            =ColorValue("#5A6478")
+        FontWeight: =FontWeight.Normal
+        Height: =26
+        PaddingLeft: =0
+        PaddingRight: =0
+        Size: =12
+        Text: |-
+            ="Last name"
+        VerticalAlign: =VerticalAlign.Middle
+        Width: =592
+        X: =24
+        Y: =328
+
+    txtPfLast As text:
+        AccessibleLabel: |-
+            ="e.g. Ruiz"
+        BorderColor: |-
+            =ColorValue("#DCE2EC")
+        Default: |-
+            =""
+        Fill: |-
+            =ColorValue("#F1F3F6")
+        FocusedBorderColor: |-
+            =ColorValue("#0133A2")
+        Height: =52
+        HintText: |-
+            ="e.g. Ruiz"
+        HoverBorderColor: |-
+            =ColorValue("#0133A2")
+        PaddingLeft: =12
+        RadiusBottomLeft: =8
+        RadiusBottomRight: =8
+        RadiusTopLeft: =8
+        RadiusTopRight: =8
+        Size: =14
+        Width: =592
+        X: =24
+        Y: =356
+
+    lblPfPhoneLbl As label:
+        Color: |-
+            =ColorValue("#5A6478")
+        FontWeight: =FontWeight.Normal
+        Height: =26
+        PaddingLeft: =0
+        PaddingRight: =0
+        Size: =12
+        Text: |-
+            ="Mobile phone (10 digits)"
+        VerticalAlign: =VerticalAlign.Middle
+        Width: =592
+        X: =24
+        Y: =420
+
+    txtPfPhone As text:
+        AccessibleLabel: |-
+            ="214-555-0141"
+        BorderColor: |-
+            =ColorValue("#DCE2EC")
+        Default: |-
+            =""
+        Fill: |-
+            =ColorValue("#F1F3F6")
+        FocusedBorderColor: |-
+            =ColorValue("#0133A2")
+        Height: =52
+        HintText: |-
+            ="214-555-0141"
+        HoverBorderColor: |-
+            =ColorValue("#0133A2")
+        PaddingLeft: =12
+        RadiusBottomLeft: =8
+        RadiusBottomRight: =8
+        RadiusTopLeft: =8
+        RadiusTopRight: =8
+        Size: =14
+        Width: =592
+        X: =24
+        Y: =448
+
+    lblPfCompanyLbl As label:
+        Color: |-
+            =ColorValue("#5A6478")
+        FontWeight: =FontWeight.Normal
+        Height: =26
+        PaddingLeft: =0
+        PaddingRight: =0
+        Size: =12
+        Text: |-
+            ="Company you work for"
+        VerticalAlign: =VerticalAlign.Middle
+        Width: =592
+        X: =24
+        Y: =512
+
+    txtPfCompany As text:
+        AccessibleLabel: |-
+            ="e.g. North Field Electrical"
+        BorderColor: |-
+            =ColorValue("#DCE2EC")
+        Default: |-
+            =""
+        Fill: |-
+            =ColorValue("#F1F3F6")
+        FocusedBorderColor: |-
+            =ColorValue("#0133A2")
+        Height: =52
+        HintText: |-
+            ="e.g. North Field Electrical"
+        HoverBorderColor: |-
+            =ColorValue("#0133A2")
+        PaddingLeft: =12
+        RadiusBottomLeft: =8
+        RadiusBottomRight: =8
+        RadiusTopLeft: =8
+        RadiusTopRight: =8
+        Size: =14
+        Width: =592
+        X: =24
+        Y: =540
+
+    lblPfCodeLbl As label:
+        Color: |-
+            =ColorValue("#5A6478")
+        FontWeight: =FontWeight.Normal
+        Height: =26
+        PaddingLeft: =0
+        PaddingRight: =0
+        Size: =12
+        Text: |-
+            ="Project code (optional)"
+        VerticalAlign: =VerticalAlign.Middle
+        Width: =592
+        X: =24
+        Y: =604
+
+    txtPfCode As text:
+        AccessibleLabel: |-
+            ="e.g. DDC2-7HKQ"
+        BorderColor: |-
+            =ColorValue("#DCE2EC")
+        Default: |-
+            =""
+        Fill: |-
+            =ColorValue("#F1F3F6")
+        FocusedBorderColor: |-
+            =ColorValue("#0133A2")
+        Height: =52
+        HintText: |-
+            ="e.g. DDC2-7HKQ"
+        HoverBorderColor: |-
+            =ColorValue("#0133A2")
+        PaddingLeft: =12
+        RadiusBottomLeft: =8
+        RadiusBottomRight: =8
+        RadiusTopLeft: =8
+        RadiusTopRight: =8
+        Size: =14
+        Width: =592
+        X: =24
+        Y: =632
+
+    lblPfPrivacy As label:
+        Color: |-
+            =ColorValue("#5A6478")
+        FontWeight: =FontWeight.Normal
+        Height: =64
+        PaddingLeft: =0
+        PaddingRight: =0
+        Size: =11
+        Text: |-
+            ="By continuing you agree that Granted keeps your name, company, phone and work email to run delivery booking and gate access on your projects."
+        VerticalAlign: =VerticalAlign.Middle
+        Width: =592
+        X: =24
+        Y: =704
+
+    btnPfCreate As button:
+        BorderColor: |-
+            =ColorValue("#0133A2")
+        BorderThickness: =0
+        Color: =Color.White
+        DisabledBorderColor: |-
+            =ColorValue("#B8C2D6")
+        DisabledColor: =Color.White
+        DisabledFill: |-
+            =ColorValue("#B8C2D6")
+        DisplayMode: =If(locBusy || IsBlank(Trim(txtPfFirst.Text)) || IsBlank(Trim(txtPfLast.Text)) || IsBlank(Trim(txtPfCompany.Text)), DisplayMode.Disabled, DisplayMode.Edit)
+        Fill: |-
+            =ColorValue("#0133A2")
+        FontWeight: =FontWeight.Semibold
+        Height: =56
+        HoverColor: =Color.White
+        HoverFill: |-
+            =ColorFade(ColorValue("#0133A2"), -10%)
+        OnSelect: |-
+            =Set(locBusy, true);
+            IfError(
+                Set(locR, ParseJSON(GrantedF14.Run("", "", JSON({ op: "create", first: txtPfFirst.Text, last: txtPfLast.Text, phone: txtPfPhone.Text, company: txtPfCompany.Text })).json)),
+                Set(locR, ParseJSON("{""ok"":false,""message"":""No connection. Check your signal and try again.""}"))
+            );
+            If(Boolean(locR.ok),
+                If(!IsBlank(Trim(txtPfCode.Text)),
+                    IfError(Set(locC, ParseJSON(GrantedF11.Run("", "", JSON({ code: txtPfCode.Text })).json)), Set(locC, ParseJSON("{""ok"":false,""message"":""Profile saved, but the project code could not be sent.""}")));
+                    Notify(Text(locC.message), If(Boolean(locC.ok), NotificationType.Success, NotificationType.Warning));
+                    If(!IsBlank(Text(locC.projectId)), Set(gblPid, Text(locC.projectId)))
+                );
+                Navigate(scrStart, ScreenTransition.None),
+                Notify(Text(locR.message), NotificationType.Error)
+            );
+            Set(locBusy, false)
+        PressedColor: =Color.White
+        PressedFill: |-
+            =ColorFade(ColorValue("#0133A2"), -20%)
+        RadiusBottomLeft: =10
+        RadiusBottomRight: =10
+        RadiusTopLeft: =10
+        RadiusTopRight: =10
+        Size: =14
+        Text: =If(locBusy, "Saving…", "Create profile")
+        Width: =592
+        X: =24
+        Y: =784

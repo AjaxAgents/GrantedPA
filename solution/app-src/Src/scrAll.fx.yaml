@@ -1,0 +1,153 @@
+scrAll As screen:
+    Fill: |-
+        =ColorValue("#E6EAEF")
+    LoadingSpinnerColor: |-
+        =ColorValue("#0133A2")
+
+    hdrAllBar As rectangle:
+        Fill: |-
+            =ColorValue("#0133A2")
+        Height: =128
+        Width: =640
+        X: =0
+        Y: =0
+
+    hdrAllBack As icon.ChevronLeft:
+        AccessibleLabel: |-
+            ="Back"
+        Color: =Color.White
+        Height: =56
+        OnSelect: =Back()
+        PaddingBottom: =10
+        PaddingLeft: =10
+        PaddingRight: =10
+        PaddingTop: =10
+        Tooltip: |-
+            ="Back"
+        Width: =56
+        X: =8
+        Y: =36
+
+    hdrAllTitle As label:
+        Color: =Color.White
+        FontWeight: =FontWeight.Semibold
+        Height: =40
+        PaddingLeft: =0
+        PaddingRight: =0
+        Size: =20
+        Text: |-
+            ="All Deliveries"
+        VerticalAlign: =VerticalAlign.Middle
+        Width: =540
+        X: =68
+        Y: =34
+
+    hdrAllSub As label:
+        Color: |-
+            =ColorValue("#C9D6F2")
+        FontWeight: =FontWeight.Normal
+        Height: =30
+        PaddingLeft: =0
+        PaddingRight: =0
+        Size: =12
+        Text: |-
+            =gblP.Name & If(gblInMaint, "  ·  maintenance view: " & gblRole, "")
+        VerticalAlign: =VerticalAlign.Middle
+        Width: =540
+        X: =68
+        Y: =74
+
+    drpAllFilter As dropdown:
+        AccessibleLabel: |-
+            ="Show"
+        BorderColor: |-
+            =ColorValue("#DCE2EC")
+        ChevronBackground: |-
+            =ColorValue("#F1F3F6")
+        ChevronFill: |-
+            =ColorValue("#0133A2")
+        Fill: |-
+            =ColorValue("#F1F3F6")
+        Height: =52
+        Items: =["Today", "Upcoming", "Needs review", "All"]
+        Size: =14
+        Width: =592
+        X: =24
+        Y: =140
+
+    galAll As gallery.galleryVertical:
+        Height: =932
+        Items: =SortByColumns(Filter(colReq, Switch(drpAllFilter.Selected.Value, "Today", Date = gblToday, "Upcoming", Date >= gblToday, "Needs review", Status = "Needs review", true)), DateText, SortOrder.Descending, Slot, SortOrder.Ascending)
+        Layout: =Layout.Vertical
+        ShowScrollbar: =false
+        TemplatePadding: =0
+        TemplateSize: =176
+        Width: =640
+        X: =0
+        Y: =204
+
+        rctAll As rectangle:
+            Fill: =Color.White
+            Height: =164
+            Width: =592
+            X: =24
+            Y: =6
+
+        lblAllWho As label:
+            Color: |-
+                =ColorValue("#172033")
+            FontWeight: =FontWeight.Semibold
+            Height: =30
+            PaddingLeft: =0
+            PaddingRight: =0
+            Size: =13
+            Text: =ThisItem.Company & " – " & ThisItem.Material
+            VerticalAlign: =VerticalAlign.Middle
+            Width: =412
+            X: =40
+            Y: =12
+
+        lblAllStatus As label:
+            Align: =Align.Center
+            Color: =Color.White
+            Fill: |-
+                =Switch(ThisItem.Status, "Approved", ColorValue("#12804A"), "Needs review", ColorValue("#946200"), "Rejected", ColorValue("#C2252D"), ColorValue("#5A6478"))
+            FontWeight: =FontWeight.Semibold
+            Height: =28
+            PaddingLeft: =0
+            PaddingRight: =0
+            Size: =10
+            Text: =ThisItem.Status
+            VerticalAlign: =VerticalAlign.Middle
+            Width: =134
+            X: =466
+            Y: =14
+
+        lblAllWhen As label:
+            Color: |-
+                =ColorValue("#5A6478")
+            FontWeight: =FontWeight.Normal
+            Height: =28
+            PaddingLeft: =0
+            PaddingRight: =0
+            Size: =11
+            Text: =Text(ThisItem.Date, "ddd m/d") & " " & ThisItem.Slot & " · gate " & ThisItem.Gate & " · " & ThisItem.Pallets & " pallets · " & ThisItem.Pass & If(ThisItem.Maint, " · maintenance", "")
+            VerticalAlign: =VerticalAlign.Middle
+            Width: =560
+            X: =40
+            Y: =44
+
+        lblAllWhy As label:
+            Color: |-
+                =ColorValue("#172033")
+            FontWeight: =FontWeight.Normal
+            Height: =90
+            PaddingLeft: =0
+            PaddingRight: =0
+            Size: =11
+            Text: |-
+                ="Booked by " & ThisItem.By & " · decided by " & ThisItem.DecidedBy & If(IsBlank(ThisItem.Reasons), "", Char(10) & ThisItem.Reasons)
+            VerticalAlign: =VerticalAlign.Top
+            Width: =560
+            X: =40
+            Y: =74

@@ -1,5 +1,7 @@
 # Power Automate flows
 
+> These are the specifications. The built flows are in [`solution/`](../solution) (generated from `tools/solution`), ready to import: see [START-HERE.md](../START-HERE.md).
+
 GrantedPA's server side. The app never reads or writes SharePoint directly. Every screen gets its data from **F00**, and every action is a flow. The flows run as the **Granted service account** and check the caller's access on the project before doing anything. This is the Power Platform equivalent of the custom app's API.
 
 All flows use **standard connectors** only (SharePoint, Office 365 Outlook, Office 365 Users, Office 365 Groups, Excel Online (Business), Microsoft Forms, Microsoft Teams, Power Apps). Build them **inside one solution** ("Granted"), so child flows and environment variables are available, and so the app can be wrapped.

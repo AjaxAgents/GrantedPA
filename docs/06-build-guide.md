@@ -1,6 +1,6 @@
 # 06 · Build guide
 
-Step by step, from an empty tenant to a working pilot. Plan on **2–3 weeks** the first time (about a day once a solution export exists) for one experienced Power Platform maker, plus IT's set-up time. Each step ends with a check.
+> **To install Granted you don't need this guide.** The app and all its flows are already built: follow [START-HERE.md](../START-HERE.md) (one script, one import). This guide explains how the pieces fit, for anyone changing them by hand.
 
 ## 1. IT set-up (Ajax IT, about 1 day)
 
