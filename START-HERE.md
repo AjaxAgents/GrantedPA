@@ -2,7 +2,7 @@
 
 Two ways to run it. Do **one**.
 
-📄 Illustrated version: [docs/Granted-Setup-Guide.pdf](docs/Granted-Setup-Guide.pdf) · 👀 Try it first: https://ajaxagents.github.io/Granted/
+📄 Illustrated version: [docs/Granted-Setup-Guide.pdf](docs/Granted-Setup-Guide.pdf) · 📘 How to use it: [docs/Granted-User-Guide.pdf](docs/Granted-User-Guide.pdf) · 👀 Try it first: https://ajaxagents.github.io/Granted/
 
 ---
 

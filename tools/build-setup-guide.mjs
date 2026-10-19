@@ -1,11 +1,13 @@
 #!/usr/bin/env node
 /*
- * Builds docs/Granted-Setup-Guide.pdf from docs/setup-guide/guide.html.
+ * Builds the two PDF guides:
+ *   docs/Granted-Setup-Guide.pdf  from docs/setup-guide/guide.html
+ *   docs/Granted-User-Guide.pdf   from docs/user-guide/guide.html (pictures in docs/user-guide/img)
  * Fills in the QR codes (made with this repository's own encoder, qr/qr-core.js), the logos and
  * the fonts, then prints the page with Chromium through Playwright.
  *
  *   npm i --no-save playwright && npx playwright install chromium   (once)
- *   node tools/build-setup-guide.mjs [--html-only]
+ *   node tools/build-setup-guide.mjs [setup|user] [--html-only]      (both when neither is named)
  *
  * Set CHROMIUM_PATH to use an installed Chromium instead of Playwright's download.
  */
@@ -15,8 +17,12 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import vm from 'node:vm';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
-const dir = join(root, 'docs', 'setup-guide');
-const out = join(root, 'docs', 'Granted-Setup-Guide.pdf');
+const dir = join(root, 'docs', 'setup-guide'); // fonts and logos live here
+const GUIDES = {
+  setup: { src: join(dir, 'guide.html'), out: join(root, 'docs', 'Granted-Setup-Guide.pdf') },
+  user: { src: join(root, 'docs', 'user-guide', 'guide.html'), out: join(root, 'docs', 'Granted-User-Guide.pdf'), img: join(root, 'docs', 'user-guide', 'img') },
+};
+const which = Object.keys(GUIDES).filter((k) => process.argv.includes(k));
 
 const box = {}; vm.createContext(box);
 vm.runInContext(readFileSync(join(root, 'qr', 'qr-core.js'), 'utf8') + '\nthis.api={qrEncode,qrToSvg};', box);
@@ -35,23 +41,38 @@ const FONTS = {
   barlow700: 'barlow-semi-condensed-latin-700-normal.woff2', mono500: 'ibm-plex-mono-latin-500-normal.woff2',
 };
 
-let html = readFileSync(join(dir, 'guide.html'), 'utf8');
-for (const [k, f] of Object.entries(FONTS)) html = html.replaceAll(`{{FONT_${k}}}`, dataUri('fonts/' + f, 'font/woff2'));
-html = html.replaceAll('{{LOGO_white}}', dataUri('logo-white-400.png', 'image/png')).replaceAll('{{LOGO_blue}}', dataUri('logo-blue-400.png', 'image/png'));
-for (const [k, url] of Object.entries(LINKS)) html = html.replaceAll(`{{QR_${k}}}`, qrToSvg(qrEncode(url), 2).replace('<svg ', `<svg role="img" aria-label="QR code: ${url}" `));
-const left = html.match(/\{\{[A-Za-z_0-9]+\}\}/g);
-if (left) throw new Error('Unfilled placeholders: ' + [...new Set(left)].join(', '));
+function fill(g) {
+  let html = readFileSync(g.src, 'utf8');
+  for (const [k, f] of Object.entries(FONTS)) html = html.replaceAll(`{{FONT_${k}}}`, dataUri('fonts/' + f, 'font/woff2'));
+  html = html.replaceAll('{{LOGO_white}}', dataUri('logo-white-400.png', 'image/png')).replaceAll('{{LOGO_blue}}', dataUri('logo-blue-400.png', 'image/png'));
+  for (const [k, url] of Object.entries(LINKS)) html = html.replaceAll(`{{QR_${k}}}`, qrToSvg(qrEncode(url), 2).replace('<svg ', `<svg role="img" aria-label="QR code: ${url}" `));
+  if (g.img) {
+    const marks = JSON.parse(readFileSync(join(g.img, 'marks.json'), 'utf8'));
+    const imgs = Object.fromEntries(Object.keys(marks).map((n) => [n, `data:image/png;base64,${readFileSync(join(g.img, n + '.png')).toString('base64')}`]));
+    html = html.replaceAll('{{MARKS}}', JSON.stringify(marks)).replaceAll('{{IMGS}}', JSON.stringify(imgs));
+    html = html.replace(/\{\{IMG_([a-z0-9-]+)\}\}/g, (m, n) => { if (!imgs[n]) throw new Error('No picture ' + n); return imgs[n]; });
+  }
+  const left = html.match(/\{\{[A-Za-z_0-9-]+\}\}/g);
+  if (left) throw new Error('Unfilled placeholders: ' + [...new Set(left)].join(', '));
+  const built = join(dirname(g.src), '.guide.built.html');
+  writeFileSync(built, html);
+  return built;
+}
 
-const built = join(dir, '.guide.built.html');
-writeFileSync(built, html);
-if (process.argv.includes('--html-only')) { console.log('Wrote ' + built); process.exit(0); }
+const jobs = (which.length ? which : Object.keys(GUIDES)).map((k) => ({ ...GUIDES[k], built: fill(GUIDES[k]) }));
+if (process.argv.includes('--html-only')) { for (const j of jobs) console.log('Wrote ' + j.built); process.exit(0); }
 
 const pw = process.env.PLAYWRIGHT_MODULE ? await import(pathToFileURL(process.env.PLAYWRIGHT_MODULE).href) : await import('playwright');
 const chromium = pw.chromium || pw.default.chromium;
 const browser = await chromium.launch(process.env.CHROMIUM_PATH ? { executablePath: process.env.CHROMIUM_PATH } : {});
-const page = await browser.newPage();
-await page.goto(pathToFileURL(built).href, { waitUntil: 'load' });
-await page.evaluate(() => document.fonts.ready);
-await page.pdf({ path: out, format: 'Letter', printBackground: true, preferCSSPageSize: true, margin: { top: 0, right: 0, bottom: 0, left: 0 } });
+for (const j of jobs) {
+  const page = await browser.newPage();
+  const errors = []; page.on('pageerror', (e) => errors.push(e.message));
+  await page.goto(pathToFileURL(j.built).href, { waitUntil: 'load' });
+  await page.evaluate(() => document.fonts.ready);
+  if (errors.length) throw new Error(errors.join('\n'));
+  await page.pdf({ path: j.out, format: 'Letter', printBackground: true, preferCSSPageSize: true, margin: { top: 0, right: 0, bottom: 0, left: 0 } });
+  await page.close();
+  console.log('Wrote ' + j.out);
+}
 await browser.close();
-console.log('Wrote ' + out);

@@ -5,6 +5,7 @@
 > **No approved delivery, no gate access.**
 
 ### 👉 Setting it up? Open **[START-HERE.md](START-HERE.md)** (or the [PDF](docs/Granted-Setup-Guide.pdf)): one script, one import, a working app.
+### 📘 Using it? The [user guide](docs/Granted-User-Guide.pdf) shows what admins, contractors and Access Control do, in pictures.
 
 This is one of two editions, built so management can choose:
 

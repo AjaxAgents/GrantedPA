@@ -1,0 +1,417 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Using Granted</title>
+<!--
+  Source of docs/Granted-User-Guide.pdf. Edit this file, then run: node tools/build-setup-guide.mjs
+  Pictures: docs/user-guide/img (retake with tools/user-guide/capture.mjs). Each <i class="mk" data-m="key">
+  is a numbered callout placed over that picture's element, using img/marks.json.
+-->
+<style>
+@font-face { font-family: Plex; font-weight: 400; src: url({{FONT_plex400}}) format('woff2'); }
+@font-face { font-family: Plex; font-weight: 500; src: url({{FONT_plex500}}) format('woff2'); }
+@font-face { font-family: Plex; font-weight: 600; src: url({{FONT_plex600}}) format('woff2'); }
+@font-face { font-family: Plex; font-weight: 700; src: url({{FONT_plex700}}) format('woff2'); }
+@font-face { font-family: Barlow; font-weight: 600; src: url({{FONT_barlow600}}) format('woff2'); }
+@font-face { font-family: Barlow; font-weight: 700; src: url({{FONT_barlow700}}) format('woff2'); }
+@font-face { font-family: PlexMono; font-weight: 500; src: url({{FONT_mono500}}) format('woff2'); }
+:root { --ajax: #0133A2; --navy: #0A1F52; --ink: #172033; --muted: #5A6478; --line: #DCE2EC; --paper: #F3F5F9;
+  --mark: #F25C05; --go: #12804A; --go-soft: #E3F4EA; --stop: #C2252D; --stop-soft: #FBE4E5; --hold: #946200; --hold-soft: #FBF1D9;
+  --con: #0F766E; --gate: #3E4A55; --adm: #0133A2; }
+@page { size: Letter; margin: 0; }
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { font: 400 10.5pt/1.42 Plex, system-ui, sans-serif; color: var(--ink); background: #888; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+.page { width: 8.5in; height: 11in; background: #fff; position: relative; overflow: hidden; margin: 0 auto 24px; break-after: page; }
+@media print { body { background: none; } .page { margin: 0; } }
+
+/* header band */
+.band { color: #fff; padding: .36in .5in .3in; display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; background: var(--c); }
+.band .logo { height: 28px; display: block; margin-bottom: 12px; }
+.kicker { font: 700 9pt/1 Barlow, sans-serif; letter-spacing: .2em; text-transform: uppercase; opacity: .82; }
+.band h1 { font: 700 30pt/1.02 Barlow, sans-serif; margin: 7px 0 4px; }
+.band p { margin: 0; font-size: 11pt; opacity: .9; }
+.band .pg { font: 700 40pt/1 Barlow, sans-serif; opacity: .22; }
+.p-home { --c: linear-gradient(135deg, #00206B 0%, #0133A2 100%); }
+.p-con { --c: linear-gradient(135deg, #0A4F4A 0%, #0F766E 100%); }
+.p-gate { --c: linear-gradient(135deg, #23292F 0%, #4A5763 100%); }
+.p-adm { --c: linear-gradient(135deg, #00206B 0%, #0133A2 100%); }
+.p-know { --c: linear-gradient(135deg, #3B2A06 0%, #946200 100%); }
+.body { padding: .26in .5in 0; }
+.foot { position: absolute; left: .5in; right: .5in; bottom: .28in; display: flex; justify-content: space-between; align-items: center; gap: 16px; font-size: 8.5pt; color: var(--muted); border-top: 1px solid var(--line); padding-top: 7px; }
+.foot b { color: var(--navy); }
+
+/* pictures and markups */
+.shot { position: relative; margin: 0; border-radius: 12px; overflow: visible; }
+.shot img { display: block; width: 100%; border-radius: 12px; border: 1px solid #CDD4DE; box-shadow: 0 2px 10px rgba(22,32,43,.10); }
+.mk { position: absolute; border: 2.5px solid var(--mark); border-radius: 9px; font-style: normal; pointer-events: none; }
+.mk::after { content: attr(data-n); position: absolute; right: -13px; top: -13px; width: 23px; height: 23px; border-radius: 50%; background: var(--mark); color: #fff;
+  font: 700 11.5pt/23px Barlow, sans-serif; text-align: center; box-shadow: 0 0 0 2px #fff; }
+.mk.l::after { right: auto; left: -13px; }
+.mk.m::after { top: calc(50% - 11.5px); }
+.mk.flat { border-color: transparent; }
+.n { display: inline-flex; width: 21px; height: 21px; border-radius: 50%; background: var(--mark); color: #fff; font: 700 11pt/1 Barlow, sans-serif; align-items: center; justify-content: center; flex: none; }
+ol.notes { list-style: none; margin: 12px 0 0; padding: 0; display: grid; gap: 7px; }
+ol.notes li { display: flex; gap: 8px; align-items: flex-start; font-size: 9.8pt; line-height: 1.35; }
+ol.notes li b { color: var(--navy); }
+
+.cols { display: grid; gap: 22px; align-items: start; }
+.cols.c3 { grid-template-columns: 1fr 1fr 1fr; }
+.step-t { display: flex; align-items: center; gap: 9px; margin: 0 0 10px; }
+.step-t .big { width: 30px; height: 30px; border-radius: 50%; color: #fff; background: var(--k); font: 700 15pt/30px Barlow, sans-serif; text-align: center; flex: none; }
+.step-t h2 { font: 700 14.5pt/1.05 Barlow, sans-serif; margin: 0; color: var(--navy); }
+.p-con { --k: var(--con); } .p-gate { --k: var(--gate); } .p-adm { --k: var(--adm); }
+
+.strip { margin-top: 16px; border-radius: 12px; background: var(--paper); padding: 12px 16px; }
+.strip h3 { font: 700 9pt/1 Barlow, sans-serif; letter-spacing: .16em; text-transform: uppercase; color: var(--muted); margin: 0 0 9px; }
+.outcomes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.oc { border-radius: 10px; padding: 9px 11px; font-size: 9.5pt; line-height: 1.35; background: #fff; border-left: 5px solid var(--b); }
+.oc b { display: block; font: 700 12pt/1.1 Barlow, sans-serif; margin-bottom: 3px; color: var(--b); }
+.oc.go { --b: var(--go); } .oc.hold { --b: var(--hold); } .oc.stop { --b: var(--stop); }
+.tip { margin-top: 10px; font-size: 9.5pt; color: var(--ink); }
+.tip b { color: var(--navy); }
+
+/* page 1 */
+.rule { margin: 0 0 16px; text-align: center; font: 700 21pt/1.1 Barlow, sans-serif; color: var(--navy); }
+.rule span { color: var(--stop); }
+.flow { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; position: relative; }
+.fs { text-align: center; padding: 0 8px; position: relative; }
+.fs .ic { width: 66px; height: 66px; border-radius: 50%; margin: 0 auto 9px; background: #E9EFFB; display: flex; align-items: center; justify-content: center; position: relative; z-index: 1; border: 3px solid #fff; box-shadow: 0 0 0 2px #D3DFF6; }
+.fs .ic svg { width: 32px; height: 32px; stroke: var(--ajax); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.fs:not(:last-child)::after { content: ''; position: absolute; top: 33px; left: calc(50% + 40px); right: calc(-50% + 40px); border-top: 3px dotted #9FB4E0; }
+.fs .num { font: 700 9pt/1 Barlow, sans-serif; letter-spacing: .14em; color: var(--muted); }
+.fs h3 { font: 700 15pt/1.1 Barlow, sans-serif; margin: 3px 0 4px; color: var(--navy); }
+.fs p { margin: 0; font-size: 9.6pt; line-height: 1.35; }
+.chip { display: inline-block; margin-top: 7px; font: 600 8pt/1 Plex, sans-serif; padding: 4px 8px; border-radius: 99px; color: #fff; background: var(--k); }
+.chip.con { --k: var(--con); } .chip.gate { --k: var(--gate); } .chip.adm { --k: var(--adm); } .chip.auto { --k: #7B8794; }
+.thumbs { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; margin-top: 16px; align-items: start; }
+.thumbs figure { margin: 0; }
+.thumbs img { width: 100%; height: 200px; object-fit: cover; object-position: top; display: block; border-radius: 10px; border: 1px solid #CDD4DE; }
+.thumbs figcaption { font-size: 8.8pt; color: var(--muted); margin-top: 5px; text-align: center; }
+.roles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 18px; }
+.role { border-radius: 12px; padding: 12px 14px; background: var(--paper); border-top: 5px solid var(--k); font-size: 9.6pt; line-height: 1.38; }
+.role h3 { font: 700 15pt/1 Barlow, sans-serif; margin: 0 0 2px; color: var(--k); }
+.role .who { font-size: 8.6pt; color: var(--muted); margin-bottom: 6px; }
+.role ul { margin: 0; padding-left: 15px; } .role li { margin: 2px 0; }
+.role.con { --k: var(--con); } .role.gate { --k: var(--gate); } .role.adm { --k: var(--adm); }
+.qrfoot { display: flex; align-items: center; gap: 8px; }
+.qrfoot svg { width: 46px; height: 46px; flex: none; }
+
+/* page 4 */
+.map { display: grid; grid-template-columns: 214px 1fr; gap: 26px; align-items: start; }
+.map ol.notes { margin-top: 2px; gap: 0; }
+.map ol.notes li { padding: 6.5px 0; border-bottom: 1px solid var(--line); }
+.map ol.notes li:last-child { border-bottom: 0; }
+.daily { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; margin-top: 16px; }
+.pair { display: grid; grid-template-columns: 186px 1fr; gap: 14px; align-items: start; }
+.pair ol.notes { margin-top: 0; }
+
+/* page 5 */
+.know { display: grid; grid-template-columns: 1.1fr 1fr; gap: 26px; }
+.know h2 { font: 700 15pt/1.1 Barlow, sans-serif; color: var(--navy); margin: 0 0 8px; }
+.know h2 small { font: 500 9pt Plex, sans-serif; color: var(--muted); margin-left: 6px; }
+.rules { margin: 0; padding: 0; list-style: none; display: grid; gap: 0; }
+.rules li { display: grid; grid-template-columns: 70px 1fr; gap: 10px; padding: 7px 0; border-bottom: 1px solid var(--line); font-size: 9.7pt; line-height: 1.35; align-items: baseline; }
+.rules li .v { font: 700 14pt/1 Barlow, sans-serif; color: var(--hold); text-align: right; }
+.words { margin: 0; display: grid; gap: 0; }
+.words div { padding: 7px 0; border-bottom: 1px solid var(--line); font-size: 9.6pt; line-height: 1.35; }
+.words dt { font-weight: 700; color: var(--navy); display: inline; }
+.words dd { display: inline; margin: 0; }
+.mono { font-family: PlexMono, monospace; font-size: 9pt; }
+.first { margin-top: 18px; border-radius: 12px; background: var(--go-soft); padding: 13px 16px; }
+.first h2 { color: var(--go); margin-bottom: 8px; }
+.first ol { margin: 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; counter-reset: f; }
+.first li { font-size: 9.5pt; line-height: 1.35; counter-increment: f; }
+.first li::before { content: counter(f); display: block; width: 24px; height: 24px; border-radius: 50%; background: var(--go); color: #fff; font: 700 12pt/24px Barlow, sans-serif; text-align: center; margin-bottom: 5px; }
+.first li b { color: var(--ink); }
+.mail { width: 100%; border-collapse: collapse; font-size: 9.2pt; margin-top: 2px; }
+.mail th { text-align: left; font: 700 8.5pt/1 Barlow, sans-serif; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); padding: 0 0 6px; }
+.mail td { padding: 5px 0; border-top: 1px solid var(--line); vertical-align: top; }
+.mail td:first-child { font-weight: 600; color: var(--navy); width: 42%; }
+</style>
+</head>
+<body>
+
+<!-- ================================================================== 1. HOW IT WORKS -->
+<section class="page p-home">
+  <div class="band">
+    <div>
+      <img class="logo" src="{{LOGO_white}}" alt="Ajax">
+      <div class="kicker">Using Granted · For project admins</div>
+      <h1>How Granted works</h1>
+      <p>Who does what, in pictures.</p>
+    </div>
+    <div class="pg">1</div>
+  </div>
+  <div class="body">
+    <p class="rule">No approved delivery, <span>no gate access.</span></p>
+
+    <div class="flow">
+      <div class="fs"><div class="ic"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4M8 15h3"/></svg></div>
+        <div class="num">STEP 1</div><h3>Book</h3><p>The contractor picks a time, gate and staging area, 48 hours ahead.</p><span class="chip con">Contractor</span></div>
+      <div class="fs"><div class="ic"><svg viewBox="0 0 24 24"><path d="M9 11l3 3 8-8"/><path d="M20 12v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h9"/></svg></div>
+        <div class="num">STEP 2</div><h3>Check</h3><p>Granted checks the rules at once. Anything unusual goes to an admin.</p><span class="chip auto">Automatic</span> <span class="chip adm">Admin</span></div>
+      <div class="fs"><div class="ic"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3M21 14v.01M14 21h3M21 18v3h-1"/></svg></div>
+        <div class="num">STEP 3</div><h3>Pass</h3><p>Approved: a QR gate pass, in the app and by email.</p><span class="chip con">Contractor</span></div>
+      <div class="fs"><div class="ic"><svg viewBox="0 0 24 24"><path d="M3 21V8l9-5 9 5v13"/><path d="M7 21v-8h10v8M7 17h10"/></svg></div>
+        <div class="num">STEP 4</div><h3>Gate</h3><p>Access Control scans it. Green: let it in. Red: not today.</p><span class="chip gate">Access Control</span></div>
+    </div>
+
+    <div class="thumbs">
+      <figure><img src="{{IMG_c-pass}}" alt="A gate pass"><figcaption>The gate pass</figcaption></figure>
+      <figure><img src="{{IMG_g-green}}" alt="Green: admit"><figcaption>Green: admit</figcaption></figure>
+      <figure><img src="{{IMG_g-red}}" alt="Red: turn away"><figcaption>Red: turn away</figcaption></figure>
+    </div>
+
+    <div class="roles">
+      <div class="role adm"><h3>Admin</h3><div class="who">Ajax project team (you)</div><ul>
+        <li>Sets up the project</li><li>Lets people in</li><li>Decides flagged deliveries</li><li>Sees everything, can do every job</li></ul></div>
+      <div class="role con"><h3>Contractor</h3><div class="who">Subcontractors and suppliers</div><ul>
+        <li>Books deliveries</li><li>Shows the pass at the gate</li><li>Cancels if plans change</li></ul></div>
+      <div class="role gate"><h3>Access Control</h3><div class="who">Gate staff</div><ul>
+        <li>Sees today's deliveries</li><li>Scans passes</li><li>Admits or turns away</li></ul></div>
+    </div>
+  </div>
+  <div class="foot"><span><b>Granted</b> · Pictures are from the demo. Power Apps has the same tabs and buttons, laid out a little differently.</span>
+    <span class="qrfoot">{{QR_demo}}<span>Try the demo</span></span></div>
+</section>
+
+<!-- ================================================================== 2. CONTRACTORS -->
+<section class="page p-con">
+  <div class="band">
+    <div>
+      <img class="logo" src="{{LOGO_white}}" alt="Ajax">
+      <div class="kicker">Contractors</div>
+      <h1>Book it. Get a pass. Show it.</h1>
+      <p>Tab: <b>Schedule Delivery</b></p>
+    </div>
+    <div class="pg">2</div>
+  </div>
+  <div class="body">
+    <div class="cols c3">
+      <div>
+        <div class="step-t"><span class="big">1</span><h2>What's coming</h2></div>
+        <figure class="shot" data-shot="c-form-top"><i class="mk" data-m="act" data-n="1"></i><i class="mk" data-m="mat" data-n="2"></i><i class="mk" data-m="pal" data-n="3"></i></figure>
+        <ol class="notes">
+          <li><span class="n">1</span><span>Pick the <b>activity</b> it's for, from the look-ahead.</span></li>
+          <li><span class="n">2</span><span>Say what the <b>material</b> is and how much.</span></li>
+          <li><span class="n">3</span><span>Count the <b>pallets</b>. They take space in the staging area.</span></li>
+        </ol>
+    <div class="strip" style="margin-top:18px">
+      <h3>After Submit</h3>
+      <div class="outcomes" style="grid-template-columns:1fr">
+        <div class="oc go"><b>Approved</b>Pass right away.</div>
+        <div class="oc hold"><b>Needs review</b>Unusual (early, large or a repeat). An admin decides; you get an email.</div>
+        <div class="oc stop"><b>Rejected</b>Every reason is shown, with the next open slot.</div>
+      </div>
+      <p class="tip"><b>Plans changed?</b> My Deliveries → the delivery → <b>Cancel</b>. The gate is told.</p>
+        </div>
+      </div>
+      <div>
+        <div class="step-t"><span class="big">2</span><h2>When and where</h2></div>
+        <figure class="shot" data-shot="c-form"><i class="mk m" data-m="gate" data-n="4"></i><i class="mk" data-m="slot" data-n="5"></i><i class="mk" data-m="zone" data-n="6"></i><i class="mk" data-m="submit" data-n="7"></i></figure>
+        <ol class="notes">
+          <li><span class="n">4</span><span>Choose the <b>gate</b> and <b>day</b>.</span></li>
+          <li><span class="n">5</span><span>Tap a <b>time slot</b>. Grey ones are full or too soon.</span></li>
+          <li><span class="n">6</span><span>Pick a <b>staging zone</b> with room.</span></li>
+          <li><span class="n">7</span><span><b>Submit.</b> Granted checks it on the spot.</span></li>
+        </ol>
+      </div>
+      <div>
+        <div class="step-t"><span class="big">3</span><h2>Show the pass</h2></div>
+        <figure class="shot" data-shot="c-pass"><i class="mk" data-m="ok" data-n="8"></i><i class="mk" data-m="qr" data-n="9"></i><i class="mk" data-m="when" data-n="10"></i></figure>
+        <ol class="notes">
+          <li><span class="n">8</span><span><b>Approved.</b> The pass is also emailed.</span></li>
+          <li><span class="n">9</span><span>The driver shows this <b>QR code</b> (or reads out the code under it) at the gate.</span></li>
+          <li><span class="n">10</span><span>Arrive in this <b>window</b>, on this day.</span></li>
+        </ol>
+      </div>
+    </div>
+
+</div>
+  
+  <div class="foot"><span><b>Granted</b> · No approved delivery, no gate access</span><span>Contractors</span></div>
+</section>
+
+<!-- ================================================================== 3. ACCESS CONTROL -->
+<section class="page p-gate">
+  <div class="band">
+    <div>
+      <img class="logo" src="{{LOGO_white}}" alt="Ajax">
+      <div class="kicker">Access Control</div>
+      <h1>Scan it. Follow the color.</h1>
+      <p>Tabs: <b>Receive Delivery</b> and <b>Expected Today</b></p>
+    </div>
+    <div class="pg">3</div>
+  </div>
+  <div class="body">
+    <div class="cols c3">
+      <div>
+        <div class="step-t"><span class="big">1</span><h2>Scan the pass</h2></div>
+        <figure class="shot" data-shot="g-scan"><i class="mk" data-m="scan" data-n="1"></i><i class="mk" data-m="type" data-n="2"></i></figure>
+        <ol class="notes">
+          <li><span class="n">1</span><span><b>Scan</b> the QR code on the driver's phone or printout.</span></li>
+          <li><span class="n">2</span><span>Or <b>type the code</b>. Lower case is fine.</span></li>
+        </ol>
+        <div class="step-t" style="margin-top:18px"><span class="big">✓</span><h2>Who's coming today</h2></div>
+        <figure class="shot" data-shot="g-today"><i class="mk" data-m="st" data-n="3"></i><i class="mk" data-m="go" data-n="4"></i></figure>
+        <ol class="notes">
+          <li><span class="n">3</span><span>Each delivery's <b>status</b>.</span></li>
+          <li><span class="n">4</span><span><b>Check at gate</b> works without scanning.</span></li>
+        </ol>
+      </div>
+      <div>
+        <div class="step-t"><span class="big" style="background:var(--go)">2</span><h2>Green: let it in</h2></div>
+        <figure class="shot" data-shot="g-green"><i class="mk" data-m="big" data-n="5"></i><i class="mk" data-m="next" data-n="6"></i><i class="mk" data-m="btn" data-n="7"></i></figure>
+        <ol class="notes">
+          <li><span class="n">5</span><span><b>Admit.</b> The delivery is booked for now.</span></li>
+          <li><span class="n">6</span><span>Where to send the truck.</span></li>
+          <li><span class="n">7</span><span>Tap <b>Admit and log</b>. The pass is used up.</span></li>
+        </ol>
+      </div>
+      <div>
+        <div class="step-t"><span class="big" style="background:var(--stop)">2</span><h2>Red: not today</h2></div>
+        <figure class="shot" data-shot="g-red"><i class="mk" data-m="big" data-n="8"></i><i class="mk" data-m="what" data-n="9"></i><i class="mk" data-m="btn" data-n="10"></i></figure>
+        <ol class="notes">
+          <li><span class="n">8</span><span><b>Turn away.</b> Don't let it in.</span></li>
+          <li><span class="n">9</span><span>The reason, and what the driver needs to do.</span></li>
+          <li><span class="n">10</span><span>Tap <b>Log turn-away and notify</b>. The contractor and admins are told.</span></li>
+        </ol>
+        <div class="strip" style="margin-top:14px">
+          <h3>Red means</h3>
+          <p style="margin:0;font-size:9.4pt;line-height:1.4">No booking for that code · cancelled · already used · wrong day · more than an hour early or late.</p>
+          <p class="tip" style="margin-top:7px"><b>Too early?</b> The same pass turns green when they come back in time.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><span><b>Granted</b> · No approved delivery, no gate access</span><span>Access Control</span></div>
+</section>
+
+<!-- ================================================================== 4. ADMINS -->
+<section class="page p-adm">
+  <div class="band">
+    <div>
+      <img class="logo" src="{{LOGO_white}}" alt="Ajax">
+      <div class="kicker">Admins</div>
+      <h1>Your home screen</h1>
+      <p>Tap a tab to open it. You can also do every Contractor and Access Control job.</p>
+    </div>
+    <div class="pg">4</div>
+  </div>
+  <div class="body">
+    <div class="map">
+      <figure class="shot" data-shot="a-home">
+        <i class="mk" data-m="project" data-n="1"></i><i class="mk m" data-m="overview" data-n="2"></i><i class="mk m" data-m="approvals" data-n="3"></i>
+        <i class="mk m" data-m="team" data-n="4"></i><i class="mk m" data-m="receive" data-n="5"></i><i class="mk m" data-m="deliveries" data-n="6"></i>
+        <i class="mk m" data-m="emergency" data-n="7"></i><i class="mk m" data-m="psettings" data-n="8"></i></figure>
+      <ol class="notes">
+        <li><span class="n">1</span><span><b>Project.</b> Switch projects, or <b>+</b> to create one or join with a code.</span></li>
+        <li><span class="n">2</span><span><b>Today.</b> What's expected, arrived and turned away.</span></li>
+        <li><span class="n">3</span><span><b>Approvals.</b> People asking to join and flagged deliveries. Check it every morning.</span></li>
+        <li><span class="n">4</span><span><b>Team &amp; Invites.</b> Invite people by email, change roles, remove people.</span></li>
+        <li><span class="n">5</span><span><b>Receive Delivery · Schedule Delivery.</b> Cover the gate or book for someone.</span></li>
+        <li><span class="n">6</span><span><b>All Deliveries.</b> Every request on the project.</span></li>
+        <li><span class="n">7</span><span><b>Emergency Pass.</b> A same-day pass that skips the rules. Logged against the company.</span></li>
+        <li><span class="n">8</span><span><b>Project Settings.</b> Gates, zones, gate hours, rules, companies, the look-ahead and the project code.</span></li>
+      </ol>
+    </div>
+
+    <div class="daily">
+      <div>
+        <div class="step-t"><span class="big">✓</span><h2>Someone asks to join</h2></div>
+        <div class="pair"><figure class="shot" data-shot="a-join"><i class="mk" data-m="role" data-n="9"></i><i class="mk" data-m="ok" data-n="10"></i></figure>
+        <ol class="notes">
+          <li><span class="n">9</span><span>Choose their <b>access</b>: Contractor, Access Control or Admin.</span></li>
+          <li><span class="n">10</span><span><b>Approve</b> (or Decline).</span></li>
+        </ol></div>
+      </div>
+      <div>
+        <div class="step-t"><span class="big">✓</span><h2>A delivery is flagged</h2></div>
+        <div class="pair"><figure class="shot" data-shot="a-review"><i class="mk" data-m="why" data-n="11"></i><i class="mk" data-m="ok" data-n="12"></i></figure>
+        <ol class="notes">
+          <li><span class="n">11</span><span><b>Why</b> it was flagged, and the contractor's reason.</span></li>
+          <li><span class="n">12</span><span><b>Approve and issue pass</b>, or <b>Reject</b>.</span></li>
+        </ol></div>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><span><b>Granted</b> · No approved delivery, no gate access</span><span>Gear → <b>Maintenance mode</b>: see the app as a Contractor or Access Control.</span></div>
+</section>
+
+<!-- ================================================================== 5. GOOD TO KNOW -->
+<section class="page p-know">
+  <div class="band">
+    <div>
+      <img class="logo" src="{{LOGO_white}}" alt="Ajax">
+      <div class="kicker">Good to know</div>
+      <h1>The rules, the words, the emails</h1>
+      <p>Granted applies the rules for you. The numbers are the defaults: change them in Project Settings.</p>
+    </div>
+    <div class="pg">5</div>
+  </div>
+  <div class="body">
+    <div class="know">
+      <div>
+        <h2>The rules</h2>
+        <ul class="rules">
+          <li><span class="v">48 h</span><span>Book at least 48 hours ahead.</span></li>
+          <li><span class="v">Hours</span><span>Work days and gate hours only (Mon–Sat, 6 AM to 4 PM). Closed dates are blocked.</span></li>
+          <li><span class="v">Trucks</span><span>Each gate takes a set number of trucks per time slot.</span></li>
+          <li><span class="v">Pallets</span><span>Each staging zone holds a set number of pallets, from delivery until the work starts.</span></li>
+          <li><span class="v">7 days</span><span>Material can arrive up to 7 days before its activity starts. Earlier needs a reason and an admin's OK.</span></li>
+          <li><span class="v">&gt;20</span><span>More than 20 pallets, or the same delivery twice in a week: an admin reviews it.</span></li>
+          <li><span class="v">±1 h</span><span>Trucks may arrive up to an hour before or after their slot.</span></li>
+          <li><span class="v">Once</span><span>A pass works once, on its own day.</span></li>
+          <li><span class="v">No-show</span><span>Not scanned an hour after the slot ends.</span></li>
+        </ul>
+      </div>
+      <div>
+        <h2>Words</h2>
+        <dl class="words">
+          <div><dt>Project code</dt> <dd>(like <span class="mono">DDC2-7HKQ</span>). Ajax staff type it to ask to join; you approve them. Invite people from outside Ajax by email.</dd></div>
+          <div><dt>Admin set-up code</dt> <dd>only for creating projects. Keep it private.</dd></div>
+          <div><dt>Look-ahead</dt> <dd>the 3-week schedule of upcoming activities. Every delivery is tied to one.</dd></div>
+          <div><dt>Staging zone</dt> <dd>a laydown area on site, measured in pallets.</dd></div>
+          <div><dt>Gate pass</dt> <dd>the QR code and pass code (like <span class="mono">DDC2-WFYCY9</span>) for one delivery.</dd></div>
+        </dl>
+        <h2 style="margin-top:16px">Emails go out by themselves</h2>
+        <table class="mail">
+          <tr><td>Approved</td><td>Contractor gets the pass. The gate is told.</td></tr>
+          <tr><td>Needs review</td><td>Admins are asked to decide.</td></tr>
+          <tr><td>Rejected</td><td>Contractor gets the reasons.</td></tr>
+          <tr><td>Cancelled</td><td>Contractor and gate.</td></tr>
+          <tr><td>Turned away or emergency pass</td><td>Contractor, gate and admins.</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="first">
+      <h2 style="font:700 15pt/1.1 Barlow,sans-serif;margin:0 0 10px">Your first day as admin</h2>
+      <ol>
+        <li><b>Project Settings:</b> gates, trucks per slot, zones and pallets, gate hours, closed dates.</li>
+        <li><b>Project Settings:</b> upload the look-ahead (saved from Excel as CSV). Repeat weekly.</li>
+        <li><b>Team &amp; Invites:</b> invite contractors and Access Control.</li>
+        <li><b>Approvals:</b> check it every morning.</li>
+      </ol>
+    </div>
+  </div>
+  <div class="foot"><span><b>Granted</b> · No approved delivery, no gate access</span><span>Everything is logged: who booked, who approved, who was let in.</span></div>
+</section>
+
+<script>
+const MARKS = {{MARKS}};
+const IMGS = {{IMGS}};
+for (const f of document.querySelectorAll('figure.shot')) {
+  const s = f.dataset.shot, m = MARKS[s];
+  const img = document.createElement('img'); img.src = IMGS[s]; img.alt = ''; f.prepend(img);
+  for (const k of f.querySelectorAll('.mk')) {
+    const r = m.m[k.dataset.m]; if (!r) throw new Error('No mark ' + s + '.' + k.dataset.m);
+    const pad = 1.2;
+    Object.assign(k.style, { left: (r.x - pad) + '%', top: (r.y - pad * m.w / m.h) + '%', width: (r.w + 2 * pad) + '%', height: (r.h + 2 * pad * m.w / m.h) + '%' });
+  }
+}
+</script>
+</body>
+</html>
