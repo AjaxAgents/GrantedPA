@@ -21,6 +21,10 @@
      with the service account (e.g. svc-granted@ajaxbuilding.com) as a site owner.
      Do NOT use a Team site: its Microsoft 365 group members would get access to the lists.
 
+.NOTES
+  Easiest: run setup/Setup-GrantedPA.ps1, which creates the site, signs in, runs this script and
+  does the remaining SharePoint steps (QR runner, admin code, Welcome page, Granted Users).
+
 .EXAMPLE
   ./provision.ps1 -SiteUrl https://<tenant>.sharepoint.com/sites/Granted -ClientId <client id> -ServiceAccount svc-granted@ajaxbuilding.com
 
@@ -30,19 +34,27 @@
 [CmdletBinding()]
 param(
   [Parameter(Mandatory)] [string] $SiteUrl,
-  [Parameter(Mandatory)] [string] $ClientId,
+  [string] $ClientId = '',
   [Parameter(Mandatory)] [string] $ServiceAccount,
   [string] $BreakGlassAdmin = '',
   [switch] $SkipPermissions,
   [switch] $SkipSeedData,
-  [switch] $SampleProject
+  [switch] $SampleProject,
+  # Sign in with a code on another device (Azure Cloud Shell, or a PC without a browser).
+  [switch] $DeviceLogin,
+  # Used by setup/Setup-GrantedPA.ps1, which has already signed in to this site.
+  [switch] $UseExistingConnection
 )
 
 $ErrorActionPreference = 'Stop'
 $root = Split-Path -Parent $PSScriptRoot
 $schema = Get-Content (Join-Path $PSScriptRoot 'list-schema.json') -Raw | ConvertFrom-Json
 
-Connect-PnPOnline -Url $SiteUrl -Interactive -ClientId $ClientId
+if (-not $UseExistingConnection) {
+  if (-not $ClientId) { throw 'Give -ClientId (the PnP app registration), or run setup/Setup-GrantedPA.ps1, which makes one.' }
+  if ($DeviceLogin) { Connect-PnPOnline -Url $SiteUrl -DeviceLogin -ClientId $ClientId -Tenant (([Uri]$SiteUrl).Host -replace '\.sharepoint\.com$', '.onmicrosoft.com') }
+  else { Connect-PnPOnline -Url $SiteUrl -Interactive -ClientId $ClientId }
+}
 Write-Host "Connected to $SiteUrl" -ForegroundColor Cyan
 
 # ---------------------------------------------------------------- helpers

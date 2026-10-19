@@ -8,7 +8,7 @@ GrantedPA is **one canvas app**, "Granted", in phone layout. It's shared with th
 | Data sources | **Flows only** (F00–F14). No SharePoint connection in the app, so nobody can reach the lists around the app. |
 | Connectors | Power Apps and Power Automate only. The flows use SharePoint, Outlook, Excel Online (Business) and Office 365 Groups/Users, all standard. |
 | Look | Matches `prototype/index.html` (open it in a browser): Ajax blue `#0133A2`, white and cool greys, the textured grey header, accordion tabs, green and red only for admit and turn away |
-| Phones | The **Power Apps** app from the App Store and Google Play, or a **wrapped** "Granted" app for Ajax-managed devices (see [docs/06-build-guide.md](../docs/06-build-guide.md#7-phones)) |
+| Phones | The **Power Apps** app from the App Store and Google Play, or a **wrapped** "Granted" app for Ajax-managed devices (see [docs/06-build-guide.md](../docs/06-build-guide.md#6-phones)) |
 
 ## Build conventions
 

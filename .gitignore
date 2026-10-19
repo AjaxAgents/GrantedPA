@@ -2,3 +2,6 @@ node_modules/
 *.log
 .DS_Store
 powerapps/exports/*.tmp
+.granted-setup.json
+GrantedPA-setup-summary.txt
+docs/setup-guide/.guide.built.html

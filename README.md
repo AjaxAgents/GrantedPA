@@ -4,6 +4,8 @@
 
 > **No approved delivery, no gate access.**
 
+### 👉 Setting it up? Open **[START-HERE.md](START-HERE.md)** and the illustrated **[set-up guide (PDF)](docs/Granted-Setup-Guide.pdf)**. Both editions, step by step.
+
 This is one of two editions, built so management can choose:
 
 | Edition | Built with | Repository |
@@ -38,6 +40,8 @@ qr/              The QR encoder source and tests that decode its output
 prototype/       A clickable UI reference (open prototype/index.html in a browser; admin set-up disabled)
 config/          settings.json and reason-codes.json (generated from the rules), sample gates, zones, look-ahead
 assets/brand/    Logo and app icons
+setup/           Setup-GrantedPA.ps1 (builds the whole SharePoint side in one run), Import-GrantedPASolution.ps1
+solution/        Where the exported app-and-flows solution goes after the first build (then installs are an import)
 tools/           build.js, schema-src.js, gen-docs.js, admin-code-hash.mjs
 ```
 
@@ -45,12 +49,13 @@ tools/           build.js, schema-src.js, gen-docs.js, admin-code-hash.mjs
 
 ```bash
 npm install
-npm test        # rebuilds generated files, then runs 53 tests (rules, accounts, QR decode, admin-code check)
+npm test        # rebuilds generated files, then runs 55 tests (rules, accounts, QR decode, admin-code check, set-up hash)
 npm run check   # strict type-check of both Office Scripts
 ```
 
 ## Start here
 
+0. **Setting up?** [START-HERE.md](START-HERE.md).
 1. **Deciding?** Read [docs/decision.md](docs/decision.md) and [docs/05-licensing-and-guest-access.md](docs/05-licensing-and-guest-access.md).
 2. **Building?** Follow [docs/06-build-guide.md](docs/06-build-guide.md) step by step.
 3. **IT review?** Read [docs/04-security-and-compliance.md](docs/04-security-and-compliance.md).
