@@ -1,8 +1,10 @@
 // Source for sharepoint/list-schema.json (GrantedPA v2, multi-project). Run: npm run build
-// Field types: Text, Note, Number, DateOnly, DateTime, Choice, Boolean.
+// Field types: Text, Note, Number, DateTime, Choice, Boolean.
+// Calendar dates (a delivery day, an activity's start) are Text holding YYYY-MM-DD in the project's own
+// time zone: SharePoint date-only columns shift with the site's time zone, which breaks multi-time-zone projects.
 const T = (name, display, extra) => Object.assign({ name, display, type: 'Text' }, extra || {});
 const N = (name, display, extra) => Object.assign({ name, display, type: 'Number' }, extra || {});
-const DO = (name, display, extra) => Object.assign({ name, display, type: 'DateOnly' }, extra || {});
+const DO = (name, display, extra) => Object.assign({ name, display, type: 'Text', note: 'YYYY-MM-DD, project time zone' }, extra || {});
 const DT = (name, display, extra) => Object.assign({ name, display, type: 'DateTime' }, extra || {});
 const NOTE = (name, display, extra) => Object.assign({ name, display, type: 'Note' }, extra || {});
 const B = (name, display, extra) => Object.assign({ name, display, type: 'Boolean' }, extra || {});
@@ -53,6 +55,7 @@ const schema = {
       description: 'Who is on which project, with which access. Title = ProjectId|email.',
       fields: [
         PID(), T('Email', 'Email', I), C('Role', 'Access', ['Contractor', 'Access Control', 'Admin'], I), T('Trade', 'Trade'),
+        T('FullName', 'Name'), T('Company', 'Company'), T('CompanyKey', 'Company key', I), T('Phone', 'Phone'),
         C('Status', 'Status', ['Active', 'Removed'], Object.assign({ default: 'Active' }, I)), C('Via', 'Joined by', ['Creator', 'Request', 'Invite']),
         T('AddedBy', 'Added by'), DT('AddedAt', 'Added at'), T('RemovedBy', 'Removed by'), DT('RemovedAt', 'Removed at'),
       ],
@@ -88,7 +91,7 @@ const schema = {
         PID(),
         T('SubcontractorId', 'Company key', Object.assign({ note: 'CompanyKey of the booking company' }, I)), T('SubcontractorName', 'Company'),
         T('ActivityId', 'Activity ID'), T('ActivityName', 'Activity'),
-        T('GateId', 'Gate ID', I), DO('DeliveryDate', 'Delivery date', I), T('SlotStart', 'Slot start', { note: '24-hour site time, e.g. 07:00' }),
+        T('GateId', 'Gate ID', I), DO('DeliveryDate', 'Delivery date', I), N('DeliveryDayNo', 'Delivery day number', Object.assign({ note: 'YYYYMMDD as a number, for date-range filters' }, I)), T('SlotStart', 'Slot start', { note: '24-hour site time, e.g. 07:00' }),
         DT('DeliveryStart', 'Delivery start', { note: 'Slot start as a date-time (UTC)' }),
         T('ZoneId', 'Staging zone ID', I), T('Material', 'Material'), N('Quantity', 'Quantity'),
         C('Unit', 'Unit', ['pcs', 'sections', 'reels', 'units', 'LF', 'crates', 'skids', 'boxes', 'load']),
@@ -112,7 +115,7 @@ const schema = {
         PID(), N('RequestId', 'Request ID', Object.assign({ decimals: 0 }, I)), T('SubcontractorId', 'Company key', I), T('SubcontractorName', 'Company'),
         T('Material', 'Material'), T('QuantityText', 'Quantity'), N('Pallets', 'Pallets', { decimals: 0 }),
         T('GateId', 'Gate ID'), T('GateName', 'Gate'), T('ZoneName', 'Staging zone'),
-        DO('DeliveryDate', 'Delivery date', I), T('SlotStart', 'Slot start'), DT('WindowOpen', 'Window opens'), DT('WindowClose', 'Window closes'),
+        DO('DeliveryDate', 'Delivery date', I), N('DeliveryDayNo', 'Delivery day number', Object.assign({ note: 'YYYYMMDD as a number' }, I)), T('SlotStart', 'Slot start'), DT('WindowOpen', 'Window opens'), DT('WindowClose', 'Window closes'),
         T('ContactName', 'Onsite contact'), T('ContactPhone', 'Contact phone'),
         C('Status', 'Status', ['Active', 'Used', 'Void'], Object.assign({ default: 'Active' }, I)), B('IsOverride', 'Emergency override'),
         DT('IssuedAt', 'Issued at'), DT('UsedAt', 'Used at'), T('UsedBy', 'Admitted by'), DT('VoidedAt', 'Voided at'), T('VoidReason', 'Void reason'),

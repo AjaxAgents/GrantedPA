@@ -1,0 +1,429 @@
+{
+  "properties": {
+    "connectionReferences": {
+      "shared_office365groups": {
+        "runtimeSource": "embedded",
+        "connection": {
+          "connectionReferenceLogicalName": "gr_GrantedGroups"
+        },
+        "api": {
+          "name": "shared_office365groups"
+        }
+      },
+      "shared_office365": {
+        "runtimeSource": "embedded",
+        "connection": {
+          "connectionReferenceLogicalName": "gr_GrantedOutlook"
+        },
+        "api": {
+          "name": "shared_office365"
+        }
+      },
+      "shared_sharepointonline": {
+        "runtimeSource": "embedded",
+        "connection": {
+          "connectionReferenceLogicalName": "gr_GrantedSharePoint"
+        },
+        "api": {
+          "name": "shared_sharepointonline"
+        }
+      }
+    },
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "parameters": {
+        "$connections": {
+          "defaultValue": {},
+          "type": "Object"
+        },
+        "$authentication": {
+          "defaultValue": {},
+          "type": "SecureObject"
+        },
+        "Granted Users group (gr_UsersGroupId)": {
+          "defaultValue": "",
+          "type": "String",
+          "metadata": {
+            "schemaName": "gr_UsersGroupId",
+            "description": "Object id of the Granted Users group (the app is shared with it)"
+          }
+        },
+        "Granted site URL (gr_SiteUrl)": {
+          "defaultValue": "",
+          "type": "String",
+          "metadata": {
+            "schemaName": "gr_SiteUrl",
+            "description": "The Granted SharePoint site, e.g. https://contoso.sharepoint.com/sites/Granted"
+          }
+        }
+      },
+      "triggers": {
+        "manual": {
+          "type": "Request",
+          "kind": "Button",
+          "inputs": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "text": {
+                  "title": "email",
+                  "type": "string",
+                  "x-ms-dynamically-added": true,
+                  "description": "email",
+                  "x-ms-content-hint": "TEXT"
+                },
+                "text_1": {
+                  "title": "displayName",
+                  "type": "string",
+                  "x-ms-dynamically-added": true,
+                  "description": "displayName",
+                  "x-ms-content-hint": "TEXT"
+                }
+              },
+              "required": []
+            }
+          }
+        }
+      },
+      "actions": {
+        "Try": {
+          "type": "Scope",
+          "actions": {
+            "Get_domain": {
+              "type": "OpenApiConnection",
+              "inputs": {
+                "host": {
+                  "connectionName": "shared_sharepointonline",
+                  "operationId": "HttpRequest",
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline"
+                },
+                "parameters": {
+                  "dataset": "@parameters('Granted site URL (gr_SiteUrl)')",
+                  "parameters/method": "GET",
+                  "parameters/uri": "_api/web/lists/getbytitle('AppSettings')/items?$filter=Title eq 'AjaxDomain'&$select=Value&$top=1",
+                  "parameters/headers": {
+                    "Accept": "application/json;odata=nometadata"
+                  }
+                },
+                "authentication": "@parameters('$authentication')"
+              },
+              "runAfter": {}
+            },
+            "IsHome": {
+              "type": "Compose",
+              "inputs": "@endsWith(toLower(trim(coalesce(triggerBody()?['text'], ''))), concat('@', toLower(coalesce(first(body('Get_domain')?['value'])?['Value'], ''))))",
+              "runAfter": {
+                "Get_domain": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Outside_person": {
+              "type": "If",
+              "expression": "@not(outputs('IsHome'))",
+              "actions": {
+                "Share_welcome": {
+                  "type": "OpenApiConnection",
+                  "inputs": {
+                    "host": {
+                      "connectionName": "shared_sharepointonline",
+                      "operationId": "HttpRequest",
+                      "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline"
+                    },
+                    "parameters": {
+                      "dataset": "@parameters('Granted site URL (gr_SiteUrl)')",
+                      "parameters/method": "POST",
+                      "parameters/uri": "_api/SP.Web.ShareObject",
+                      "parameters/headers": {
+                        "Accept": "application/json;odata=nometadata",
+                        "Content-Type": "application/json;odata=nometadata"
+                      },
+                      "parameters/body": "@{string(json(concat('{\"url\":\"', parameters('Granted site URL (gr_SiteUrl)'), '/SitePages/Welcome.aspx\",\"peoplePickerInput\":\"[{\\\\\"Key\\\\\":\\\\\"', toLower(trim(coalesce(triggerBody()?['text'], ''))), '\\\\\"}]\",\"roleValue\":\"role:1073741826\",\"groupId\":0,\"propagateAcl\":false,\"sendEmail\":true,\"includeAnonymousLinkInEmail\":false,\"emailSubject\":\"You’re invited to Granted\",\"emailBody\":\"You were invited to Granted for delivery booking and gate access.\"}')))}"
+                    },
+                    "authentication": "@parameters('$authentication')"
+                  },
+                  "runAfter": {}
+                }
+              },
+              "else": {
+                "actions": {}
+              },
+              "runAfter": {
+                "IsHome": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Ensure_user": {
+              "type": "OpenApiConnection",
+              "inputs": {
+                "host": {
+                  "connectionName": "shared_sharepointonline",
+                  "operationId": "HttpRequest",
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline"
+                },
+                "parameters": {
+                  "dataset": "@parameters('Granted site URL (gr_SiteUrl)')",
+                  "parameters/method": "POST",
+                  "parameters/uri": "_api/web/ensureuser",
+                  "parameters/headers": {
+                    "Accept": "application/json;odata=nometadata",
+                    "Content-Type": "application/json;odata=nometadata"
+                  },
+                  "parameters/body": "@{string(json(concat('{\"logonName\":\"', toLower(trim(coalesce(triggerBody()?['text'], ''))), '\"}')))}"
+                },
+                "authentication": "@parameters('$authentication')"
+              },
+              "runAfter": {
+                "Outside_person": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Upn": {
+              "type": "Compose",
+              "inputs": "@last(split(coalesce(body('Ensure_user')?['LoginName'], ''), '|'))",
+              "runAfter": {
+                "Ensure_user": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Add_to_group": {
+              "type": "OpenApiConnection",
+              "inputs": {
+                "host": {
+                  "connectionName": "shared_office365groups",
+                  "operationId": "AddMemberToGroup",
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_office365groups"
+                },
+                "parameters": {
+                  "groupId": "@parameters('Granted Users group (gr_UsersGroupId)')",
+                  "userUpn": "@outputs('Upn')"
+                },
+                "authentication": "@parameters('$authentication')"
+              },
+              "runAfter": {
+                "Upn": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Done_out": {
+              "type": "Compose",
+              "inputs": {
+                "ok": true,
+                "added": true,
+                "upn": "@outputs('Upn')"
+              },
+              "runAfter": {
+                "Add_to_group": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Done": {
+              "type": "Response",
+              "kind": "PowerApp",
+              "inputs": {
+                "statusCode": 200,
+                "body": {
+                  "json": "@{outputs('Done_out')}"
+                },
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "json": {
+                      "title": "json",
+                      "x-ms-dynamically-added": true,
+                      "type": "string"
+                    }
+                  }
+                }
+              },
+              "runAfter": {
+                "Done_out": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Done_end": {
+              "type": "Terminate",
+              "inputs": {
+                "runStatus": "Succeeded"
+              },
+              "runAfter": {
+                "Done": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Not_added_out": {
+              "type": "Compose",
+              "inputs": {
+                "ok": true,
+                "added": false
+              },
+              "runAfter": {
+                "Add_to_group": [
+                  "Failed",
+                  "TimedOut"
+                ]
+              }
+            },
+            "Not_added": {
+              "type": "Response",
+              "kind": "PowerApp",
+              "inputs": {
+                "statusCode": 200,
+                "body": {
+                  "json": "@{outputs('Not_added_out')}"
+                },
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "json": {
+                      "title": "json",
+                      "x-ms-dynamically-added": true,
+                      "type": "string"
+                    }
+                  }
+                }
+              },
+              "runAfter": {
+                "Not_added_out": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Not_added_end": {
+              "type": "Terminate",
+              "inputs": {
+                "runStatus": "Succeeded"
+              },
+              "runAfter": {
+                "Not_added": [
+                  "Succeeded"
+                ]
+              }
+            }
+          },
+          "runAfter": {}
+        },
+        "Catch": {
+          "type": "Scope",
+          "actions": {
+            "Catch_support": {
+              "type": "OpenApiConnection",
+              "inputs": {
+                "host": {
+                  "connectionName": "shared_sharepointonline",
+                  "operationId": "HttpRequest",
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline"
+                },
+                "parameters": {
+                  "dataset": "@parameters('Granted site URL (gr_SiteUrl)')",
+                  "parameters/method": "GET",
+                  "parameters/uri": "_api/web/lists/getbytitle('AppSettings')/items?$filter=Title eq 'SupportEmail'&$select=Value",
+                  "parameters/headers": {
+                    "Accept": "application/json;odata=nometadata"
+                  }
+                },
+                "authentication": "@parameters('$authentication')"
+              },
+              "runAfter": {}
+            },
+            "Catch_have_support": {
+              "type": "If",
+              "expression": "@not(empty(first(body('Catch_support')?['value'])?['Value']))",
+              "actions": {
+                "Catch_tell_support": {
+                  "type": "OpenApiConnection",
+                  "inputs": {
+                    "host": {
+                      "connectionName": "shared_office365",
+                      "operationId": "SendEmailV2",
+                      "apiId": "/providers/Microsoft.PowerApps/apis/shared_office365"
+                    },
+                    "parameters": {
+                      "emailMessage/To": "@{first(body('Catch_support')?['value'])?['Value']}",
+                      "emailMessage/Subject": "Granted flow failed: @{workflow()?['tags']?['flowDisplayName']}",
+                      "emailMessage/Body": "<p>The flow <b>@{workflow()?['tags']?['flowDisplayName']}</b> failed (run @{workflow()?['run']?['name']}).</p><pre>@{string(result('Try'))}</pre>",
+                      "emailMessage/Importance": "Normal"
+                    },
+                    "authentication": "@parameters('$authentication')"
+                  },
+                  "runAfter": {}
+                }
+              },
+              "else": {
+                "actions": {}
+              },
+              "runAfter": {
+                "Catch_support": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Catch_answer": {
+              "type": "Response",
+              "kind": "PowerApp",
+              "inputs": {
+                "statusCode": 200,
+                "body": {
+                  "json": "{\"ok\":false,\"message\":\"Something went wrong. Try again in a moment.\"}"
+                },
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "json": {
+                      "title": "json",
+                      "x-ms-dynamically-added": true,
+                      "type": "string"
+                    }
+                  }
+                }
+              },
+              "runAfter": {
+                "Catch_have_support": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Catch_answer_end": {
+              "type": "Terminate",
+              "inputs": {
+                "runStatus": "Succeeded"
+              },
+              "runAfter": {
+                "Catch_answer": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Catch_failed": {
+              "type": "Terminate",
+              "inputs": {
+                "runStatus": "Failed"
+              },
+              "runAfter": {
+                "Catch_answer_end": [
+                  "Succeeded"
+                ]
+              }
+            }
+          },
+          "runAfter": {
+            "Try": [
+              "Failed",
+              "TimedOut"
+            ]
+          }
+        }
+      }
+    },
+    "templateName": ""
+  },
+  "schemaVersion": "1.0.0.0"
+}

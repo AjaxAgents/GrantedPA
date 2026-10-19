@@ -1,0 +1,14 @@
+<environmentvariabledefinition schemaname="gr_UsersGroupId">
+  <defaultvalue></defaultvalue>
+  <description default="Object id of the Granted Users group (the app is shared with it)">
+    <label description="Object id of the Granted Users group (the app is shared with it)" languagecode="1033" />
+  </description>
+  <displayname default="Granted Users group">
+    <label description="Granted Users group" languagecode="1033" />
+  </displayname>
+  <introducedversion>1.0.0.0</introducedversion>
+  <iscustomizable>1</iscustomizable>
+  <isrequired>1</isrequired>
+  <secretstore>0</secretstore>
+  <type>100000000</type>
+</environmentvariabledefinition>

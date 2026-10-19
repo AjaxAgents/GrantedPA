@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Workflow WorkflowId="{5cac0d44-b422-5d62-bf9c-3781fe7a0376}" Name="Granted F09 Look-ahead upload" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <JsonFileName>/Workflows/GrantedF09Lookaheadupload-5CAC0D44-B422-5D62-BF9C-3781FE7A0376.json</JsonFileName>
+  <Type>1</Type>
+  <Subprocess>0</Subprocess>
+  <Category>5</Category>
+  <Mode>0</Mode>
+  <Scope>4</Scope>
+  <OnDemand>0</OnDemand>
+  <TriggerOnCreate>0</TriggerOnCreate>
+  <TriggerOnDelete>0</TriggerOnDelete>
+  <AsyncAutodelete>0</AsyncAutodelete>
+  <SyncWorkflowLogOnFailure>0</SyncWorkflowLogOnFailure>
+  <StateCode>1</StateCode>
+  <StatusCode>2</StatusCode>
+  <RunAs>1</RunAs>
+  <IsTransacted>1</IsTransacted>
+  <IntroducedVersion>1.0.0.0</IntroducedVersion>
+  <IsCustomizable>1</IsCustomizable>
+  <BusinessProcessType>0</BusinessProcessType>
+  <IsCustomProcessingStepAllowedForOtherPublishers>1</IsCustomProcessingStepAllowedForOtherPublishers>
+  <PrimaryEntity>none</PrimaryEntity>
+  <LocalizedNames>
+    <LocalizedName languagecode="1033" description="Granted F09 Look-ahead upload" />
+  </LocalizedNames>
+  <Descriptions>
+    <Description languagecode="1033" description="Loads the 3-week look-ahead from the app." />
+  </Descriptions>
+</Workflow>

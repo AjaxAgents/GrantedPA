@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Workflow WorkflowId="{4d30b28b-fbcf-534e-99fb-b1e99bb2b769}" Name="Granted F07 Hourly sweep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <JsonFileName>/Workflows/GrantedF07Hourlysweep-4D30B28B-FBCF-534E-99FB-B1E99BB2B769.json</JsonFileName>
+  <Type>1</Type>
+  <Subprocess>0</Subprocess>
+  <Category>5</Category>
+  <Mode>0</Mode>
+  <Scope>4</Scope>
+  <OnDemand>0</OnDemand>
+  <TriggerOnCreate>0</TriggerOnCreate>
+  <TriggerOnDelete>0</TriggerOnDelete>
+  <AsyncAutodelete>0</AsyncAutodelete>
+  <SyncWorkflowLogOnFailure>0</SyncWorkflowLogOnFailure>
+  <StateCode>1</StateCode>
+  <StatusCode>2</StatusCode>
+  <RunAs>1</RunAs>
+  <IsTransacted>1</IsTransacted>
+  <IntroducedVersion>1.0.0.0</IntroducedVersion>
+  <IsCustomizable>1</IsCustomizable>
+  <BusinessProcessType>0</BusinessProcessType>
+  <IsCustomProcessingStepAllowedForOtherPublishers>1</IsCustomProcessingStepAllowedForOtherPublishers>
+  <PrimaryEntity>none</PrimaryEntity>
+  <LocalizedNames>
+    <LocalizedName languagecode="1033" description="Granted F07 Hourly sweep" />
+  </LocalizedNames>
+  <Descriptions>
+    <Description languagecode="1033" description="No-shows, review reminders, expired invites." />
+  </Descriptions>
+</Workflow>

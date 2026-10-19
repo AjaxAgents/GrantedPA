@@ -1,0 +1,14 @@
+<environmentvariabledefinition schemaname="gr_SiteUrl">
+  <defaultvalue></defaultvalue>
+  <description default="The Granted SharePoint site, e.g. https://contoso.sharepoint.com/sites/Granted">
+    <label description="The Granted SharePoint site, e.g. https://contoso.sharepoint.com/sites/Granted" languagecode="1033" />
+  </description>
+  <displayname default="Granted site URL">
+    <label description="Granted site URL" languagecode="1033" />
+  </displayname>
+  <introducedversion>1.0.0.0</introducedversion>
+  <iscustomizable>1</iscustomizable>
+  <isrequired>1</isrequired>
+  <secretstore>0</secretstore>
+  <type>100000000</type>
+</environmentvariabledefinition>

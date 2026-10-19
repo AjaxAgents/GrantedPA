@@ -1,0 +1,296 @@
+{
+  "properties": {
+    "connectionReferences": {
+      "shared_office365": {
+        "runtimeSource": "embedded",
+        "connection": {
+          "connectionReferenceLogicalName": "gr_GrantedOutlook"
+        },
+        "api": {
+          "name": "shared_office365"
+        }
+      },
+      "shared_sharepointonline": {
+        "runtimeSource": "embedded",
+        "connection": {
+          "connectionReferenceLogicalName": "gr_GrantedSharePoint"
+        },
+        "api": {
+          "name": "shared_sharepointonline"
+        }
+      }
+    },
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "parameters": {
+        "$connections": {
+          "defaultValue": {},
+          "type": "Object"
+        },
+        "$authentication": {
+          "defaultValue": {},
+          "type": "SecureObject"
+        },
+        "Granted site URL (gr_SiteUrl)": {
+          "defaultValue": "",
+          "type": "String",
+          "metadata": {
+            "schemaName": "gr_SiteUrl",
+            "description": "The Granted SharePoint site, e.g. https://contoso.sharepoint.com/sites/Granted"
+          }
+        }
+      },
+      "triggers": {
+        "Recurrence": {
+          "type": "Recurrence",
+          "recurrence": {
+            "frequency": "Hour",
+            "interval": 1
+          }
+        }
+      },
+      "actions": {
+        "Try": {
+          "type": "Scope",
+          "actions": {
+            "Live_projects": {
+              "type": "OpenApiConnection",
+              "inputs": {
+                "host": {
+                  "connectionName": "shared_sharepointonline",
+                  "operationId": "HttpRequest",
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline"
+                },
+                "parameters": {
+                  "dataset": "@parameters('Granted site URL (gr_SiteUrl)')",
+                  "parameters/method": "GET",
+                  "parameters/uri": "_api/web/lists/getbytitle('Projects')/items?$filter=Deleted eq 0&$select=ProjectId,Title,TimeZone,SettingsJson,GateDutyPhone&$top=5000",
+                  "parameters/headers": {
+                    "Accept": "application/json;odata=nometadata"
+                  }
+                },
+                "authentication": "@parameters('$authentication')"
+              },
+              "runAfter": {}
+            },
+            "Each_project": {
+              "type": "Foreach",
+              "foreach": "@body('Live_projects')?['value']",
+              "actions": {
+                "Five_AM_on_a_work_day": {
+                  "type": "If",
+                  "expression": "@and(equals(convertFromUtc(utcNow(), coalesce(items('Each_project')?['TimeZone'], 'Central Standard Time'), 'HH'), '05'), contains(coalesce(json(coalesce(items('Each_project')?['SettingsJson'], '{}'))?['workDays'], createArray(1, 2, 3, 4, 5, 6)), dayOfWeek(convertFromUtc(utcNow(), coalesce(items('Each_project')?['TimeZone'], 'Central Standard Time')))))",
+                  "actions": {
+                    "Todays_passes": {
+                      "type": "OpenApiConnection",
+                      "inputs": {
+                        "host": {
+                          "connectionName": "shared_sharepointonline",
+                          "operationId": "HttpRequest",
+                          "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline"
+                        },
+                        "parameters": {
+                          "dataset": "@parameters('Granted site URL (gr_SiteUrl)')",
+                          "parameters/method": "GET",
+                          "parameters/uri": "_api/web/lists/getbytitle('GatePasses')/items?$filter=ProjectId eq '@{encodeUriComponent(replace(string(items('Each_project')?['ProjectId']), '''', ''''''))}' and DeliveryDate eq '@{convertFromUtc(utcNow(), coalesce(items('Each_project')?['TimeZone'], 'Central Standard Time'), 'yyyy-MM-dd')}' and Status ne 'Void'&$orderby=SlotStart&$top=500",
+                          "parameters/headers": {
+                            "Accept": "application/json;odata=nometadata"
+                          }
+                        },
+                        "authentication": "@parameters('$authentication')"
+                      },
+                      "runAfter": {}
+                    },
+                    "Rows": {
+                      "type": "Select",
+                      "inputs": {
+                        "from": "@body('Todays_passes')?['value']",
+                        "select": {
+                          "Slot": "@item()?['SlotStart']",
+                          "Company": "@item()?['SubcontractorName']",
+                          "Load": "@item()?['Material']",
+                          "Pallets": "@item()?['Pallets']",
+                          "Gate": "@item()?['GateName']",
+                          "Zone": "@item()?['ZoneName']",
+                          "Pass": "@item()?['Title']",
+                          "Contact": "@concat(item()?['ContactName'], ' ', item()?['ContactPhone'])"
+                        }
+                      },
+                      "runAfter": {
+                        "Todays_passes": [
+                          "Succeeded"
+                        ]
+                      }
+                    },
+                    "Table": {
+                      "type": "Table",
+                      "inputs": {
+                        "from": "@body('Rows')",
+                        "format": "HTML"
+                      },
+                      "runAfter": {
+                        "Rows": [
+                          "Succeeded"
+                        ]
+                      }
+                    },
+                    "Gate_team": {
+                      "type": "OpenApiConnection",
+                      "inputs": {
+                        "host": {
+                          "connectionName": "shared_sharepointonline",
+                          "operationId": "HttpRequest",
+                          "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline"
+                        },
+                        "parameters": {
+                          "dataset": "@parameters('Granted site URL (gr_SiteUrl)')",
+                          "parameters/method": "GET",
+                          "parameters/uri": "_api/web/lists/getbytitle('ProjectMembers')/items?$filter=ProjectId eq '@{encodeUriComponent(replace(string(items('Each_project')?['ProjectId']), '''', ''''''))}' and Status eq 'Active' and (Role eq 'Access Control' or Role eq 'Admin')&$select=Email&$top=500",
+                          "parameters/headers": {
+                            "Accept": "application/json;odata=nometadata"
+                          }
+                        },
+                        "authentication": "@parameters('$authentication')"
+                      },
+                      "runAfter": {
+                        "Table": [
+                          "Succeeded"
+                        ]
+                      }
+                    },
+                    "Each_reader": {
+                      "type": "Foreach",
+                      "foreach": "@body('Gate_team')?['value']",
+                      "actions": {
+                        "Send_list": {
+                          "type": "OpenApiConnection",
+                          "inputs": {
+                            "host": {
+                              "connectionName": "shared_office365",
+                              "operationId": "SendEmailV2",
+                              "apiId": "/providers/Microsoft.PowerApps/apis/shared_office365"
+                            },
+                            "parameters": {
+                              "emailMessage/To": "@{items('Each_reader')?['Email']}",
+                              "emailMessage/Subject": "@{items('Each_project')?['Title']} deliveries for @{formatDateTime(convertFromUtc(utcNow(), coalesce(items('Each_project')?['TimeZone'], 'Central Standard Time'), 'yyyy-MM-dd'), 'ddd M/d')}: @{length(body('Rows'))} trucks",
+                              "emailMessage/Body": "<p><b>Not on this list = do not admit.</b></p>@{if(empty(body('Rows')), '<p>No deliveries booked today.</p>', body('Table'))}<p>Gate duty phone: @{coalesce(items('Each_project')?['GateDutyPhone'], '—')}</p>",
+                              "emailMessage/Importance": "Normal"
+                            },
+                            "authentication": "@parameters('$authentication')"
+                          },
+                          "runAfter": {}
+                        }
+                      },
+                      "runtimeConfiguration": {
+                        "concurrency": {
+                          "repetitions": 5
+                        }
+                      },
+                      "runAfter": {
+                        "Gate_team": [
+                          "Succeeded"
+                        ]
+                      }
+                    }
+                  },
+                  "else": {
+                    "actions": {}
+                  },
+                  "runAfter": {}
+                }
+              },
+              "runtimeConfiguration": {
+                "concurrency": {
+                  "repetitions": 1
+                }
+              },
+              "runAfter": {
+                "Live_projects": [
+                  "Succeeded"
+                ]
+              }
+            }
+          },
+          "runAfter": {}
+        },
+        "Catch": {
+          "type": "Scope",
+          "actions": {
+            "Catch_support": {
+              "type": "OpenApiConnection",
+              "inputs": {
+                "host": {
+                  "connectionName": "shared_sharepointonline",
+                  "operationId": "HttpRequest",
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline"
+                },
+                "parameters": {
+                  "dataset": "@parameters('Granted site URL (gr_SiteUrl)')",
+                  "parameters/method": "GET",
+                  "parameters/uri": "_api/web/lists/getbytitle('AppSettings')/items?$filter=Title eq 'SupportEmail'&$select=Value",
+                  "parameters/headers": {
+                    "Accept": "application/json;odata=nometadata"
+                  }
+                },
+                "authentication": "@parameters('$authentication')"
+              },
+              "runAfter": {}
+            },
+            "Catch_have_support": {
+              "type": "If",
+              "expression": "@not(empty(first(body('Catch_support')?['value'])?['Value']))",
+              "actions": {
+                "Catch_tell_support": {
+                  "type": "OpenApiConnection",
+                  "inputs": {
+                    "host": {
+                      "connectionName": "shared_office365",
+                      "operationId": "SendEmailV2",
+                      "apiId": "/providers/Microsoft.PowerApps/apis/shared_office365"
+                    },
+                    "parameters": {
+                      "emailMessage/To": "@{first(body('Catch_support')?['value'])?['Value']}",
+                      "emailMessage/Subject": "Granted flow failed: @{workflow()?['tags']?['flowDisplayName']}",
+                      "emailMessage/Body": "<p>The flow <b>@{workflow()?['tags']?['flowDisplayName']}</b> failed (run @{workflow()?['run']?['name']}).</p><pre>@{string(result('Try'))}</pre>",
+                      "emailMessage/Importance": "Normal"
+                    },
+                    "authentication": "@parameters('$authentication')"
+                  },
+                  "runAfter": {}
+                }
+              },
+              "else": {
+                "actions": {}
+              },
+              "runAfter": {
+                "Catch_support": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Catch_failed": {
+              "type": "Terminate",
+              "inputs": {
+                "runStatus": "Failed"
+              },
+              "runAfter": {
+                "Catch_have_support": [
+                  "Succeeded"
+                ]
+              }
+            }
+          },
+          "runAfter": {
+            "Try": [
+              "Failed",
+              "TimedOut"
+            ]
+          }
+        }
+      }
+    },
+    "templateName": ""
+  },
+  "schemaVersion": "1.0.0.0"
+}

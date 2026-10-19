@@ -87,6 +87,10 @@ Who is on which project, with which access. Title = ProjectId|email.
 | `Email` | Email | Single line of text | Yes |  |
 | `Role` | Access | Choice | Yes | Choices: Contractor, Access Control, Admin |
 | `Trade` | Trade | Single line of text |  |  |
+| `FullName` | Name | Single line of text |  |  |
+| `Company` | Company | Single line of text |  |  |
+| `CompanyKey` | Company key | Single line of text | Yes |  |
+| `Phone` | Phone | Single line of text |  |  |
 | `Status` | Status | Choice | Yes | Choices: Active, Removed. Default: Active |
 | `Via` | Joined by | Choice |  | Choices: Creator, Request, Invite |
 | `AddedBy` | Added by | Single line of text |  |  |
@@ -160,7 +164,8 @@ One item per delivery request. Written only by flows (F01 creates and decides).
 | `ActivityId` | Activity ID | Single line of text |  |  |
 | `ActivityName` | Activity | Single line of text |  |  |
 | `GateId` | Gate ID | Single line of text | Yes |  |
-| `DeliveryDate` | Delivery date | Date only | Yes |  |
+| `DeliveryDate` | Delivery date | Single line of text | Yes | YYYY-MM-DD, project time zone |
+| `DeliveryDayNo` | Delivery day number | Number | Yes | YYYYMMDD as a number, for date-range filters |
 | `SlotStart` | Slot start | Single line of text |  | 24-hour site time, e.g. 07:00 |
 | `DeliveryStart` | Delivery start | Date and time |  | Slot start as a date-time (UTC) |
 | `ZoneId` | Staging zone ID | Single line of text | Yes |  |
@@ -178,7 +183,7 @@ One item per delivery request. Written only by flows (F01 creates and decides).
 | `ReasonCodes` | Reason codes | Single line of text |  | Semicolon list, e.g. R05;F03 |
 | `ReasonText` | Reasons and fixes | Multiple lines (plain) |  |  |
 | `NextOpenSlot` | Next open slot | Single line of text |  |  |
-| `StagedUntil` | Staged until | Date only |  |  |
+| `StagedUntil` | Staged until | Single line of text |  | YYYY-MM-DD, project time zone |
 | `PassCode` | Pass code | Single line of text | Yes |  |
 | `PreviousPassCode` | Previous pass code | Single line of text |  |  |
 | `QrSvg` | QR (SVG) | Multiple lines (plain) |  |  |
@@ -213,7 +218,8 @@ One item per issued gate pass. Written only by F02, F05, F06.
 | `GateId` | Gate ID | Single line of text |  |  |
 | `GateName` | Gate | Single line of text |  |  |
 | `ZoneName` | Staging zone | Single line of text |  |  |
-| `DeliveryDate` | Delivery date | Date only | Yes |  |
+| `DeliveryDate` | Delivery date | Single line of text | Yes | YYYY-MM-DD, project time zone |
+| `DeliveryDayNo` | Delivery day number | Number | Yes | YYYYMMDD as a number |
 | `SlotStart` | Slot start | Single line of text |  |  |
 | `WindowOpen` | Window opens | Date and time |  |  |
 | `WindowClose` | Window closes | Date and time |  |  |
@@ -280,8 +286,8 @@ Each project's current 3-week look-ahead, loaded weekly by F09.
 | `ProjectId` | Project ID | Single line of text | Yes | Required |
 | `ActivityId` | Activity ID | Single line of text |  |  |
 | `Trade` | Trade | Single line of text |  |  |
-| `StartDate` | Start | Date only |  |  |
-| `FinishDate` | Finish | Date only |  |  |
+| `StartDate` | Start | Single line of text |  | YYYY-MM-DD, project time zone |
+| `FinishDate` | Finish | Single line of text |  | YYYY-MM-DD, project time zone |
 | `Area` | Area | Single line of text |  |  |
 | `IsCurrent` | In current look-ahead | Yes/No | Yes |  |
 | `ImportBatch` | Import batch | Single line of text |  |  |
@@ -322,7 +328,7 @@ Days a project's gates take no deliveries.
 |---|---|---|---|---|
 | `Title` | Reason | Single line of text |  | |
 | `ProjectId` | Project ID | Single line of text | Yes | Required |
-| `BlackoutDate` | Date | Date only | Yes |  |
+| `BlackoutDate` | Date | Single line of text | Yes | YYYY-MM-DD, project time zone |
 
 ## ReasonCodes
 

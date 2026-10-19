@@ -1,0 +1,1191 @@
+{
+  "properties": {
+    "connectionReferences": {
+      "shared_excelonlinebusiness": {
+        "runtimeSource": "embedded",
+        "connection": {
+          "connectionReferenceLogicalName": "gr_GrantedExcel"
+        },
+        "api": {
+          "name": "shared_excelonlinebusiness"
+        }
+      },
+      "shared_office365": {
+        "runtimeSource": "embedded",
+        "connection": {
+          "connectionReferenceLogicalName": "gr_GrantedOutlook"
+        },
+        "api": {
+          "name": "shared_office365"
+        }
+      },
+      "shared_sharepointonline": {
+        "runtimeSource": "embedded",
+        "connection": {
+          "connectionReferenceLogicalName": "gr_GrantedSharePoint"
+        },
+        "api": {
+          "name": "shared_sharepointonline"
+        }
+      }
+    },
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "parameters": {
+        "$connections": {
+          "defaultValue": {},
+          "type": "Object"
+        },
+        "$authentication": {
+          "defaultValue": {},
+          "type": "SecureObject"
+        },
+        "Granted Excel library (gr_ExcelDrive)": {
+          "defaultValue": "",
+          "type": "String",
+          "metadata": {
+            "schemaName": "gr_ExcelDrive",
+            "description": "Drive id of the QRRunner library"
+          }
+        },
+        "Granted Excel site (gr_ExcelSite)": {
+          "defaultValue": "",
+          "type": "String",
+          "metadata": {
+            "schemaName": "gr_ExcelSite",
+            "description": "Graph site id of the Granted site (sites/host,siteId,webId), for Run script"
+          }
+        },
+        "Granted engine script (gr_EngineScript)": {
+          "defaultValue": "",
+          "type": "String",
+          "metadata": {
+            "schemaName": "gr_EngineScript",
+            "description": "Drive item id of GrantedEngine.osts"
+          }
+        },
+        "Granted site URL (gr_SiteUrl)": {
+          "defaultValue": "",
+          "type": "String",
+          "metadata": {
+            "schemaName": "gr_SiteUrl",
+            "description": "The Granted SharePoint site, e.g. https://contoso.sharepoint.com/sites/Granted"
+          }
+        },
+        "Granted Excel workbook (gr_ExcelWorkbook)": {
+          "defaultValue": "",
+          "type": "String",
+          "metadata": {
+            "schemaName": "gr_ExcelWorkbook",
+            "description": "Drive item id of QR-Runner.xlsx"
+          }
+        }
+      },
+      "triggers": {
+        "manual": {
+          "type": "Request",
+          "kind": "PowerAppV2",
+          "inputs": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "text": {
+                  "title": "projectId",
+                  "type": "string",
+                  "x-ms-dynamically-added": true,
+                  "description": "projectId",
+                  "x-ms-content-hint": "TEXT"
+                },
+                "text_1": {
+                  "title": "viewAs",
+                  "type": "string",
+                  "x-ms-dynamically-added": true,
+                  "description": "viewAs",
+                  "x-ms-content-hint": "TEXT"
+                },
+                "text_2": {
+                  "title": "payload",
+                  "type": "string",
+                  "x-ms-dynamically-added": true,
+                  "description": "payload",
+                  "x-ms-content-hint": "TEXT"
+                }
+              },
+              "required": []
+            }
+          }
+        }
+      },
+      "actions": {
+        "Init_existing": {
+          "type": "InitializeVariable",
+          "inputs": {
+            "variables": [
+              {
+                "name": "Existing",
+                "type": "object",
+                "value": {}
+              }
+            ]
+          },
+          "runAfter": {}
+        },
+        "Init_id": {
+          "type": "InitializeVariable",
+          "inputs": {
+            "variables": [
+              {
+                "name": "SavedId",
+                "type": "integer",
+                "value": 0
+              }
+            ]
+          },
+          "runAfter": {
+            "Init_existing": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Try": {
+          "type": "Scope",
+          "actions": {
+            "In": {
+              "type": "Compose",
+              "inputs": "@json(if(empty(triggerBody()?['text_2']), '{}', triggerBody()?['text_2']))",
+              "runAfter": {}
+            },
+            "Caller": {
+              "type": "Compose",
+              "inputs": "@toLower(triggerOutputs()?['headers']?['x-ms-user-email'])",
+              "runAfter": {
+                "In": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "ProjectIdIn": {
+              "type": "Compose",
+              "inputs": "@trim(coalesce(triggerBody()?['text'], ''))",
+              "runAfter": {
+                "Caller": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Authorize": {
+              "type": "Workflow",
+              "inputs": {
+                "host": {
+                  "workflowReferenceName": "282f0f38-3f85-5ebc-be6e-2c2e1eb17c01"
+                },
+                "body": {
+                  "text": "@{outputs('Caller')}",
+                  "text_1": "@{outputs('ProjectIdIn')}",
+                  "text_2": "@{coalesce(triggerBody()?['text_1'], '')}",
+                  "text_3": "delivery.request"
+                }
+              },
+              "runAfter": {
+                "ProjectIdIn": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Auth": {
+              "type": "Compose",
+              "inputs": "@json(body('Authorize')?['json'])",
+              "runAfter": {
+                "Authorize": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Is_allowed": {
+              "type": "If",
+              "expression": "@equals(outputs('Auth')?['ok'], true)",
+              "actions": {},
+              "else": {
+                "actions": {
+                  "Not_allowed": {
+                    "type": "Response",
+                    "kind": "PowerApp",
+                    "inputs": {
+                      "statusCode": 200,
+                      "body": {
+                        "json": "@{outputs('Auth')}"
+                      },
+                      "schema": {
+                        "type": "object",
+                        "properties": {
+                          "json": {
+                            "title": "json",
+                            "x-ms-dynamically-added": true,
+                            "type": "string"
+                          }
+                        }
+                      }
+                    },
+                    "runAfter": {}
+                  },
+                  "Not_allowed_end": {
+                    "type": "Terminate",
+                    "inputs": {
+                      "runStatus": "Succeeded"
+                    },
+                    "runAfter": {
+                      "Not_allowed": [
+                        "Succeeded"
+                      ]
+                    }
+                  }
+                }
+              },
+              "runAfter": {
+                "Auth": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "ReqId": {
+              "type": "Compose",
+              "inputs": "@int(coalesce(outputs('In')?['id'], 0))",
+              "runAfter": {
+                "Is_allowed": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Is_reschedule": {
+              "type": "If",
+              "expression": "@greater(outputs('ReqId'), 0)",
+              "actions": {
+                "Get_existing": {
+                  "type": "OpenApiConnection",
+                  "inputs": {
+                    "host": {
+                      "connectionName": "shared_sharepointonline",
+                      "operationId": "HttpRequest",
+                      "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline"
+                    },
+                    "parameters": {
+                      "dataset": "@parameters('Granted site URL (gr_SiteUrl)')",
+                      "parameters/method": "GET",
+                      "parameters/uri": "_api/web/lists/getbytitle('DeliveryRequests')/items(@{outputs('ReqId')})",
+                      "parameters/headers": {
+                        "Accept": "application/json;odata=nometadata"
+                      }
+                    },
+                    "authentication": "@parameters('$authentication')"
+                  },
+                  "runAfter": {}
+                },
+                "Can_change": {
+                  "type": "If",
+                  "expression": "@and(equals(body('Get_existing')?['ProjectId'], outputs('Auth')?['project']?['id']), or(equals(body('Get_existing')?['SubcontractorId'], outputs('Auth')?['person']?['companyKey']), equals(outputs('Auth')?['role'], 'Admin')), contains(createArray('Approved', 'Needs review', 'Rejected'), body('Get_existing')?['Status']))",
+                  "actions": {
+                    "Keep_existing": {
+                      "type": "SetVariable",
+                      "inputs": {
+                        "name": "Existing",
+                        "value": "@body('Get_existing')"
+                      },
+                      "runAfter": {}
+                    }
+                  },
+                  "else": {
+                    "actions": {
+                      "Cannot_change": {
+                        "type": "Response",
+                        "kind": "PowerApp",
+                        "inputs": {
+                          "statusCode": 200,
+                          "body": {
+                            "json": "@{string(addProperty(addProperty(json('{}'), 'ok', false), 'message', 'That request can’t be changed now.'))}"
+                          },
+                          "schema": {
+                            "type": "object",
+                            "properties": {
+                              "json": {
+                                "title": "json",
+                                "x-ms-dynamically-added": true,
+                                "type": "string"
+                              }
+                            }
+                          }
+                        },
+                        "runAfter": {}
+                      },
+                      "Cannot_change_end": {
+                        "type": "Terminate",
+                        "inputs": {
+                          "runStatus": "Succeeded"
+                        },
+                        "runAfter": {
+                          "Cannot_change": [
+                            "Succeeded"
+                          ]
+                        }
+                      }
+                    }
+                  },
+                  "runAfter": {
+                    "Get_existing": [
+                      "Succeeded"
+                    ]
+                  }
+                }
+              },
+              "else": {
+                "actions": {}
+              },
+              "runAfter": {
+                "ReqId": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "SubId": {
+              "type": "Compose",
+              "inputs": "@if(greater(outputs('ReqId'), 0), variables('Existing')?['SubcontractorId'], outputs('Auth')?['person']?['companyKey'])",
+              "runAfter": {
+                "Is_reschedule": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "SubName": {
+              "type": "Compose",
+              "inputs": "@if(greater(outputs('ReqId'), 0), variables('Existing')?['SubcontractorName'], outputs('Auth')?['person']?['company'])",
+              "runAfter": {
+                "SubId": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Clean": {
+              "type": "Compose",
+              "inputs": {
+                "activityId": "@substring(trim(string(coalesce(outputs('In')?['activityId'], ''))), 0, min(40, length(trim(string(coalesce(outputs('In')?['activityId'], ''))))))",
+                "gateId": "@substring(trim(string(coalesce(outputs('In')?['gateId'], ''))), 0, min(40, length(trim(string(coalesce(outputs('In')?['gateId'], ''))))))",
+                "date": "@substring(trim(string(coalesce(outputs('In')?['date'], ''))), 0, min(10, length(trim(string(coalesce(outputs('In')?['date'], ''))))))",
+                "slot": "@substring(trim(string(coalesce(outputs('In')?['slot'], ''))), 0, min(5, length(trim(string(coalesce(outputs('In')?['slot'], ''))))))",
+                "zoneId": "@substring(trim(string(coalesce(outputs('In')?['zoneId'], ''))), 0, min(40, length(trim(string(coalesce(outputs('In')?['zoneId'], ''))))))",
+                "material": "@substring(trim(string(coalesce(outputs('In')?['material'], ''))), 0, min(120, length(trim(string(coalesce(outputs('In')?['material'], ''))))))",
+                "unit": "@if(contains(createArray('pcs', 'sections', 'reels', 'units', 'LF', 'crates', 'skids', 'boxes', 'load'), string(coalesce(outputs('In')?['unit'], ''))), string(outputs('In')?['unit']), '')",
+                "quantity": "@string(coalesce(outputs('In')?['quantity'], ''))",
+                "pallets": "@string(coalesce(outputs('In')?['pallets'], ''))",
+                "weightLbs": "@coalesce(outputs('In')?['weightLbs'], 0)",
+                "carrier": "@substring(trim(string(coalesce(outputs('In')?['carrier'], ''))), 0, min(80, length(trim(string(coalesce(outputs('In')?['carrier'], ''))))))",
+                "truck": "@substring(trim(string(coalesce(outputs('In')?['truck'], ''))), 0, min(40, length(trim(string(coalesce(outputs('In')?['truck'], ''))))))",
+                "pocName": "@substring(trim(string(coalesce(outputs('In')?['pocName'], ''))), 0, min(80, length(trim(string(coalesce(outputs('In')?['pocName'], ''))))))",
+                "pocPhone": "@substring(trim(string(coalesce(outputs('In')?['pocPhone'], ''))), 0, min(20, length(trim(string(coalesce(outputs('In')?['pocPhone'], ''))))))",
+                "justification": "@substring(trim(string(coalesce(outputs('In')?['justification'], ''))), 0, min(500, length(trim(string(coalesce(outputs('In')?['justification'], ''))))))"
+              },
+              "runAfter": {
+                "SubName": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Get_gates": {
+              "type": "OpenApiConnection",
+              "inputs": {
+                "host": {
+                  "connectionName": "shared_sharepointonline",
+                  "operationId": "HttpRequest",
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline"
+                },
+                "parameters": {
+                  "dataset": "@parameters('Granted site URL (gr_SiteUrl)')",
+                  "parameters/method": "GET",
+                  "parameters/uri": "_api/web/lists/getbytitle('Gates')/items?$filter=ProjectId eq '@{encodeUriComponent(replace(string(outputs('Auth')?['project']?['id']), '''', ''''''))}' and Active eq 1&$top=200",
+                  "parameters/headers": {
+                    "Accept": "application/json;odata=nometadata"
+                  }
+                },
+                "authentication": "@parameters('$authentication')"
+              },
+              "runAfter": {
+                "Clean": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Get_zones": {
+              "type": "OpenApiConnection",
+              "inputs": {
+                "host": {
+                  "connectionName": "shared_sharepointonline",
+                  "operationId": "HttpRequest",
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline"
+                },
+                "parameters": {
+                  "dataset": "@parameters('Granted site URL (gr_SiteUrl)')",
+                  "parameters/method": "GET",
+                  "parameters/uri": "_api/web/lists/getbytitle('StagingZones')/items?$filter=ProjectId eq '@{encodeUriComponent(replace(string(outputs('Auth')?['project']?['id']), '''', ''''''))}' and Active eq 1&$top=200",
+                  "parameters/headers": {
+                    "Accept": "application/json;odata=nometadata"
+                  }
+                },
+                "authentication": "@parameters('$authentication')"
+              },
+              "runAfter": {
+                "Clean": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Get_activities": {
+              "type": "OpenApiConnection",
+              "inputs": {
+                "host": {
+                  "connectionName": "shared_sharepointonline",
+                  "operationId": "HttpRequest",
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline"
+                },
+                "parameters": {
+                  "dataset": "@parameters('Granted site URL (gr_SiteUrl)')",
+                  "parameters/method": "GET",
+                  "parameters/uri": "_api/web/lists/getbytitle('Activities')/items?$filter=ProjectId eq '@{encodeUriComponent(replace(string(outputs('Auth')?['project']?['id']), '''', ''''''))}' and IsCurrent eq 1&$top=2000",
+                  "parameters/headers": {
+                    "Accept": "application/json;odata=nometadata"
+                  }
+                },
+                "authentication": "@parameters('$authentication')"
+              },
+              "runAfter": {
+                "Clean": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Get_company": {
+              "type": "OpenApiConnection",
+              "inputs": {
+                "host": {
+                  "connectionName": "shared_sharepointonline",
+                  "operationId": "HttpRequest",
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline"
+                },
+                "parameters": {
+                  "dataset": "@parameters('Granted site URL (gr_SiteUrl)')",
+                  "parameters/method": "GET",
+                  "parameters/uri": "_api/web/lists/getbytitle('Companies')/items?$filter=ProjectId eq '@{encodeUriComponent(replace(string(outputs('Auth')?['project']?['id']), '''', ''''''))}' and CompanyKey eq '@{encodeUriComponent(replace(string(outputs('SubId')), '''', ''''''))}'&$top=1",
+                  "parameters/headers": {
+                    "Accept": "application/json;odata=nometadata"
+                  }
+                },
+                "authentication": "@parameters('$authentication')"
+              },
+              "runAfter": {
+                "Clean": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Get_company_members": {
+              "type": "OpenApiConnection",
+              "inputs": {
+                "host": {
+                  "connectionName": "shared_sharepointonline",
+                  "operationId": "HttpRequest",
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline"
+                },
+                "parameters": {
+                  "dataset": "@parameters('Granted site URL (gr_SiteUrl)')",
+                  "parameters/method": "GET",
+                  "parameters/uri": "_api/web/lists/getbytitle('ProjectMembers')/items?$filter=ProjectId eq '@{encodeUriComponent(replace(string(outputs('Auth')?['project']?['id']), '''', ''''''))}' and CompanyKey eq '@{encodeUriComponent(replace(string(outputs('SubId')), '''', ''''''))}' and Status eq 'Active'&$select=Trade&$top=500",
+                  "parameters/headers": {
+                    "Accept": "application/json;odata=nometadata"
+                  }
+                },
+                "authentication": "@parameters('$authentication')"
+              },
+              "runAfter": {
+                "Clean": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Get_bookings": {
+              "type": "OpenApiConnection",
+              "inputs": {
+                "host": {
+                  "connectionName": "shared_sharepointonline",
+                  "operationId": "HttpRequest",
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline"
+                },
+                "parameters": {
+                  "dataset": "@parameters('Granted site URL (gr_SiteUrl)')",
+                  "parameters/method": "GET",
+                  "parameters/uri": "_api/web/lists/getbytitle('DeliveryRequests')/items?$filter=ProjectId eq '@{encodeUriComponent(replace(string(outputs('Auth')?['project']?['id']), '''', ''''''))}' and DeliveryDayNo ge @{int(replace(addDays(convertFromUtc(utcNow(), outputs('Auth')?['project']?['timeZone'], 'yyyy-MM-dd'), -60, 'yyyy-MM-dd'), '-', ''))}&$select=ID,SubcontractorId,ActivityId,GateId,DeliveryDate,SlotStart,ZoneId,Pallets,StagedUntil,Status,PassCode&$top=5000",
+                  "parameters/headers": {
+                    "Accept": "application/json;odata=nometadata"
+                  }
+                },
+                "authentication": "@parameters('$authentication')"
+              },
+              "runAfter": {
+                "Clean": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Trades": {
+              "type": "Query",
+              "inputs": {
+                "from": "@body('Get_company_members')?['value']",
+                "where": "@not(empty(item()?['Trade']))"
+              },
+              "runAfter": {
+                "Get_gates": [
+                  "Succeeded"
+                ],
+                "Get_zones": [
+                  "Succeeded"
+                ],
+                "Get_activities": [
+                  "Succeeded"
+                ],
+                "Get_company": [
+                  "Succeeded"
+                ],
+                "Get_company_members": [
+                  "Succeeded"
+                ],
+                "Get_bookings": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Ctx_gates": {
+              "type": "Select",
+              "inputs": {
+                "from": "@body('Get_gates')?['value']",
+                "select": {
+                  "id": "@item()?['GateId']",
+                  "name": "@item()?['Title']",
+                  "capacityPerSlot": "@coalesce(item()?['CapacityPerSlot'], 1)"
+                }
+              },
+              "runAfter": {
+                "Trades": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Ctx_zones": {
+              "type": "Select",
+              "inputs": {
+                "from": "@body('Get_zones')?['value']",
+                "select": {
+                  "id": "@item()?['ZoneId']",
+                  "name": "@item()?['Title']",
+                  "capacityPallets": "@coalesce(item()?['CapacityPallets'], 0)"
+                }
+              },
+              "runAfter": {
+                "Ctx_gates": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Ctx_activities": {
+              "type": "Select",
+              "inputs": {
+                "from": "@body('Get_activities')?['value']",
+                "select": {
+                  "id": "@item()?['ActivityId']",
+                  "name": "@item()?['Title']",
+                  "trade": "@coalesce(item()?['Trade'], '')",
+                  "start": "@item()?['StartDate']",
+                  "finish": "@item()?['FinishDate']"
+                }
+              },
+              "runAfter": {
+                "Ctx_zones": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Ctx_bookings": {
+              "type": "Select",
+              "inputs": {
+                "from": "@body('Get_bookings')?['value']",
+                "select": {
+                  "id": "@string(item()?['ID'])",
+                  "subId": "@coalesce(item()?['SubcontractorId'], '')",
+                  "activityId": "@coalesce(item()?['ActivityId'], '')",
+                  "gateId": "@coalesce(item()?['GateId'], '')",
+                  "date": "@coalesce(item()?['DeliveryDate'], '')",
+                  "slot": "@coalesce(item()?['SlotStart'], '')",
+                  "zoneId": "@coalesce(item()?['ZoneId'], '')",
+                  "pallets": "@coalesce(item()?['Pallets'], 0)",
+                  "stagedUntil": "@coalesce(item()?['StagedUntil'], item()?['DeliveryDate'])",
+                  "status": "@coalesce(item()?['Status'], '')",
+                  "passCode": "@coalesce(item()?['PassCode'], '')",
+                  "arrived": false
+                }
+              },
+              "runAfter": {
+                "Ctx_activities": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Engine_input": {
+              "type": "Compose",
+              "inputs": {
+                "req": {
+                  "id": "@if(greater(outputs('ReqId'), 0), string(outputs('ReqId')), 'NEW')",
+                  "subId": "@outputs('SubId')",
+                  "activityId": "@outputs('Clean')?['activityId']",
+                  "gateId": "@outputs('Clean')?['gateId']",
+                  "date": "@outputs('Clean')?['date']",
+                  "slot": "@outputs('Clean')?['slot']",
+                  "zoneId": "@outputs('Clean')?['zoneId']",
+                  "material": "@outputs('Clean')?['material']",
+                  "quantity": "@outputs('Clean')?['quantity']",
+                  "unit": "@outputs('Clean')?['unit']",
+                  "pallets": "@outputs('Clean')?['pallets']",
+                  "pocName": "@outputs('Clean')?['pocName']",
+                  "pocPhone": "@outputs('Clean')?['pocPhone']",
+                  "justification": "@outputs('Clean')?['justification']"
+                },
+                "ctx": {
+                  "now": "@convertFromUtc(utcNow(), outputs('Auth')?['project']?['timeZone'], 'yyyy-MM-ddTHH:mm:ss')",
+                  "settings": "@outputs('Auth')?['project']?['settings']",
+                  "gates": "@body('Ctx_gates')",
+                  "zones": "@body('Ctx_zones')",
+                  "subs": [
+                    {
+                      "id": "@outputs('SubId')",
+                      "name": "@outputs('SubName')",
+                      "trade": "@coalesce(first(body('Trades'))?['Trade'], '')",
+                      "suspended": "@equals(first(body('Get_company')?['value'])?['Suspended'], true)"
+                    }
+                  ],
+                  "activities": "@body('Ctx_activities')",
+                  "requests": "@body('Ctx_bookings')"
+                }
+              },
+              "runAfter": {
+                "Ctx_bookings": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Run_rules": {
+              "type": "OpenApiConnection",
+              "inputs": {
+                "host": {
+                  "connectionName": "shared_excelonlinebusiness",
+                  "operationId": "RunScriptProdV2",
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_excelonlinebusiness"
+                },
+                "parameters": {
+                  "source": "@parameters('Granted Excel site (gr_ExcelSite)')",
+                  "drive": "@parameters('Granted Excel library (gr_ExcelDrive)')",
+                  "file": "@parameters('Granted Excel workbook (gr_ExcelWorkbook)')",
+                  "scriptSource": "@parameters('Granted Excel site (gr_ExcelSite)')",
+                  "scriptDrive": "@parameters('Granted Excel library (gr_ExcelDrive)')",
+                  "scriptId": "@parameters('Granted engine script (gr_EngineScript)')",
+                  "ScriptParameters/op": "evaluate",
+                  "ScriptParameters/input": "@{outputs('Engine_input')}"
+                },
+                "authentication": "@parameters('$authentication')"
+              },
+              "runAfter": {
+                "Engine_input": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Result": {
+              "type": "Compose",
+              "inputs": "@json(body('Run_rules')?['result'])",
+              "runAfter": {
+                "Run_rules": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Picked_activity": {
+              "type": "Query",
+              "inputs": {
+                "from": "@body('Ctx_activities')",
+                "where": "@equals(item()?['id'], outputs('Clean')?['activityId'])"
+              },
+              "runAfter": {
+                "Result": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Fields": {
+              "type": "Compose",
+              "inputs": {
+                "ProjectId": "@{outputs('Auth')?['project']?['id']}",
+                "SubcontractorId": "@{outputs('SubId')}",
+                "SubcontractorName": "@{outputs('SubName')}",
+                "ActivityId": "@{outputs('Clean')?['activityId']}",
+                "ActivityName": "@{coalesce(first(body('Picked_activity'))?['name'], '')}",
+                "GateId": "@{outputs('Clean')?['gateId']}",
+                "DeliveryDate": "@{outputs('Clean')?['date']}",
+                "DeliveryDayNo": "@int(concat('0', replace(outputs('Clean')?['date'], '-', '')))",
+                "SlotStart": "@{outputs('Clean')?['slot']}",
+                "DeliveryStart": "@{convertToUtc(concat(if(equals(length(outputs('Clean')?['date']), 10), outputs('Clean')?['date'], '2000-01-01'), 'T', if(equals(length(outputs('Clean')?['slot']), 5), outputs('Clean')?['slot'], '00:00'), ':00'), outputs('Auth')?['project']?['timeZone'])}",
+                "ZoneId": "@{outputs('Clean')?['zoneId']}",
+                "Material": "@{outputs('Clean')?['material']}",
+                "Quantity": "@if(empty(outputs('Clean')?['quantity']), null, float(if(empty(outputs('Clean')?['quantity']), '0', outputs('Clean')?['quantity'])))",
+                "Unit": "@{outputs('Clean')?['unit']}",
+                "Pallets": "@if(empty(outputs('Clean')?['pallets']), null, float(if(empty(outputs('Clean')?['pallets']), '0', outputs('Clean')?['pallets'])))",
+                "WeightLbs": "@float(coalesce(outputs('Clean')?['weightLbs'], 0))",
+                "Carrier": "@{outputs('Clean')?['carrier']}",
+                "TruckNumber": "@{outputs('Clean')?['truck']}",
+                "ContactName": "@{outputs('Clean')?['pocName']}",
+                "ContactPhone": "@{outputs('Clean')?['pocPhone']}",
+                "EarlyJustification": "@{outputs('Clean')?['justification']}",
+                "Status": "@{outputs('Result')?['status']}",
+                "ReasonCodes": "@{outputs('Result')?['codes']}",
+                "ReasonText": "@{outputs('Result')?['reasonText']}",
+                "NextOpenSlot": "@{coalesce(outputs('Result')?['nextOpen']?['label'], '')}",
+                "StagedUntil": "@{coalesce(outputs('Result')?['stagedUntil'], outputs('Clean')?['date'])}",
+                "SubmittedByEmail": "@{outputs('Caller')}",
+                "SubmittedByName": "@{concat(outputs('Auth')?['person']?['first'], ' ', outputs('Auth')?['person']?['last'])}",
+                "SubmittedAt": "@utcNow()",
+                "DecidedBy": "Rules engine",
+                "DecidedAt": "@utcNow()",
+                "Maintenance": "@equals(outputs('Auth')?['maintenance'], true)",
+                "IsOverride": false,
+                "PassCode": "@{if(greater(outputs('ReqId'), 0), '', '')}",
+                "PreviousPassCode": "@{if(and(greater(outputs('ReqId'), 0), not(empty(variables('Existing')?['PassCode']))), variables('Existing')?['PassCode'], coalesce(variables('Existing')?['PreviousPassCode'], ''))}",
+                "ReviewAlertSentAt": null,
+                "EscalatedAt": null,
+                "MessageLog": "@{concat(coalesce(variables('Existing')?['MessageLog'], ''), convertFromUtc(utcNow(), outputs('Auth')?['project']?['timeZone'], 'yyyy-MM-ddTHH:mm:ss'), ' ', concat(if(greater(outputs('ReqId'), 0), 'Rescheduled. ', ''), outputs('Result')?['status'], if(empty(outputs('Result')?['reasonText']), '', concat(': ', outputs('Result')?['reasonText']))), decodeUriComponent('%0A'))}"
+              },
+              "runAfter": {
+                "Picked_activity": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "New_request": {
+              "type": "If",
+              "expression": "@equals(outputs('ReqId'), 0)",
+              "actions": {
+                "Create_request": {
+                  "type": "OpenApiConnection",
+                  "inputs": {
+                    "host": {
+                      "connectionName": "shared_sharepointonline",
+                      "operationId": "HttpRequest",
+                      "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline"
+                    },
+                    "parameters": {
+                      "dataset": "@parameters('Granted site URL (gr_SiteUrl)')",
+                      "parameters/method": "POST",
+                      "parameters/uri": "_api/web/lists/getbytitle('DeliveryRequests')/items",
+                      "parameters/headers": {
+                        "Accept": "application/json;odata=nometadata",
+                        "Content-Type": "application/json;odata=nometadata"
+                      },
+                      "parameters/body": "@{setProperty(outputs('Fields'), 'Title', 'DR-new')}"
+                    },
+                    "authentication": "@parameters('$authentication')"
+                  },
+                  "runAfter": {}
+                },
+                "Keep_new_id": {
+                  "type": "SetVariable",
+                  "inputs": {
+                    "name": "SavedId",
+                    "value": "@body('Create_request')?['ID']"
+                  },
+                  "runAfter": {
+                    "Create_request": [
+                      "Succeeded"
+                    ]
+                  }
+                },
+                "Name_request_fields": {
+                  "type": "Compose",
+                  "inputs": {
+                    "Title": "@{concat('DR-', variables('SavedId'))}"
+                  },
+                  "runAfter": {
+                    "Keep_new_id": [
+                      "Succeeded"
+                    ]
+                  }
+                },
+                "Name_request": {
+                  "type": "OpenApiConnection",
+                  "inputs": {
+                    "host": {
+                      "connectionName": "shared_sharepointonline",
+                      "operationId": "HttpRequest",
+                      "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline"
+                    },
+                    "parameters": {
+                      "dataset": "@parameters('Granted site URL (gr_SiteUrl)')",
+                      "parameters/method": "POST",
+                      "parameters/uri": "_api/web/lists/getbytitle('DeliveryRequests')/items(@{variables('SavedId')})",
+                      "parameters/headers": {
+                        "Accept": "application/json;odata=nometadata",
+                        "Content-Type": "application/json;odata=nometadata",
+                        "IF-MATCH": "*",
+                        "X-HTTP-Method": "MERGE"
+                      },
+                      "parameters/body": "@{outputs('Name_request_fields')}"
+                    },
+                    "authentication": "@parameters('$authentication')"
+                  },
+                  "runAfter": {
+                    "Name_request_fields": [
+                      "Succeeded"
+                    ]
+                  }
+                }
+              },
+              "else": {
+                "actions": {
+                  "Update_request": {
+                    "type": "OpenApiConnection",
+                    "inputs": {
+                      "host": {
+                        "connectionName": "shared_sharepointonline",
+                        "operationId": "HttpRequest",
+                        "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline"
+                      },
+                      "parameters": {
+                        "dataset": "@parameters('Granted site URL (gr_SiteUrl)')",
+                        "parameters/method": "POST",
+                        "parameters/uri": "_api/web/lists/getbytitle('DeliveryRequests')/items(@{outputs('ReqId')})",
+                        "parameters/headers": {
+                          "Accept": "application/json;odata=nometadata",
+                          "Content-Type": "application/json;odata=nometadata",
+                          "IF-MATCH": "*",
+                          "X-HTTP-Method": "MERGE"
+                        },
+                        "parameters/body": "@{outputs('Fields')}"
+                      },
+                      "authentication": "@parameters('$authentication')"
+                    },
+                    "runAfter": {}
+                  },
+                  "Keep_old_id": {
+                    "type": "SetVariable",
+                    "inputs": {
+                      "name": "SavedId",
+                      "value": "@outputs('ReqId')"
+                    },
+                    "runAfter": {
+                      "Update_request": [
+                        "Succeeded"
+                      ]
+                    }
+                  }
+                }
+              },
+              "runAfter": {
+                "Fields": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Reasons_out": {
+              "type": "Select",
+              "inputs": {
+                "from": "@outputs('Result')?['reasons']",
+                "select": {
+                  "code": "@item()?['reason']",
+                  "title": "@item()?['title']",
+                  "remedy": "@item()?['remedy']"
+                }
+              },
+              "runAfter": {
+                "New_request": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Answer_out": {
+              "type": "Compose",
+              "inputs": {
+                "ok": true,
+                "id": "@variables('SavedId')",
+                "outcome": "@outputs('Result')?['outcome']",
+                "status": "@outputs('Result')?['status']",
+                "reasons": "@body('Reasons_out')",
+                "nextOpen": "@outputs('Result')?['nextOpen']",
+                "checks": "@outputs('Result')?['checks']"
+              },
+              "runAfter": {
+                "Reasons_out": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Answer": {
+              "type": "Response",
+              "kind": "PowerApp",
+              "inputs": {
+                "statusCode": 200,
+                "body": {
+                  "json": "@{outputs('Answer_out')}"
+                },
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "json": {
+                      "title": "json",
+                      "x-ms-dynamically-added": true,
+                      "type": "string"
+                    }
+                  }
+                }
+              },
+              "runAfter": {
+                "Answer_out": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Next": {
+              "type": "Switch",
+              "expression": "@outputs('Result')?['status']",
+              "cases": {
+                "Case_Rejected": {
+                  "case": "Rejected",
+                  "actions": {
+                    "Tell_rejected": {
+                      "type": "Workflow",
+                      "inputs": {
+                        "host": {
+                          "workflowReferenceName": "ae23cb41-1ff9-5398-a17d-13343d38e345"
+                        },
+                        "body": {
+                          "text": "@{outputs('Auth')?['project']?['id']}",
+                          "text_1": "rejected",
+                          "text_2": "@{variables('SavedId')}",
+                          "text_3": "",
+                          "text_4": ""
+                        }
+                      },
+                      "runAfter": {}
+                    }
+                  }
+                },
+                "Case_Needs_review": {
+                  "case": "Needs review",
+                  "actions": {
+                    "Tell_review": {
+                      "type": "Workflow",
+                      "inputs": {
+                        "host": {
+                          "workflowReferenceName": "ae23cb41-1ff9-5398-a17d-13343d38e345"
+                        },
+                        "body": {
+                          "text": "@{outputs('Auth')?['project']?['id']}",
+                          "text_1": "review",
+                          "text_2": "@{variables('SavedId')}",
+                          "text_3": "",
+                          "text_4": ""
+                        }
+                      },
+                      "runAfter": {}
+                    },
+                    "Mark_alerted_fields": {
+                      "type": "Compose",
+                      "inputs": {
+                        "ReviewAlertSentAt": "@utcNow()"
+                      },
+                      "runAfter": {
+                        "Tell_review": [
+                          "Succeeded"
+                        ]
+                      }
+                    },
+                    "Mark_alerted": {
+                      "type": "OpenApiConnection",
+                      "inputs": {
+                        "host": {
+                          "connectionName": "shared_sharepointonline",
+                          "operationId": "HttpRequest",
+                          "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline"
+                        },
+                        "parameters": {
+                          "dataset": "@parameters('Granted site URL (gr_SiteUrl)')",
+                          "parameters/method": "POST",
+                          "parameters/uri": "_api/web/lists/getbytitle('DeliveryRequests')/items(@{variables('SavedId')})",
+                          "parameters/headers": {
+                            "Accept": "application/json;odata=nometadata",
+                            "Content-Type": "application/json;odata=nometadata",
+                            "IF-MATCH": "*",
+                            "X-HTTP-Method": "MERGE"
+                          },
+                          "parameters/body": "@{outputs('Mark_alerted_fields')}"
+                        },
+                        "authentication": "@parameters('$authentication')"
+                      },
+                      "runAfter": {
+                        "Mark_alerted_fields": [
+                          "Succeeded"
+                        ]
+                      }
+                    }
+                  }
+                },
+                "Case_Approved": {
+                  "case": "Approved",
+                  "actions": {
+                    "Issue_pass": {
+                      "type": "Workflow",
+                      "inputs": {
+                        "host": {
+                          "workflowReferenceName": "f9cd6de5-155f-5e35-a696-5ee9cc08e262"
+                        },
+                        "body": {
+                          "text": "@{variables('SavedId')}"
+                        }
+                      },
+                      "runAfter": {}
+                    }
+                  }
+                }
+              },
+              "default": {
+                "actions": {}
+              },
+              "runAfter": {
+                "Answer": [
+                  "Succeeded"
+                ]
+              }
+            }
+          },
+          "runAfter": {
+            "Init_id": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Catch": {
+          "type": "Scope",
+          "actions": {
+            "Catch_support": {
+              "type": "OpenApiConnection",
+              "inputs": {
+                "host": {
+                  "connectionName": "shared_sharepointonline",
+                  "operationId": "HttpRequest",
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline"
+                },
+                "parameters": {
+                  "dataset": "@parameters('Granted site URL (gr_SiteUrl)')",
+                  "parameters/method": "GET",
+                  "parameters/uri": "_api/web/lists/getbytitle('AppSettings')/items?$filter=Title eq 'SupportEmail'&$select=Value",
+                  "parameters/headers": {
+                    "Accept": "application/json;odata=nometadata"
+                  }
+                },
+                "authentication": "@parameters('$authentication')"
+              },
+              "runAfter": {}
+            },
+            "Catch_have_support": {
+              "type": "If",
+              "expression": "@not(empty(first(body('Catch_support')?['value'])?['Value']))",
+              "actions": {
+                "Catch_tell_support": {
+                  "type": "OpenApiConnection",
+                  "inputs": {
+                    "host": {
+                      "connectionName": "shared_office365",
+                      "operationId": "SendEmailV2",
+                      "apiId": "/providers/Microsoft.PowerApps/apis/shared_office365"
+                    },
+                    "parameters": {
+                      "emailMessage/To": "@{first(body('Catch_support')?['value'])?['Value']}",
+                      "emailMessage/Subject": "Granted flow failed: @{workflow()?['tags']?['flowDisplayName']}",
+                      "emailMessage/Body": "<p>The flow <b>@{workflow()?['tags']?['flowDisplayName']}</b> failed (run @{workflow()?['run']?['name']}).</p><pre>@{string(result('Try'))}</pre>",
+                      "emailMessage/Importance": "Normal"
+                    },
+                    "authentication": "@parameters('$authentication')"
+                  },
+                  "runAfter": {}
+                }
+              },
+              "else": {
+                "actions": {}
+              },
+              "runAfter": {
+                "Catch_support": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Catch_answer": {
+              "type": "Response",
+              "kind": "PowerApp",
+              "inputs": {
+                "statusCode": 200,
+                "body": {
+                  "json": "{\"ok\":false,\"message\":\"Something went wrong. Try again in a moment.\"}"
+                },
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "json": {
+                      "title": "json",
+                      "x-ms-dynamically-added": true,
+                      "type": "string"
+                    }
+                  }
+                }
+              },
+              "runAfter": {
+                "Catch_have_support": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Catch_answer_end": {
+              "type": "Terminate",
+              "inputs": {
+                "runStatus": "Succeeded"
+              },
+              "runAfter": {
+                "Catch_answer": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Catch_failed": {
+              "type": "Terminate",
+              "inputs": {
+                "runStatus": "Failed"
+              },
+              "runAfter": {
+                "Catch_answer_end": [
+                  "Succeeded"
+                ]
+              }
+            }
+          },
+          "runAfter": {
+            "Try": [
+              "Failed",
+              "TimedOut"
+            ]
+          }
+        }
+      }
+    },
+    "templateName": ""
+  },
+  "schemaVersion": "1.0.0.0"
+}

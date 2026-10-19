@@ -1,0 +1,868 @@
+{
+  "properties": {
+    "connectionReferences": {
+      "shared_office365": {
+        "runtimeSource": "embedded",
+        "connection": {
+          "connectionReferenceLogicalName": "gr_GrantedOutlook"
+        },
+        "api": {
+          "name": "shared_office365"
+        }
+      },
+      "shared_sharepointonline": {
+        "runtimeSource": "embedded",
+        "connection": {
+          "connectionReferenceLogicalName": "gr_GrantedSharePoint"
+        },
+        "api": {
+          "name": "shared_sharepointonline"
+        }
+      }
+    },
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "parameters": {
+        "$connections": {
+          "defaultValue": {},
+          "type": "Object"
+        },
+        "$authentication": {
+          "defaultValue": {},
+          "type": "SecureObject"
+        },
+        "Granted site URL (gr_SiteUrl)": {
+          "defaultValue": "",
+          "type": "String",
+          "metadata": {
+            "schemaName": "gr_SiteUrl",
+            "description": "The Granted SharePoint site, e.g. https://contoso.sharepoint.com/sites/Granted"
+          }
+        }
+      },
+      "triggers": {
+        "manual": {
+          "type": "Request",
+          "kind": "PowerAppV2",
+          "inputs": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "text": {
+                  "title": "projectId",
+                  "type": "string",
+                  "x-ms-dynamically-added": true,
+                  "description": "projectId",
+                  "x-ms-content-hint": "TEXT"
+                },
+                "text_1": {
+                  "title": "viewAs",
+                  "type": "string",
+                  "x-ms-dynamically-added": true,
+                  "description": "viewAs",
+                  "x-ms-content-hint": "TEXT"
+                },
+                "text_2": {
+                  "title": "payload",
+                  "type": "string",
+                  "x-ms-dynamically-added": true,
+                  "description": "payload",
+                  "x-ms-content-hint": "TEXT"
+                }
+              },
+              "required": []
+            }
+          }
+        }
+      },
+      "actions": {
+        "Init_pass": {
+          "type": "InitializeVariable",
+          "inputs": {
+            "variables": [
+              {
+                "name": "Pass",
+                "type": "object",
+                "value": {}
+              }
+            ]
+          },
+          "runAfter": {}
+        },
+        "Init_req": {
+          "type": "InitializeVariable",
+          "inputs": {
+            "variables": [
+              {
+                "name": "Req",
+                "type": "object",
+                "value": {}
+              }
+            ]
+          },
+          "runAfter": {
+            "Init_pass": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Try": {
+          "type": "Scope",
+          "actions": {
+            "In": {
+              "type": "Compose",
+              "inputs": "@json(if(empty(triggerBody()?['text_2']), '{}', triggerBody()?['text_2']))",
+              "runAfter": {}
+            },
+            "Caller": {
+              "type": "Compose",
+              "inputs": "@toLower(triggerOutputs()?['headers']?['x-ms-user-email'])",
+              "runAfter": {
+                "In": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "ProjectIdIn": {
+              "type": "Compose",
+              "inputs": "@trim(coalesce(triggerBody()?['text'], ''))",
+              "runAfter": {
+                "Caller": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Authorize": {
+              "type": "Workflow",
+              "inputs": {
+                "host": {
+                  "workflowReferenceName": "282f0f38-3f85-5ebc-be6e-2c2e1eb17c01"
+                },
+                "body": {
+                  "text": "@{outputs('Caller')}",
+                  "text_1": "@{outputs('ProjectIdIn')}",
+                  "text_2": "@{coalesce(triggerBody()?['text_1'], '')}",
+                  "text_3": "gate.scan"
+                }
+              },
+              "runAfter": {
+                "ProjectIdIn": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Auth": {
+              "type": "Compose",
+              "inputs": "@json(body('Authorize')?['json'])",
+              "runAfter": {
+                "Authorize": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Is_allowed": {
+              "type": "If",
+              "expression": "@equals(outputs('Auth')?['ok'], true)",
+              "actions": {},
+              "else": {
+                "actions": {
+                  "Not_allowed": {
+                    "type": "Response",
+                    "kind": "PowerApp",
+                    "inputs": {
+                      "statusCode": 200,
+                      "body": {
+                        "json": "@{outputs('Auth')}"
+                      },
+                      "schema": {
+                        "type": "object",
+                        "properties": {
+                          "json": {
+                            "title": "json",
+                            "x-ms-dynamically-added": true,
+                            "type": "string"
+                          }
+                        }
+                      }
+                    },
+                    "runAfter": {}
+                  },
+                  "Not_allowed_end": {
+                    "type": "Terminate",
+                    "inputs": {
+                      "runStatus": "Succeeded"
+                    },
+                    "runAfter": {
+                      "Not_allowed": [
+                        "Succeeded"
+                      ]
+                    }
+                  }
+                }
+              },
+              "runAfter": {
+                "Auth": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Code": {
+              "type": "Compose",
+              "inputs": "@toUpper(trim(coalesce(outputs('In')?['passCode'], '')))",
+              "runAfter": {
+                "Is_allowed": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Guard": {
+              "type": "Compose",
+              "inputs": "@concat(outputs('Auth')?['person']?['first'], ' ', outputs('Auth')?['person']?['last'], if(equals(outputs('Auth')?['maintenance'], true), ' (maintenance)', ''))",
+              "runAfter": {
+                "Code": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "When": {
+              "type": "Compose",
+              "inputs": "@if(and(equals(outputs('In')?['source'], 'Offline sync'), not(empty(outputs('In')?['deviceTime']))), outputs('In')?['deviceTime'], utcNow())",
+              "runAfter": {
+                "Guard": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Get_pass": {
+              "type": "OpenApiConnection",
+              "inputs": {
+                "host": {
+                  "connectionName": "shared_sharepointonline",
+                  "operationId": "HttpRequest",
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline"
+                },
+                "parameters": {
+                  "dataset": "@parameters('Granted site URL (gr_SiteUrl)')",
+                  "parameters/method": "GET",
+                  "parameters/uri": "_api/web/lists/getbytitle('GatePasses')/items?$filter=Title eq '@{encodeUriComponent(replace(string(outputs('Code')), '''', ''''''))}' and ProjectId eq '@{encodeUriComponent(replace(string(outputs('Auth')?['project']?['id']), '''', ''''''))}'&$top=1",
+                  "parameters/headers": {
+                    "Accept": "application/json;odata=nometadata"
+                  }
+                },
+                "authentication": "@parameters('$authentication')"
+              },
+              "runAfter": {
+                "When": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Pass_found": {
+              "type": "If",
+              "expression": "@not(empty(body('Get_pass')?['value']))",
+              "actions": {
+                "Keep_pass": {
+                  "type": "SetVariable",
+                  "inputs": {
+                    "name": "Pass",
+                    "value": "@first(body('Get_pass')?['value'])"
+                  },
+                  "runAfter": {}
+                },
+                "Get_request": {
+                  "type": "OpenApiConnection",
+                  "inputs": {
+                    "host": {
+                      "connectionName": "shared_sharepointonline",
+                      "operationId": "HttpRequest",
+                      "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline"
+                    },
+                    "parameters": {
+                      "dataset": "@parameters('Granted site URL (gr_SiteUrl)')",
+                      "parameters/method": "GET",
+                      "parameters/uri": "_api/web/lists/getbytitle('DeliveryRequests')/items(@{variables('Pass')?['RequestId']})",
+                      "parameters/headers": {
+                        "Accept": "application/json;odata=nometadata"
+                      }
+                    },
+                    "authentication": "@parameters('$authentication')"
+                  },
+                  "runAfter": {
+                    "Keep_pass": [
+                      "Succeeded"
+                    ]
+                  }
+                },
+                "Keep_req": {
+                  "type": "SetVariable",
+                  "inputs": {
+                    "name": "Req",
+                    "value": "@body('Get_request')"
+                  },
+                  "runAfter": {
+                    "Get_request": [
+                      "Succeeded"
+                    ]
+                  }
+                },
+                "Get_company": {
+                  "type": "OpenApiConnection",
+                  "inputs": {
+                    "host": {
+                      "connectionName": "shared_sharepointonline",
+                      "operationId": "HttpRequest",
+                      "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline"
+                    },
+                    "parameters": {
+                      "dataset": "@parameters('Granted site URL (gr_SiteUrl)')",
+                      "parameters/method": "GET",
+                      "parameters/uri": "_api/web/lists/getbytitle('Companies')/items?$filter=ProjectId eq '@{encodeUriComponent(replace(string(outputs('Auth')?['project']?['id']), '''', ''''''))}' and CompanyKey eq '@{encodeUriComponent(replace(string(variables('Req')?['SubcontractorId']), '''', ''''''))}'&$top=1",
+                      "parameters/headers": {
+                        "Accept": "application/json;odata=nometadata"
+                      }
+                    },
+                    "authentication": "@parameters('$authentication')"
+                  },
+                  "runAfter": {
+                    "Keep_req": [
+                      "Succeeded"
+                    ]
+                  }
+                },
+                "Keep_suspended": {
+                  "type": "SetVariable",
+                  "inputs": {
+                    "name": "Req",
+                    "value": "@setProperty(variables('Req'), 'Suspended', equals(first(body('Get_company')?['value'])?['Suspended'], true))"
+                  },
+                  "runAfter": {
+                    "Get_company": [
+                      "Succeeded"
+                    ]
+                  }
+                }
+              },
+              "else": {
+                "actions": {}
+              },
+              "runAfter": {
+                "Get_pass": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Verdict": {
+              "type": "Compose",
+              "inputs": "@if(or(empty(variables('Pass')), empty(variables('Req'))), 'G01', if(or(equals(variables('Pass')?['Status'], 'Void'), equals(variables('Req')?['Status'], 'Cancelled')), 'G02', if(equals(variables('Pass')?['Status'], 'Used'), 'G03', if(and(equals(variables('Req')?['Suspended'], true), not(equals(variables('Pass')?['IsOverride'], true))), 'G07', if(not(equals(variables('Req')?['DeliveryDate'], convertFromUtc(outputs('When'), outputs('Auth')?['project']?['timeZone'], 'yyyy-MM-dd'))), 'G04', if(less(ticks(outputs('When')), ticks(coalesce(variables('Pass')?['WindowOpen'], '2000-01-01T00:00:00Z'))), 'G05', if(greater(ticks(outputs('When')), ticks(coalesce(variables('Pass')?['WindowClose'], '2000-01-01T00:00:00Z'))), 'G06', 'G00')))))))",
+              "runAfter": {
+                "Pass_found": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Words": {
+              "type": "Compose",
+              "inputs": {
+                "G00": {
+                  "title": "Approved delivery",
+                  "remedy": "Admit the truck and direct it to @{coalesce(variables('Pass')?['ZoneName'], 'staging')}."
+                },
+                "G01": {
+                  "title": "No approved delivery for this code",
+                  "remedy": "The contractor must submit a delivery request with @{outputs('Auth')?['project']?['settings']?['minNoticeHours']} hours’ notice, or the project admin can issue an emergency pass."
+                },
+                "G02": {
+                  "title": "This delivery was cancelled",
+                  "remedy": "The contractor must submit a new delivery request."
+                },
+                "G03": {
+                  "title": "Pass already used at @{formatDateTime(convertFromUtc(coalesce(variables('Pass')?['UsedAt'], '2000-01-01T00:00:00Z'), outputs('Auth')?['project']?['timeZone']), 'h:mm tt')}",
+                  "remedy": "Each pass admits one truck. A second truck needs its own approved request."
+                },
+                "G04": {
+                  "title": "Approved for @{formatDateTime(concat(coalesce(variables('Req')?['DeliveryDate'], '2000-01-01'), 'T00:00:00'), 'ddd M/d')}, not today",
+                  "remedy": "Return on @{formatDateTime(concat(coalesce(variables('Req')?['DeliveryDate'], '2000-01-01'), 'T00:00:00'), 'ddd M/d')} between @{formatDateTime(convertFromUtc(coalesce(variables('Pass')?['WindowOpen'], '2000-01-01T00:00:00Z'), outputs('Auth')?['project']?['timeZone']), 'h:mm tt')} and @{formatDateTime(convertFromUtc(coalesce(variables('Pass')?['WindowClose'], '2000-01-01T00:00:00Z'), outputs('Auth')?['project']?['timeZone']), 'h:mm tt')}, or reschedule in the app."
+                },
+                "G05": {
+                  "title": "Too early: window opens at @{formatDateTime(convertFromUtc(coalesce(variables('Pass')?['WindowOpen'], '2000-01-01T00:00:00Z'), outputs('Auth')?['project']?['timeZone']), 'h:mm tt')}",
+                  "remedy": "Wait off-site until @{formatDateTime(convertFromUtc(coalesce(variables('Pass')?['WindowOpen'], '2000-01-01T00:00:00Z'), outputs('Auth')?['project']?['timeZone']), 'h:mm tt')}, or the project admin can approve early entry."
+                },
+                "G06": {
+                  "title": "Too late: window closed at @{formatDateTime(convertFromUtc(coalesce(variables('Pass')?['WindowClose'], '2000-01-01T00:00:00Z'), outputs('Auth')?['project']?['timeZone']), 'h:mm tt')}",
+                  "remedy": "Reschedule in the app, or the project admin can issue an emergency pass."
+                },
+                "G07": {
+                  "title": "Contractor’s booking privileges are suspended",
+                  "remedy": "Contact the project admin."
+                }
+              },
+              "runAfter": {
+                "Verdict": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Log_base": {
+              "type": "Compose",
+              "inputs": {
+                "Title": "@{outputs('Code')}",
+                "ProjectId": "@{outputs('Auth')?['project']?['id']}",
+                "ScannedAt": "@{outputs('When')}",
+                "Guard": "@{outputs('Guard')}",
+                "GuardEmail": "@{outputs('Caller')}",
+                "GateId": "@{coalesce(outputs('In')?['gateId'], '')}",
+                "PassId": "@coalesce(variables('Pass')?['ID'], 0)",
+                "RequestId": "@coalesce(variables('Req')?['ID'], 0)",
+                "SubcontractorId": "@{coalesce(variables('Req')?['SubcontractorId'], '')}",
+                "Source": "@{if(contains(createArray('Scan', 'Typed', 'List', 'Offline sync'), outputs('In')?['source']), outputs('In')?['source'], 'Typed')}",
+                "DeviceTime": "@{coalesce(outputs('In')?['deviceTime'], utcNow())}",
+                "Maintenance": "@equals(outputs('Auth')?['maintenance'], true)"
+              },
+              "runAfter": {
+                "Words": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Admit": {
+              "type": "If",
+              "expression": "@equals(outputs('In')?['action'], 'admit')",
+              "actions": {
+                "Checks_pass": {
+                  "type": "If",
+                  "expression": "@equals(outputs('Verdict'), 'G00')",
+                  "actions": {
+                    "Mark_used_fields": {
+                      "type": "Compose",
+                      "inputs": {
+                        "Status": "Used",
+                        "UsedAt": "@{outputs('When')}",
+                        "UsedBy": "@{outputs('Guard')}"
+                      },
+                      "runAfter": {}
+                    },
+                    "Mark_used": {
+                      "type": "OpenApiConnection",
+                      "inputs": {
+                        "host": {
+                          "connectionName": "shared_sharepointonline",
+                          "operationId": "HttpRequest",
+                          "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline"
+                        },
+                        "parameters": {
+                          "dataset": "@parameters('Granted site URL (gr_SiteUrl)')",
+                          "parameters/method": "POST",
+                          "parameters/uri": "_api/web/lists/getbytitle('GatePasses')/items(@{variables('Pass')?['ID']})",
+                          "parameters/headers": {
+                            "Accept": "application/json;odata=nometadata",
+                            "Content-Type": "application/json;odata=nometadata",
+                            "IF-MATCH": "*",
+                            "X-HTTP-Method": "MERGE"
+                          },
+                          "parameters/body": "@{outputs('Mark_used_fields')}"
+                        },
+                        "authentication": "@parameters('$authentication')"
+                      },
+                      "runAfter": {
+                        "Mark_used_fields": [
+                          "Succeeded"
+                        ]
+                      }
+                    },
+                    "Log_green": {
+                      "type": "OpenApiConnection",
+                      "inputs": {
+                        "host": {
+                          "connectionName": "shared_sharepointonline",
+                          "operationId": "HttpRequest",
+                          "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline"
+                        },
+                        "parameters": {
+                          "dataset": "@parameters('Granted site URL (gr_SiteUrl)')",
+                          "parameters/method": "POST",
+                          "parameters/uri": "_api/web/lists/getbytitle('GateLog')/items",
+                          "parameters/headers": {
+                            "Accept": "application/json;odata=nometadata",
+                            "Content-Type": "application/json;odata=nometadata"
+                          },
+                          "parameters/body": "@{setProperty(setProperty(setProperty(setProperty(outputs('Log_base'), 'Result', 'Green'), 'ReasonCode', 'G00'), 'Action', 'Admitted'), 'ReasonText', 'Approved delivery')}"
+                        },
+                        "authentication": "@parameters('$authentication')"
+                      },
+                      "runAfter": {
+                        "Mark_used": [
+                          "Succeeded"
+                        ]
+                      }
+                    },
+                    "Note_arrival_fields": {
+                      "type": "Compose",
+                      "inputs": {
+                        "MessageLog": "@{concat(coalesce(variables('Req')?['MessageLog'], ''), convertFromUtc(utcNow(), outputs('Auth')?['project']?['timeZone'], 'yyyy-MM-ddTHH:mm:ss'), ' ', concat('Admitted at gate by ', outputs('Guard')), decodeUriComponent('%0A'))}"
+                      },
+                      "runAfter": {
+                        "Log_green": [
+                          "Succeeded"
+                        ]
+                      }
+                    },
+                    "Note_arrival": {
+                      "type": "OpenApiConnection",
+                      "inputs": {
+                        "host": {
+                          "connectionName": "shared_sharepointonline",
+                          "operationId": "HttpRequest",
+                          "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline"
+                        },
+                        "parameters": {
+                          "dataset": "@parameters('Granted site URL (gr_SiteUrl)')",
+                          "parameters/method": "POST",
+                          "parameters/uri": "_api/web/lists/getbytitle('DeliveryRequests')/items(@{variables('Req')?['ID']})",
+                          "parameters/headers": {
+                            "Accept": "application/json;odata=nometadata",
+                            "Content-Type": "application/json;odata=nometadata",
+                            "IF-MATCH": "*",
+                            "X-HTTP-Method": "MERGE"
+                          },
+                          "parameters/body": "@{outputs('Note_arrival_fields')}"
+                        },
+                        "authentication": "@parameters('$authentication')"
+                      },
+                      "runAfter": {
+                        "Note_arrival_fields": [
+                          "Succeeded"
+                        ]
+                      }
+                    },
+                    "Admitted_out": {
+                      "type": "Compose",
+                      "inputs": {
+                        "ok": true,
+                        "message": "@{concat('Admitted ', formatDateTime(convertFromUtc(coalesce(outputs('When'), '2000-01-01T00:00:00Z'), outputs('Auth')?['project']?['timeZone']), 'h:mm tt'), '. Direct the truck to ', coalesce(variables('Pass')?['ZoneName'], 'staging'), '.')}",
+                        "code": "G00"
+                      },
+                      "runAfter": {
+                        "Note_arrival": [
+                          "Succeeded"
+                        ]
+                      }
+                    },
+                    "Admitted": {
+                      "type": "Response",
+                      "kind": "PowerApp",
+                      "inputs": {
+                        "statusCode": 200,
+                        "body": {
+                          "json": "@{outputs('Admitted_out')}"
+                        },
+                        "schema": {
+                          "type": "object",
+                          "properties": {
+                            "json": {
+                              "title": "json",
+                              "x-ms-dynamically-added": true,
+                              "type": "string"
+                            }
+                          }
+                        }
+                      },
+                      "runAfter": {
+                        "Admitted_out": [
+                          "Succeeded"
+                        ]
+                      }
+                    },
+                    "Admitted_end": {
+                      "type": "Terminate",
+                      "inputs": {
+                        "runStatus": "Succeeded"
+                      },
+                      "runAfter": {
+                        "Admitted": [
+                          "Succeeded"
+                        ]
+                      }
+                    }
+                  },
+                  "else": {
+                    "actions": {
+                      "Red": {
+                        "type": "Response",
+                        "kind": "PowerApp",
+                        "inputs": {
+                          "statusCode": 200,
+                          "body": {
+                            "json": "@{string(addProperty(addProperty(json('{}'), 'ok', false), 'message', concat(outputs('Words')?[outputs('Verdict')]?['title'], '. ', outputs('Words')?[outputs('Verdict')]?['remedy'])))}"
+                          },
+                          "schema": {
+                            "type": "object",
+                            "properties": {
+                              "json": {
+                                "title": "json",
+                                "x-ms-dynamically-added": true,
+                                "type": "string"
+                              }
+                            }
+                          }
+                        },
+                        "runAfter": {}
+                      },
+                      "Red_end": {
+                        "type": "Terminate",
+                        "inputs": {
+                          "runStatus": "Succeeded"
+                        },
+                        "runAfter": {
+                          "Red": [
+                            "Succeeded"
+                          ]
+                        }
+                      }
+                    }
+                  },
+                  "runAfter": {}
+                }
+              },
+              "else": {
+                "actions": {}
+              },
+              "runAfter": {
+                "Log_base": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Deny_code": {
+              "type": "Compose",
+              "inputs": "@coalesce(outputs('In')?['reasonCode'], outputs('Verdict'))",
+              "runAfter": {
+                "Admit": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Deny_title": {
+              "type": "Compose",
+              "inputs": "@coalesce(outputs('In')?['reasonTitle'], outputs('Words')?[outputs('Verdict')]?['title'])",
+              "runAfter": {
+                "Deny_code": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Deny_remedy": {
+              "type": "Compose",
+              "inputs": "@coalesce(outputs('In')?['remedy'], outputs('Words')?[outputs('Verdict')]?['remedy'])",
+              "runAfter": {
+                "Deny_title": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Log_red": {
+              "type": "OpenApiConnection",
+              "inputs": {
+                "host": {
+                  "connectionName": "shared_sharepointonline",
+                  "operationId": "HttpRequest",
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline"
+                },
+                "parameters": {
+                  "dataset": "@parameters('Granted site URL (gr_SiteUrl)')",
+                  "parameters/method": "POST",
+                  "parameters/uri": "_api/web/lists/getbytitle('GateLog')/items",
+                  "parameters/headers": {
+                    "Accept": "application/json;odata=nometadata",
+                    "Content-Type": "application/json;odata=nometadata"
+                  },
+                  "parameters/body": "@{setProperty(setProperty(setProperty(setProperty(outputs('Log_base'), 'Result', 'Red'), 'ReasonCode', outputs('Deny_code')), 'Action', 'Turned away'), 'ReasonText', substring(outputs('Deny_title'), 0, min(250, length(outputs('Deny_title')))))}"
+                },
+                "authentication": "@parameters('$authentication')"
+              },
+              "runAfter": {
+                "Deny_remedy": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Logged_out": {
+              "type": "Compose",
+              "inputs": {
+                "ok": true,
+                "message": "@{concat('Logged ', formatDateTime(convertFromUtc(coalesce(utcNow(), '2000-01-01T00:00:00Z'), outputs('Auth')?['project']?['timeZone']), 'h:mm tt'), '. The contractor, gate team and project admins were emailed the reason and what has to happen.')}"
+              },
+              "runAfter": {
+                "Log_red": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Logged": {
+              "type": "Response",
+              "kind": "PowerApp",
+              "inputs": {
+                "statusCode": 200,
+                "body": {
+                  "json": "@{outputs('Logged_out')}"
+                },
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "json": {
+                      "title": "json",
+                      "x-ms-dynamically-added": true,
+                      "type": "string"
+                    }
+                  }
+                }
+              },
+              "runAfter": {
+                "Logged_out": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Tell_turned_away": {
+              "type": "Workflow",
+              "inputs": {
+                "host": {
+                  "workflowReferenceName": "ae23cb41-1ff9-5398-a17d-13343d38e345"
+                },
+                "body": {
+                  "text": "@{outputs('Auth')?['project']?['id']}",
+                  "text_1": "turnedAway",
+                  "text_2": "@{coalesce(variables('Req')?['ID'], 0)}",
+                  "text_3": "@{string(addProperty(addProperty(addProperty(addProperty(json('{}'), 'reasonTitle', outputs('Deny_title')), 'remedy', outputs('Deny_remedy')), 'guard', outputs('Guard')), 'scannedCode', outputs('Code')))}",
+                  "text_4": ""
+                }
+              },
+              "runAfter": {
+                "Logged": [
+                  "Succeeded"
+                ]
+              }
+            }
+          },
+          "runAfter": {
+            "Init_req": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Catch": {
+          "type": "Scope",
+          "actions": {
+            "Catch_support": {
+              "type": "OpenApiConnection",
+              "inputs": {
+                "host": {
+                  "connectionName": "shared_sharepointonline",
+                  "operationId": "HttpRequest",
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline"
+                },
+                "parameters": {
+                  "dataset": "@parameters('Granted site URL (gr_SiteUrl)')",
+                  "parameters/method": "GET",
+                  "parameters/uri": "_api/web/lists/getbytitle('AppSettings')/items?$filter=Title eq 'SupportEmail'&$select=Value",
+                  "parameters/headers": {
+                    "Accept": "application/json;odata=nometadata"
+                  }
+                },
+                "authentication": "@parameters('$authentication')"
+              },
+              "runAfter": {}
+            },
+            "Catch_have_support": {
+              "type": "If",
+              "expression": "@not(empty(first(body('Catch_support')?['value'])?['Value']))",
+              "actions": {
+                "Catch_tell_support": {
+                  "type": "OpenApiConnection",
+                  "inputs": {
+                    "host": {
+                      "connectionName": "shared_office365",
+                      "operationId": "SendEmailV2",
+                      "apiId": "/providers/Microsoft.PowerApps/apis/shared_office365"
+                    },
+                    "parameters": {
+                      "emailMessage/To": "@{first(body('Catch_support')?['value'])?['Value']}",
+                      "emailMessage/Subject": "Granted flow failed: @{workflow()?['tags']?['flowDisplayName']}",
+                      "emailMessage/Body": "<p>The flow <b>@{workflow()?['tags']?['flowDisplayName']}</b> failed (run @{workflow()?['run']?['name']}).</p><pre>@{string(result('Try'))}</pre>",
+                      "emailMessage/Importance": "Normal"
+                    },
+                    "authentication": "@parameters('$authentication')"
+                  },
+                  "runAfter": {}
+                }
+              },
+              "else": {
+                "actions": {}
+              },
+              "runAfter": {
+                "Catch_support": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Catch_answer": {
+              "type": "Response",
+              "kind": "PowerApp",
+              "inputs": {
+                "statusCode": 200,
+                "body": {
+                  "json": "{\"ok\":false,\"message\":\"Something went wrong. Try again in a moment.\"}"
+                },
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "json": {
+                      "title": "json",
+                      "x-ms-dynamically-added": true,
+                      "type": "string"
+                    }
+                  }
+                }
+              },
+              "runAfter": {
+                "Catch_have_support": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Catch_answer_end": {
+              "type": "Terminate",
+              "inputs": {
+                "runStatus": "Succeeded"
+              },
+              "runAfter": {
+                "Catch_answer": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Catch_failed": {
+              "type": "Terminate",
+              "inputs": {
+                "runStatus": "Failed"
+              },
+              "runAfter": {
+                "Catch_answer_end": [
+                  "Succeeded"
+                ]
+              }
+            }
+          },
+          "runAfter": {
+            "Try": [
+              "Failed",
+              "TimedOut"
+            ]
+          }
+        }
+      }
+    },
+    "templateName": ""
+  },
+  "schemaVersion": "1.0.0.0"
+}

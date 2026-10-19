@@ -1,0 +1,14 @@
+<environmentvariabledefinition schemaname="gr_EngineScript">
+  <defaultvalue></defaultvalue>
+  <description default="Drive item id of GrantedEngine.osts">
+    <label description="Drive item id of GrantedEngine.osts" languagecode="1033" />
+  </description>
+  <displayname default="Granted engine script">
+    <label description="Granted engine script" languagecode="1033" />
+  </displayname>
+  <introducedversion>1.0.0.0</introducedversion>
+  <iscustomizable>1</iscustomizable>
+  <isrequired>1</isrequired>
+  <secretstore>0</secretstore>
+  <type>100000000</type>
+</environmentvariabledefinition>

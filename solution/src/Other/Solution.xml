@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ImportExportXml version="9.2.25094.163" SolutionPackageVersion="9.2" languagecode="1033" generatedBy="CrmLive" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <SolutionManifest>
+    <UniqueName>GrantedPA</UniqueName>
+    <LocalizedNames>
+      <LocalizedName description="Granted" languagecode="1033" />
+    </LocalizedNames>
+    <Descriptions>
+      <Description description="Delivery booking and gate control: the Granted app, its flows, connection references and settings." languagecode="1033" />
+    </Descriptions>
+    <Version>1.0.0.0</Version>
+    <Managed>0</Managed>
+    <Publisher>
+      <UniqueName>granted</UniqueName>
+      <LocalizedNames>
+        <LocalizedName description="Granted" languagecode="1033" />
+      </LocalizedNames>
+      <Descriptions />
+      <EMailAddress xsi:nil="true"></EMailAddress>
+      <SupportingWebsiteUrl xsi:nil="true"></SupportingWebsiteUrl>
+      <CustomizationPrefix>gr</CustomizationPrefix>
+      <CustomizationOptionValuePrefix>74210</CustomizationOptionValuePrefix>
+      <Addresses>
+        <Address>
+          <AddressNumber>1</AddressNumber>
+          <AddressTypeCode>1</AddressTypeCode>
+          <ShippingMethodCode>1</ShippingMethodCode>
+        </Address>
+        <Address>
+          <AddressNumber>2</AddressNumber>
+          <AddressTypeCode>1</AddressTypeCode>
+          <ShippingMethodCode>1</ShippingMethodCode>
+        </Address>
+      </Addresses>
+    </Publisher>
+    <RootComponents>
+      <RootComponent type="29" id="{282f0f38-3f85-5ebc-be6e-2c2e1eb17c01}" behavior="0" />
+      <RootComponent type="29" id="{ae23cb41-1ff9-5398-a17d-13343d38e345}" behavior="0" />
+      <RootComponent type="29" id="{d274d86e-3bc2-50c0-8620-79be973871d5}" behavior="0" />
+      <RootComponent type="29" id="{f9cd6de5-155f-5e35-a696-5ee9cc08e262}" behavior="0" />
+      <RootComponent type="29" id="{750e6bf6-57a9-501a-8efd-2e552df62125}" behavior="0" />
+      <RootComponent type="29" id="{71ce3c0d-a82e-519d-8891-cffe05df86b2}" behavior="0" />
+      <RootComponent type="29" id="{6620b0d9-fbc8-5d01-8fb6-985ec4770fd3}" behavior="0" />
+      <RootComponent type="29" id="{feaecd91-1ac8-5935-bc4d-c31b83384dbf}" behavior="0" />
+      <RootComponent type="29" id="{5c92a610-55c0-56aa-afe2-104be654e32a}" behavior="0" />
+      <RootComponent type="29" id="{4d30b28b-fbcf-534e-99fb-b1e99bb2b769}" behavior="0" />
+      <RootComponent type="29" id="{7d875b39-6cce-5de6-a650-6377d0ad885a}" behavior="0" />
+      <RootComponent type="29" id="{5cac0d44-b422-5d62-bf9c-3781fe7a0376}" behavior="0" />
+      <RootComponent type="29" id="{52fd1d23-1ad7-5942-899e-fea96ee6ed75}" behavior="0" />
+      <RootComponent type="29" id="{0736b7c7-bfb3-58b4-9cc4-8b998a283c07}" behavior="0" />
+      <RootComponent type="29" id="{4dd18217-fe8b-5338-8640-5b9ebec4d909}" behavior="0" />
+      <RootComponent type="29" id="{21e49585-777c-53ea-a8f0-e59e029fae73}" behavior="0" />
+      <RootComponent type="29" id="{f33098a2-fb61-5205-9466-ac526cede012}" behavior="0" />
+    </RootComponents>
+    <MissingDependencies />
+  </SolutionManifest>
+</ImportExportXml>

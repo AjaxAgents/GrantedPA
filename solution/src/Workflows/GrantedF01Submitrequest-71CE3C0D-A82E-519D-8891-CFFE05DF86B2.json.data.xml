@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Workflow WorkflowId="{71ce3c0d-a82e-519d-8891-cffe05df86b2}" Name="Granted F01 Submit request" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <JsonFileName>/Workflows/GrantedF01Submitrequest-71CE3C0D-A82E-519D-8891-CFFE05DF86B2.json</JsonFileName>
+  <Type>1</Type>
+  <Subprocess>0</Subprocess>
+  <Category>5</Category>
+  <Mode>0</Mode>
+  <Scope>4</Scope>
+  <OnDemand>0</OnDemand>
+  <TriggerOnCreate>0</TriggerOnCreate>
+  <TriggerOnDelete>0</TriggerOnDelete>
+  <AsyncAutodelete>0</AsyncAutodelete>
+  <SyncWorkflowLogOnFailure>0</SyncWorkflowLogOnFailure>
+  <StateCode>1</StateCode>
+  <StatusCode>2</StatusCode>
+  <RunAs>1</RunAs>
+  <IsTransacted>1</IsTransacted>
+  <IntroducedVersion>1.0.0.0</IntroducedVersion>
+  <IsCustomizable>1</IsCustomizable>
+  <BusinessProcessType>0</BusinessProcessType>
+  <IsCustomProcessingStepAllowedForOtherPublishers>1</IsCustomProcessingStepAllowedForOtherPublishers>
+  <PrimaryEntity>none</PrimaryEntity>
+  <LocalizedNames>
+    <LocalizedName languagecode="1033" description="Granted F01 Submit request" />
+  </LocalizedNames>
+  <Descriptions>
+    <Description languagecode="1033" description="Books or reschedules a delivery and runs the 12 rules." />
+  </Descriptions>
+</Workflow>

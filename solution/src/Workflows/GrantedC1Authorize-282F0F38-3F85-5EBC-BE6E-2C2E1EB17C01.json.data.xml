@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Workflow WorkflowId="{282f0f38-3f85-5ebc-be6e-2c2e1eb17c01}" Name="Granted C1 Authorize" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <JsonFileName>/Workflows/GrantedC1Authorize-282F0F38-3F85-5EBC-BE6E-2C2E1EB17C01.json</JsonFileName>
+  <Type>1</Type>
+  <Subprocess>0</Subprocess>
+  <Category>5</Category>
+  <Mode>0</Mode>
+  <Scope>4</Scope>
+  <OnDemand>0</OnDemand>
+  <TriggerOnCreate>0</TriggerOnCreate>
+  <TriggerOnDelete>0</TriggerOnDelete>
+  <AsyncAutodelete>0</AsyncAutodelete>
+  <SyncWorkflowLogOnFailure>0</SyncWorkflowLogOnFailure>
+  <StateCode>1</StateCode>
+  <StatusCode>2</StatusCode>
+  <RunAs>1</RunAs>
+  <IsTransacted>1</IsTransacted>
+  <IntroducedVersion>1.0.0.0</IntroducedVersion>
+  <IsCustomizable>1</IsCustomizable>
+  <BusinessProcessType>0</BusinessProcessType>
+  <IsCustomProcessingStepAllowedForOtherPublishers>1</IsCustomProcessingStepAllowedForOtherPublishers>
+  <PrimaryEntity>none</PrimaryEntity>
+  <LocalizedNames>
+    <LocalizedName languagecode="1033" description="Granted C1 Authorize" />
+  </LocalizedNames>
+  <Descriptions>
+    <Description languagecode="1033" description="Who is calling, their access on the project, maintenance mode." />
+  </Descriptions>
+</Workflow>

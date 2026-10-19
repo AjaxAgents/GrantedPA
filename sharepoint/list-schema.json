@@ -216,6 +216,27 @@
           "type": "Text"
         },
         {
+          "name": "FullName",
+          "display": "Name",
+          "type": "Text"
+        },
+        {
+          "name": "Company",
+          "display": "Company",
+          "type": "Text"
+        },
+        {
+          "name": "CompanyKey",
+          "display": "Company key",
+          "type": "Text",
+          "indexed": true
+        },
+        {
+          "name": "Phone",
+          "display": "Phone",
+          "type": "Text"
+        },
+        {
           "name": "Status",
           "display": "Status",
           "type": "Choice",
@@ -506,7 +527,15 @@
         {
           "name": "DeliveryDate",
           "display": "Delivery date",
-          "type": "DateOnly",
+          "type": "Text",
+          "note": "YYYY-MM-DD, project time zone",
+          "indexed": true
+        },
+        {
+          "name": "DeliveryDayNo",
+          "display": "Delivery day number",
+          "type": "Number",
+          "note": "YYYYMMDD as a number, for date-range filters",
           "indexed": true
         },
         {
@@ -623,7 +652,8 @@
         {
           "name": "StagedUntil",
           "display": "Staged until",
-          "type": "DateOnly"
+          "type": "Text",
+          "note": "YYYY-MM-DD, project time zone"
         },
         {
           "name": "PassCode",
@@ -776,7 +806,15 @@
         {
           "name": "DeliveryDate",
           "display": "Delivery date",
-          "type": "DateOnly",
+          "type": "Text",
+          "note": "YYYY-MM-DD, project time zone",
+          "indexed": true
+        },
+        {
+          "name": "DeliveryDayNo",
+          "display": "Delivery day number",
+          "type": "Number",
+          "note": "YYYYMMDD as a number",
           "indexed": true
         },
         {
@@ -1079,12 +1117,14 @@
         {
           "name": "StartDate",
           "display": "Start",
-          "type": "DateOnly"
+          "type": "Text",
+          "note": "YYYY-MM-DD, project time zone"
         },
         {
           "name": "FinishDate",
           "display": "Finish",
-          "type": "DateOnly"
+          "type": "Text",
+          "note": "YYYY-MM-DD, project time zone"
         },
         {
           "name": "Area",
@@ -1210,7 +1250,8 @@
         {
           "name": "BlackoutDate",
           "display": "Date",
-          "type": "DateOnly",
+          "type": "Text",
+          "note": "YYYY-MM-DD, project time zone",
           "indexed": true
         }
       ]
